@@ -6,9 +6,12 @@ Final Fantasy XIV is a MMORPG video game.
 
 ## Description
 
-`FFXIV Ocean Fishing Plugin` tracks the next occurance of a selected Blue Fish or a particular Route, and displays either the date or a countdown timer for that window.
+`FFXIV Ocean Fishing Plugin` can track and display the following:
+- Upcoming windows for Blue Fish. (Coral Manta, Stonescale, etc.)
+- Upcoming windows for a particular Route. (Jelly Route, Shark Route, etc.)
+- Whatever the next route is.
 
-You can also select number of windows to skip, to display the "next" window or "next-next" window, and so forth.
+For any of the above trackers, you can also select number of windows to skip, to display the "next" window or "next-next" window, and so forth.
 
 You can drag and drop multiple plugins to display more than one tracker if desired.
 
@@ -24,7 +27,7 @@ During a possible window to board the boat, the plugin also displays additional 
 
 In the Release folder, you can find the file `com.elgato.ffxivoceanfishing.streamDeckPlugin`. If you double-click this file on your machine, StreamDeck will install the plugin.
 
-Folder: https://github.com/momokotomoko/ffxivStreamDeckFirmamentTrackerPlugin/Release
+Folder: https://github.com/momokotomoko/ffxivStreamDeckOceanFishingPlugin/Release
 
 If an installation was previously present, you must delete the plugin folder located in Elgato's AppData folder. For example: `C:\Users\<username>\AppData\Roaming\Elgato\StreamDeck\Plugins`
 
@@ -38,7 +41,7 @@ The title is automatically set by the plugin to display the server name and prog
 
 `Track by:`
 
-Select either a Blue Fish or a Route to track. Icons will be dynamically updated.
+Select either a Blue Fish or a Route to track. You can also select Next Route to display whatever is coming up next. Icons will be dynamically updated.
 
 `Display Time:`
 

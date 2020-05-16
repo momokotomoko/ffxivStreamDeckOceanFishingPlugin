@@ -25,19 +25,18 @@ FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 
 	// timer that is called on certain minutes of the hour
 	mTimer = new CallBackTimer();
-	const std::set <int> triggerMinutesOfTheHour = { 0 };
+	const std::set <int> triggerMinutesOfTheHour = { 0, 15 };
 	mTimer->start(triggerMinutesOfTheHour, [this]()
 		{
 			// warning: this is called in the callbacktimer on a loop at certain time intervals
 
 			#ifdef LOGGING
-			mConnectionManager->LogMessage("Trigger");
+			mConnectionManager->LogMessage("Callback function triggered");
 			#endif
 			// For each context, load what the context is trying to track.
 			// Then compute the seconds until the next window
 			bool status = true;
 			this->mVisibleContextsMutex.lock();
-			time_t startTime = time(0);
 			for (auto& context : mContextServerMap)
 			{
 				// First find what routes we are actually looking for.
@@ -51,10 +50,19 @@ FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 				{
 					routeIds = mFFXIVOceanFishingHelper->getRouteIdFromName(context.second.name);
 				}
+				else if (context.second.tracker == "Other")
+				{
+					routeIds = {};
+					time_t startTime = time(0);
+					context.second.name = mFFXIVOceanFishingHelper->getNextRouteName(startTime, context.second.skips);
+					mConnectionManager->LogMessage(context.second.name);
+					updateImage(context.second.name, context.first);
+				}
 
 				// now call the helper to compute the relative time until the next window
 				int relativeSecondsTillNextRoute = 0;
 				int relativeWindowTime = 0;
+				time_t startTime = time(0);
 				status = mFFXIVOceanFishingHelper->getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, startTime, routeIds, context.second.skips);
 
 				// store the absolute times
@@ -76,6 +84,9 @@ FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 			this->UpdateUI();
 		});
 
+	// the "Next Route" name has no attached image, the image gets assigned in the callback
+	// Insert a null image here so there's no error thrown for a missing image file.
+	mImageNameToBase64Map.insert({ "Next Route", "" });
 }
 
 FFXIVOceanFishingTrackerPlugin::~FFXIVOceanFishingTrackerPlugin()
@@ -128,11 +139,11 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 					titleString += "\n";
 
 				// check to see if we are in a window, and display a timer for that
-				int windowTimeLeft = static_cast<int>(difftime(now, context.second.windowTime));
-				if (windowTimeLeft >= -15*60 && windowTimeLeft < 0)
+				int windowTimeLeft = static_cast<int>(difftime(context.second.windowTime, now));
+				if (windowTimeLeft <= 15*60 && windowTimeLeft > 0)
 				{
 					titleString += "Window ends:\n";
-					titleString += timeutils::convertSecondsToHMSString(-windowTimeLeft) + "\n";
+					titleString += timeutils::convertSecondsToHMSString(windowTimeLeft) + "\n";
 				}
 				else
 					titleString += "\n\n";
@@ -256,6 +267,7 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 		{
 			j["menu"].emplace(name, "Routes");
 		}
+		j["menu"].emplace("Next Route", "Other");
 		mConnectionManager->SetGlobalSettings(j);
 		mIsInit = true;
 	}

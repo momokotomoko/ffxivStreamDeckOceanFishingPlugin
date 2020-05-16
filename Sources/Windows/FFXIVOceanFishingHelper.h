@@ -22,7 +22,7 @@ public:
 	~FFXIVOceanFishingHelper() {};
 
 	bool getSecondsUntilNextRoute(int& secondsTillNextRoute, int& secondsLeftInWindow, const time_t& startTime, const std::set<unsigned int>& routeId, const unsigned int skips = 0);
-	unsigned int getRoutePatternIndex(const unsigned int blockIdx, const unsigned int jump = 0);
+	std::string getNextRouteName(const time_t& t, const unsigned int skips = 0);
 
 	std::set<unsigned int> getRoutesWithBlueFish(const std::string& blueFish);
 	std::set<unsigned int> getRouteIdFromName(const std::string& name);
@@ -82,4 +82,5 @@ private:
 
 	time_t convertBlockIndexToTime(const unsigned int blockIdx);
 	unsigned int convertTimeToBlockIndex(const time_t& t);
+	unsigned int getRoutePatternIndex(const unsigned int blockIdx, const unsigned int jump = 0);
 };

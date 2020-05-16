@@ -22,8 +22,8 @@
   "Description": "Displays timers for FFXIV Ocean Fishing windows.", 
   "Name": "FFXIV Ocean Fishing Tracker", 
   "Icon": "pluginIcon", 
-  "URL": "https://github.com/momokotomoko/ffxivOceanFishingTrackerPlugin", 
-  "Version": "1.0",
+  "URL": "https://github.com/momokotomoko/ffxivStreamDeckOceanFishingPlugin", 
+  "Version": "1.01",
   "OS": [
     {
         "Platform": "windows",

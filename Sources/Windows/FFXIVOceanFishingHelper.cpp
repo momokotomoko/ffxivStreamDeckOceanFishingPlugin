@@ -57,7 +57,7 @@ FFXIVOceanFishingHelper::FFXIVOceanFishingHelper()
 	@param[out] secondsTillNextRoute number of seconds until the next window, not including the one we are currently in
 	@param[out] secondsLeftInWindow number of seconds left in the current window. Is set to 0 if not in a current window
 	@param[in] startTime the time to start counting from.
-	@param[in] routeId A set of routeIds we are looking for. The closest time is returned out of all the routes.
+	@param[in] routeId A set of routeIds we are looking for. The closest time is returned out of all the routes. Set to empty set for any route.
 	@param[in] skips number of windows to skip over. Default is 0.
 
 	@return true if successful
@@ -66,9 +66,8 @@ bool FFXIVOceanFishingHelper::getSecondsUntilNextRoute(int& secondsTillNextRoute
 {
 	secondsLeftInWindow = 0;
 
-	// Get the status of where we are currently in terms of blocks and routes
+	// Get the status of where we are currently
 	unsigned int currBlockIdx = convertTimeToBlockIndex(startTime);
-	unsigned int currRouteIdx = getRoutePatternIndex(currBlockIdx);
 
 	// Cycle through the route pattern until we get a match to a route we are looking for.
 	unsigned int skipcounts = 0;
@@ -80,6 +79,8 @@ bool FFXIVOceanFishingHelper::getSecondsUntilNextRoute(int& secondsTillNextRoute
 
 		// Check to see if we match any of our desired routes
 		bool routeMatch = false;
+		if (routeId.size() == 0)
+			routeMatch = true;
 		for (const auto& id : routeId)
 		{
 			if (id == mRoutePattern[wrappedIdx])
@@ -109,10 +110,10 @@ bool FFXIVOceanFishingHelper::getSecondsUntilNextRoute(int& secondsTillNextRoute
 			}
 
 			// If we reach here we found a valid route.
-			// If timeDifference < 0, that means we are in a window,
+			// If timeDifference <= 0, that means we are in a window,
 			// but we still want the time of the next route, so don't return
 			// and continue for another cycle to get a positive timeDifference
-			if (timeDifference < 0)
+			if (timeDifference <= 0) // needs to have the = also otherwise trigging this on the turn of the hour will not record that we're in a window
 			{
 				secondsLeftInWindow = 60 * 15 + timeDifference;
 			}
@@ -124,6 +125,46 @@ bool FFXIVOceanFishingHelper::getSecondsUntilNextRoute(int& secondsTillNextRoute
 		}
 	}
 	return false;
+}
+
+/**
+	@brief gets the route name at a selected time, with option to skip. If in a window, that window is the routes name. If not, the next window will be the name.
+
+	@param[in] t the time to start the check
+	@param[in] skips number of windows to skip over. Default is 0.
+
+	@return name of the route
+**/
+std::string FFXIVOceanFishingHelper::getNextRouteName(const time_t& t, const unsigned int skips)
+{
+	unsigned int currBlockIdx = convertTimeToBlockIndex(t);
+
+	unsigned int skipcounts = 0;
+	const unsigned int maxCycles = 1000; // limit cycles just in case
+	for (unsigned int i = 0; i < maxCycles; i++)
+	{
+		// Find the difference in time from the pattern position to the current time
+		time_t routeTime = convertBlockIndexToTime(currBlockIdx + i);
+		int timeDifference = static_cast<int>(difftime(routeTime, t));
+
+		// If the time of the route is more than 15m behind us, then it's not a valid route
+		if (timeDifference < -60 * 15)
+		{
+			continue;
+		}
+
+		// If we are skipping routes, skip now
+		if (skipcounts < skips)
+		{
+			skipcounts++;
+			continue;
+		}
+
+		unsigned int routeIdx = mRoutePattern[getRoutePatternIndex(currBlockIdx + i)];
+		if (mRoutes.find(routeIdx) != mRoutes.end())
+			return mRoutes.at(routeIdx).name;
+	}
+	return "";
 }
 
 /**
