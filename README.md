@@ -53,6 +53,8 @@ Select number of windows to skip over. Using different skip numbers across multi
 
 If set to a non-zero number, the selected value will be displayed in the top-right corner.
 
+In the image below, an example is shown where in the first two rows the next 5 upcoming windows for Coral Manta and Stonescale are shown. The last row shows what the next 5 routes will be in general.
+
 ![](skips.png)
 
 ## Source Code
