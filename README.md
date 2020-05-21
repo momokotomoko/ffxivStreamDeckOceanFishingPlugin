@@ -57,6 +57,12 @@ In the image below, an example is shown where in the first two rows the next 5 u
 
 ![](skips.png)
 
+`Button URL:`
+
+A custom URL per button can be set such that when the StreamDeck button is pressed, the webpage is opened by the default browser.
+
+By default, the webpage is set to the [Ocean Fishing Spreadsheet](https://docs.google.com/spreadsheets/d/1brCfvmSdYl7RcY9lkgm_ds8uaFqq7qaxOOz-5BfHuuk/htmlview)
+
 ## Source Code
 
 The source code can be found in the Sources folder.
