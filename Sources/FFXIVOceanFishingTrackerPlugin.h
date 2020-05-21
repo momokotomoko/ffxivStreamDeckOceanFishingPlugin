@@ -49,6 +49,7 @@ private:
 		time_t windowTime; // if we are in a fishing window, this holds the time remaining
 		bool dateOrTime; // true for date, false for time
 		unsigned int skips;
+		std::string url; // webpage to open on click, each button can have a different webpage
 	};
 	std::unordered_map<std::string, contextMetaData_t> mContextServerMap;
 

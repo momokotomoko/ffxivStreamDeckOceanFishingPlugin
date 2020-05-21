@@ -186,7 +186,13 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 
 void FFXIVOceanFishingTrackerPlugin::KeyDownForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-	// Nothing to do
+	mVisibleContextsMutex.lock();
+	std::string url = mContextServerMap.at(inContext).url;
+	mVisibleContextsMutex.unlock();
+
+	if (url.find("https://") != 0 && url.find("http://") != 0)
+		url = "https://" + url;
+	mConnectionManager->OpenUrl(url);
 }
 
 void FFXIVOceanFishingTrackerPlugin::KeyUpForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
@@ -224,6 +230,10 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 		std::string skips = payload["Skips"].get<std::string>();
 		if (skips.length() > 0)
 			data.skips = std::stoi(skips);
+	}
+	if (payload.find("url") != payload.end())
+	{
+		data.url = payload["url"].get<std::string>();
 	}
 	data.routeTime = 0;
 	data.windowTime = 0;

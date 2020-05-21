@@ -48,6 +48,7 @@ public:
 	void SendToPropertyInspector(const std::string& inAction, const std::string& inContext, const json &inPayload);
 	void SwitchToProfile(const std::string& inDeviceID, const std::string& inProfileName);
 	void LogMessage(const std::string& inMessage);
+	void OpenUrl(const std::string& inMessage);
 
 private:
 	

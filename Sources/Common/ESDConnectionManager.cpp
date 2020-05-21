@@ -324,3 +324,19 @@ void ESDConnectionManager::LogMessage(const std::string& inMessage)
 	}
 }
 
+void ESDConnectionManager::OpenUrl(const std::string& inMessage)
+{
+	if (!inMessage.empty())
+	{
+		json jsonObject;
+
+		jsonObject[kESDSDKCommonEvent] = kESDSDKEventOpenURL;
+
+		json payload;
+		payload[kESDSDKPayloadURL] = inMessage;
+		jsonObject[kESDSDKCommonPayload] = payload;
+
+		websocketpp::lib::error_code ec;
+		mWebsocket.send(mConnectionHandle, jsonObject.dump(), websocketpp::frame::opcode::text, ec);
+	}
+}

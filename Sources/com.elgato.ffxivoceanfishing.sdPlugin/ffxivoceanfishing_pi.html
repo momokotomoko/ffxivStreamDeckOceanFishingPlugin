@@ -41,6 +41,12 @@
                <option value="10">10</option>
             </select>
       </div>
+      <div class="sdpi-item">
+         <div class="sdpi-item-label">Button URL</div>
+            <input class="sdpi-item-value" id="set_url"
+             value="https://docs.google.com/spreadsheets/d/1brCfvmSdYl7RcY9lkgm_ds8uaFqq7qaxOOz-5BfHuuk/htmlview"
+             placeholder="Enter a URL" onchange="sendSettingsToPlugin()">
+      </div>
       <script>
          // this is our global websocket, used to communicate from/to Stream Deck software
          // and some info about our plugin, as sent by Stream Deck software
@@ -97,6 +103,10 @@
                          document.getElementById('select_countdown').checked = true;
                      }
                      document.getElementById('set_skips').value = payload.Skips;
+                     if (payload.url != null)
+                     {
+                         document.getElementById('set_url').value = payload.url;
+                     }
                  }
                  if (jsonObj.event === 'didReceiveGlobalSettings') {
                      const payload = jsonObj.payload.settings;
@@ -119,7 +129,8 @@
                      'Name':tracker_el.value,
                      'Tracker':group,
                      'DateOrTime':document.getElementById('select_date').checked,
-                     'Skips':document.getElementById('set_skips').value
+                     'Skips':document.getElementById('set_skips').value,
+                     'url':document.getElementById('set_url').value
              };
 
              if (websocket) {
