@@ -19,74 +19,21 @@
 
 //#define LOGGING
 
+
 FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 {
 	mFFXIVOceanFishingHelper = new FFXIVOceanFishingHelper();
 
 	// timer that is called on certain minutes of the hour
 	mTimer = new CallBackTimer();
-	const std::set <int> triggerMinutesOfTheHour = { 0, 15 };
-	mTimer->start(triggerMinutesOfTheHour, [this]()
-		{
-			// warning: this is called in the callbacktimer on a loop at certain time intervals
-
-			#ifdef LOGGING
-			mConnectionManager->LogMessage("Callback function triggered");
-			#endif
-			// For each context, load what the context is trying to track.
-			// Then compute the seconds until the next window
-			bool status = true;
-			this->mVisibleContextsMutex.lock();
-			for (auto& context : mContextServerMap)
-			{
-				// First find what routes we are actually looking for.
-				// So convert what is requested to be tracked into route IDs
-				std::set<unsigned int> routeIds;
-				if (context.second.tracker == "Blue Fish")
-				{
-					routeIds = mFFXIVOceanFishingHelper->getRoutesWithBlueFish(context.second.name);
-				}
-				else if (context.second.tracker == "Routes")
-				{
-					routeIds = mFFXIVOceanFishingHelper->getRouteIdFromName(context.second.name);
-				}
-				else if (context.second.tracker == "Other")
-				{
-					routeIds = {};
-					time_t startTime = time(0);
-					context.second.name = mFFXIVOceanFishingHelper->getNextRouteName(startTime, context.second.skips);
-					mConnectionManager->LogMessage(context.second.name);
-					updateImage(context.second.name, context.first);
-				}
-
-				// now call the helper to compute the relative time until the next window
-				int relativeSecondsTillNextRoute = 0;
-				int relativeWindowTime = 0;
-				time_t startTime = time(0);
-				status = mFFXIVOceanFishingHelper->getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, startTime, routeIds, context.second.skips);
-
-				// store the absolute times
-				context.second.routeTime = startTime + relativeSecondsTillNextRoute;
-				context.second.windowTime = startTime + relativeWindowTime;
-			}
-			this->mVisibleContextsMutex.unlock();
-
-			this->UpdateUI();
-			return status;
-		});
-
 	//timer that is called every half a second to update UI
 	mSecondsTimer = new CallBackTimer();
-	mSecondsTimer->start(500, [this]()
-		{
-			// warning: this is called in the callbacktimer on a loop at certain time intervals
-
-			this->UpdateUI();
-		});
 
 	// the "Next Route" name has no attached image, the image gets assigned in the callback
 	// Insert a null image here so there's no error thrown for a missing image file.
 	mImageNameToBase64Map.insert({ "Next Route", "" });
+
+	startTimers();
 }
 
 FFXIVOceanFishingTrackerPlugin::~FFXIVOceanFishingTrackerPlugin()
@@ -112,6 +59,71 @@ FFXIVOceanFishingTrackerPlugin::~FFXIVOceanFishingTrackerPlugin()
 		delete mFFXIVOceanFishingHelper;
 		mFFXIVOceanFishingHelper = nullptr;
 	}
+}
+
+/**
+	@brief Starts the callback timers for this plugin
+**/
+void FFXIVOceanFishingTrackerPlugin::startTimers()
+{
+	mTimer->stop();
+	mSecondsTimer->stop();
+
+	const std::set <int> triggerMinutesOfTheHour = { 0, 15 };
+	mTimer->start(triggerMinutesOfTheHour, [this]()
+		{
+			// warning: this is called in the callbacktimer on a loop at certain time intervals
+
+            #ifdef LOGGING
+			mConnectionManager->LogMessage("Callback function triggered");
+            #endif
+			// For each context, load what the context is trying to track.
+			// Then compute the seconds until the next window
+			bool status = true;
+			this->mVisibleContextsMutex.lock();
+			for (auto& context : mContextServerMap)
+			{
+				// First find what routes we are actually looking for.
+				// So convert what is requested to be tracked into route IDs
+				std::set<unsigned int> routeIds;
+				if (context.second.tracker == "Blue Fish")
+				{
+					routeIds = mFFXIVOceanFishingHelper->getRoutesWithBlueFish(context.second.name);
+				}
+				else if (context.second.tracker == "Routes")
+				{
+					routeIds = mFFXIVOceanFishingHelper->getRouteIdFromName(context.second.name);
+				}
+				else if (context.second.tracker == "Other")
+				{
+					routeIds = {};
+					time_t startTime = time(0);
+					context.second.name = mFFXIVOceanFishingHelper->getNextRouteName(startTime, context.second.skips);
+					updateImage(context.second.name, context.first);
+				}
+
+				// now call the helper to compute the relative time until the next window
+				int relativeSecondsTillNextRoute = 0;
+				int relativeWindowTime = 0;
+				time_t startTime = time(0);
+				status = mFFXIVOceanFishingHelper->getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, startTime, routeIds, context.second.skips);
+
+				// store the absolute times
+				context.second.routeTime = startTime + relativeSecondsTillNextRoute;
+				context.second.windowTime = startTime + relativeWindowTime;
+			}
+			this->mVisibleContextsMutex.unlock();
+
+			this->UpdateUI();
+			return status;
+		});
+
+	mSecondsTimer->start(500, [this]()
+		{
+			// warning: this is called in the callbacktimer on a loop at certain time intervals
+
+			this->UpdateUI();
+		});
 }
 
 /**
@@ -283,6 +295,11 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 
 	// Remember the context and the saved server name for this app
 	mVisibleContextsMutex.lock();
+	// if this is the first plugin to be displayed, boot up the timers
+	if (mContextServerMap.empty())
+	{
+		startTimers();
+	}
 	mContextServerMap.insert({ inContext, data });
 	mVisibleContextsMutex.unlock();
 
@@ -298,6 +315,13 @@ void FFXIVOceanFishingTrackerPlugin::WillDisappearForAction(const std::string& i
 	// Remove this particular context so we don't have to process it when updating UI
 	mVisibleContextsMutex.lock();
 	mContextServerMap.erase(inContext);
+
+	// if we have no active plugin displayed, kill the timers to save cpu cycles
+	if (mContextServerMap.empty())
+	{
+		mTimer->stop();
+		mSecondsTimer->stop();
+	}
 	mVisibleContextsMutex.unlock();
 }
 

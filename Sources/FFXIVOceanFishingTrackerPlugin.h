@@ -62,4 +62,6 @@ private:
 	FFXIVOceanFishingHelper *mFFXIVOceanFishingHelper = nullptr;
 	CallBackTimer *mTimer = nullptr;
 	CallBackTimer* mSecondsTimer = nullptr;
+
+	void startTimers();
 };
