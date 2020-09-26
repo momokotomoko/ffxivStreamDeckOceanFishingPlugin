@@ -1,8 +1,8 @@
 {
-  "Description": "Displays the current FFXIV Firmanent Progress.", 
-  "Name": "FFXIV Firmament Tracker", 
-  "com.elgato.ffxivfirmament.ffxivfirmament": {
-    "Name": "FFXIV Firmament Tracker", 
-    "Tooltip": "This action displays FFXIV Firmament Progress."
+  "Description": "Tracker for FFXIV Ocean Fishing.", 
+  "Name": "FFXIV Ocean Fishing Tracker", 
+  "com.elgato.ffxivoceanfishing.ffxivoceanfishing": {
+    "Name": "FFXIV Ocean Fishing Tracker", 
+    "Tooltip": "Tracker for FFXIV Ocean Fishing."
   }
 }

@@ -350,7 +350,7 @@ void FFXIVOceanFishingTrackerPlugin::DeviceDidDisconnect(const std::string& inDe
 **/
 void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-	// PI dropdown menu has saved new settings for this context (aka server name changed), load those
+	// PI dropdown menu has saved new settings for this context, load those
 	bool nameChanged = false;
 	std::string newName;
 	mVisibleContextsMutex.lock();
