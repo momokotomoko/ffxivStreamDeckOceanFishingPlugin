@@ -9,9 +9,13 @@
 #include "Common/ESDBasePlugin.h"
 #include <mutex>
 #include <unordered_map>
+#include <string>
+#include "Vendor/json/src/json.hpp"
+using json = nlohmann::json;
 
 class FFXIVOceanFishingHelper;
 class CallBackTimer;
+
 
 class FFXIVOceanFishingTrackerPlugin : public ESDBasePlugin
 {

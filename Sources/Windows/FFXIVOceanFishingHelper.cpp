@@ -177,7 +177,7 @@ std::string FFXIVOceanFishingHelper::getNextRouteName(const time_t& t, const uns
 **/
 time_t FFXIVOceanFishingHelper::convertBlockIndexToTime(const unsigned int blockIdx)
 {
-	return static_cast<time_t>(blockIdx - 16) * 60 * 60 * 2;
+	return static_cast<time_t>(blockIdx - (OFFSET - 1)) * 60 * 60 * 2;
 }
 
 /**
@@ -199,8 +199,7 @@ unsigned int FFXIVOceanFishingHelper::convertTimeToBlockIndex(const time_t& t)
 		t_struct.tm_min -= 15;
 	}
 	time_t alignedTime = mktime(&t_struct);
-	const unsigned int offset = 17;
-	return static_cast<unsigned int>(std::ceil(alignedTime / (60 * 60 * 2))) + offset;
+	return static_cast<unsigned int>(std::ceil(alignedTime / (60 * 60 * 2))) + OFFSET;
 }
 
 /**
