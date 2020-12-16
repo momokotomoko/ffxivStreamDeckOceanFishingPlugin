@@ -76,8 +76,8 @@ private:
 		{8, {"Manta", {5, 3, 6}, {false, false, false}}},
 		{9, {"Crab", {5, 3, 6}, {false, false, true}}},
 		{10, {"Hafg-X-Placo", {5, 4, 7}, {true, false, true}}},
-		{11, {"Balloons", {5, 4, 7}, {false, true, false}}},
-		{12, {"Balloons", {5, 4, 7}, {false, false, false}}}
+		{11, {"Balloon", {5, 4, 7}, {false, true, false}}},
+		{12, {"Balloon", {5, 4, 7}, {false, false, false}}}
 	};
 	std::unordered_map<std::string, unsigned int> mRouteNameToIndexMap;
 
