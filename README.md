@@ -27,7 +27,7 @@ During a possible window to board the boat, the plugin also displays additional 
 
 In the Release folder, you can find the file `com.elgato.ffxivoceanfishing.streamDeckPlugin`. If you double-click this file on your machine, StreamDeck will install the plugin.
 
-Folder: https://github.com/momokotomoko/ffxivStreamDeckOceanFishingPlugin/Release
+[com.elgato.ffxivoceanfishing.streamDeckPlugin](Release/com.elgato.ffxivoceanfishing.streamDeckPlugin)
 
 If an installation was previously present, you must delete the plugin folder located in Elgato's AppData folder. For example: `C:\Users\<username>\AppData\Roaming\Elgato\StreamDeck\Plugins`
 
