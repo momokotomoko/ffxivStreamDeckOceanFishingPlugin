@@ -1,52 +1,52 @@
 ﻿<!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="utf-8" />
-      <title>FFXIV Firmament Tracker</title>
-      <link rel="stylesheet" href="sdpi.css">
-   </head>
-   <body>
-      <div class="sdpi-item" id="select_tracker">
-         <div class="sdpi-item-label">Track by</div>
-         <select class="sdpi-item-value select" id="Tracker" onchange="sendSettingsToPlugin()">
+<head>
+    <meta charset="utf-8" />
+    <title>FFXIV Firmament Tracker</title>
+    <link rel="stylesheet" href="sdpi.css">
+</head>
+<body>
+    <div class="sdpi-item" id="select_tracker">
+        <div class="sdpi-item-label">Track by</div>
+        <select class="sdpi-item-value select" id="Tracker" onchange="sendSettingsToPlugin()">
             <option disabled="disabled" selected="selected" hidden="hidden"></option>
-         </select>
-      </div>
-      <div type="radio" class="sdpi-item" id="time_date_select">
-         <div class="sdpi-item-label">Display Time</div>
-            <div class="sdpi-item-value" onchange="sendSettingsToPlugin()">
-               <span class="sdpi-item-child">
-                  <input id="select_date" type="radio" name="rdio">
-                     <label for="select_date" class="sdpi-item-label"><span></span>Date</label>
-               </span>
-               <span class="sdpi-item-child">
-                  <input id="select_countdown" type="radio" name="rdio">
-                     <label for="select_countdown" class="sdpi-item-label"><span></span>Countdown</label>
-               </span>
-         </div>
-      </div>
-      <div class="sdpi-item" id="select_single">
-         <div class="sdpi-item-label">Skips</div>
-            <select class="sdpi-item-value select" id="set_skips" onchange="sendSettingsToPlugin()">
-               <option value="0" selected>0</option>
-               <option value="1">1</option>
-               <option value="2">2</option>
-               <option value="3">3</option>
-               <option value="4">4</option>
-               <option value="5">5</option>
-               <option value="6">6</option>
-               <option value="7">7</option>
-               <option value="8">8</option>
-               <option value="9">9</option>
-               <option value="10">10</option>
-            </select>
-      </div>
-      <div class="sdpi-item">
-         <div class="sdpi-item-label">Button URL</div>
-            <input class="sdpi-item-value" id="set_url"
-             value="https://docs.google.com/spreadsheets/d/1brCfvmSdYl7RcY9lkgm_ds8uaFqq7qaxOOz-5BfHuuk/htmlview"
-             placeholder="Enter a URL" oninput="sendSettingsToPlugin()">
-      </div>
-      <script src="ffxivoceanfishing_pi.js"></script>
-   </body>
+        </select>
+    </div>
+    <div type="radio" class="sdpi-item" id="time_date_select">
+        <div class="sdpi-item-label">Display Time</div>
+        <div class="sdpi-item-value" onchange="sendSettingsToPlugin()">
+            <span class="sdpi-item-child">
+                <input id="select_date" type="radio" name="rdio">
+                <label for="select_date" class="sdpi-item-label"><span></span>Date</label>
+            </span>
+            <span class="sdpi-item-child">
+                <input id="select_countdown" type="radio" name="rdio">
+                <label for="select_countdown" class="sdpi-item-label"><span></span>Countdown</label>
+            </span>
+        </div>
+    </div>
+    <div class="sdpi-item" id="select_single">
+        <div class="sdpi-item-label">Skips</div>
+        <select class="sdpi-item-value select" id="set_skips" onchange="sendSettingsToPlugin()">
+            <option value="0" selected>0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+    <div class="sdpi-item">
+        <div class="sdpi-item-label">Button URL</div>
+        <input class="sdpi-item-value" id="set_url"
+               value="https://docs.google.com/spreadsheets/d/1brCfvmSdYl7RcY9lkgm_ds8uaFqq7qaxOOz-5BfHuuk/htmlview"
+               placeholder="Enter a URL" oninput="sendSettingsToPlugin()">
+    </div>
+    <script src="ffxivoceanfishing_pi.js"></script>
+</body>
 </html>
