@@ -41,7 +41,7 @@ The title is automatically set by the plugin to display the server name and prog
 
 `Track by:`
 
-Select either a Blue Fish or a Route to track. You can also select Next Route to display whatever is coming up next. Icons will be dynamically updated.
+Select either an Achievement, Blue Fish or a Route to track. You can also select Next Route to display whatever is coming up next. Icons will be dynamically updated.
 
 `Display Time:`
 
@@ -56,6 +56,14 @@ If set to a non-zero number, the selected value will be displayed in the top-rig
 In the image below, an example is shown where in the first two rows the next 5 upcoming windows for Coral Manta and Stonescale are shown. The last row shows what the next 5 routes will be in general.
 
 ![](skips.png)
+
+`Display Priority:`
+
+If tracking by Routes or by Next Route, this option will prioritize displaying either the Achievement or the Blue Fish of that route.
+
+Note that if a route has no Achievement, it will always just display the Blue Fish for that route. Similarly, if the route has no Blue Fish, it will fall back to displaying any Achievements in that route.
+
+This option has no effect if tracking by Achievements or Blue Fish directly.
 
 `Button URL:`
 

@@ -23,7 +23,7 @@
   "Name": "FFXIV Ocean Fishing Tracker", 
   "Icon": "pluginIcon", 
   "URL": "https://github.com/momokotomoko/ffxivStreamDeckOceanFishingPlugin", 
-  "Version": "1.03",
+  "Version": "1.04",
   "OS": [
     {
         "Platform": "windows",
