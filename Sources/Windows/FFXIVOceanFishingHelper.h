@@ -10,95 +10,89 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include <map>
+#include <unordered_set>
 #include <set>
+#include <vector>
 
-#define OCEAN_FISHING_PATTERN_SIZE 144
+#include "../Vendor/json/src/json.hpp"
+using json = nlohmann::json;
 
 class FFXIVOceanFishingHelper
 {
 public:
+	// priority to show achievement or blue fish
+	enum PRIORITY
+	{
+		ACHIEVEMENTS,
+		BLUE_FISH,
+	};
 
 	FFXIVOceanFishingHelper();
 	~FFXIVOceanFishingHelper() {};
 
-	bool getSecondsUntilNextRoute(int& secondsTillNextRoute, int& secondsLeftInWindow, const time_t& startTime, const std::set<unsigned int>& routeId, const unsigned int skips = 0);
+	void loadDatabase(const std::string dataFile);
+
+	bool getNextRoute(uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
+	bool getSecondsUntilNextRoute(int& secondsTillNextRoute, int& secondsLeftInWindow, uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
 	std::string getNextRouteName(const time_t& t, const unsigned int skips = 0);
 
-	std::set<unsigned int> getRoutesWithBlueFish(const std::string& blueFish);
-	std::set<unsigned int> getRouteIdFromName(const std::string& name);
-
-	std::set<std::string> getAllBlueFishNames();
-	std::set<std::string> getAllRouteNames();
+	std::unordered_set<uint32_t> getRouteIdByTracker(const std::string& tracker, const std::string& name);
+	void getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const uint32_t skips);
+	json getTargetsJson();
 private:
-	struct names_t
-	{
-		const std::string name;
-		const std::string shortName;
-	};
-
 	struct locations_t
 	{
-		const names_t location;
-		const names_t blueFish;
+		const std::string name;
+		const std::string time;
 	};
 
-	const std::unordered_map <unsigned int, locations_t> mLocations =
+	struct fish_t
 	{
-		{1, {{"Outer Gladion Bay", "Gladion"}, {"Sothis", "Sothis"}}},
-		{2, {{"The Southern Strait of Merlthor", "Southern"}, {"Coral Manta", "Coral"}}},
-		{3, {{"The Northern Strait of Merlthor", "Northern"}, {"Elasmosaurus", "Elasmo"}}},
-		{4, {{"Open Rhotano Sea", "Rhotano"}, {"Stonescale", "Stone"}}},
-		{5, {{"Cieldalaes Margin", "Ciel"}, {"Hafgufa", "Hafg"}}},
-		{6, {{"Open Bloodbrine Sea", "Blood"}, {"Seafaring Toad", "Toad"}}},
-		{7, {{"Outer Rothlyt Sound", "Rothlyt"}, {"Placodus", "Placo"}}}
+		const std::string shortName;
+		const std::vector<locations_t> locations;
 	};
 
-	std::set<std::string> mBlueFishNames;
-	std::unordered_map<std::string, std::set<unsigned int>> mBlueFishToRouteMap;
+
+	std::unordered_map<std::string, std::string> mStops;
+	std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> mFishes;
+	std::unordered_map<std::string, std::unordered_set<uint32_t>> mAchievements;
+	std::map<std::string, fish_t> mBlueFishNames;
+
+	struct stop_t
+	{
+		const locations_t location;
+		const std::unordered_set<std::string> fish;
+	};
 
 	struct route_t
 	{
-		const std::string name;
-		const int routeOrder[3];
-		const bool blueFishAvailable[3];
+		const std::string shortName;
+		const uint32_t id;
+		const std::vector<stop_t> stops;
+		const std::unordered_set<std::string> achievements;
+		std::string blueFishPattern;
 	};
+	std::unordered_map <std::string, route_t> mRoutes;
 
-	const std::unordered_map <unsigned int, route_t> mRoutes =
+	uint32_t mPatternOffset;
+	std::vector<uint32_t> mRoutePattern;
+
+	struct targets_t
 	{
-		{1, {"Dragon", {2, 1, 3}, {true, false, false}}},
-		{2, {"Octo", {2, 1, 3}, {false, false, false}}},
-		{3, {"X-Soth-Elas", {2, 1, 3}, {false, true, true}}},
-		{4, {"Soth-X-Stone", {1, 2, 4}, {true, false, true}}},
-		{5, {"Jelly", {1, 2, 4}, {false, false, false}}},
-		{6, {"Shark", {1, 2, 4}, {false, true, false}}},
-		{7, {"Hafg-Elas-X", {5, 3, 6}, {true, true, false}}},
-		{8, {"Manta", {5, 3, 6}, {false, false, false}}},
-		{9, {"Crab", {5, 3, 6}, {false, false, true}}},
-		{10, {"Hafg-X-Placo", {5, 4, 7}, {true, false, true}}},
-		{11, {"Balloon", {5, 4, 7}, {false, true, false}}},
-		{12, {"Balloon", {5, 4, 7}, {false, false, false}}}
+		const std::string labelName;
+		const std::string imageName;
+		std::unordered_set <uint32_t> ids;
 	};
-	std::unordered_map<std::string, unsigned int> mRouteNameToIndexMap;
-
-	// this pattern was obtained from https://github.com/proyebat/FFXIVOceanFishingTimeCalculator
-	const unsigned int OFFSET = 85;
-	const unsigned int mRoutePattern[OCEAN_FISHING_PATTERN_SIZE] = {
-		7,10,1,4,8,11,2,5,12,3,6,
-		7,10,1,4,8,11,2,5,9,3,6,
-		7,10,1,4,8,11,2,5,9,12,6,
-		7,10,1,4,8,11,2,5,9,12,3,
-		7,10,1,4,8,11,2,5,9,12,3,6,
-		10,1,4,8,11,2,5,9,12,3,6,
-		7,1,4,8,11,2,5,9,12,3,6,
-		7,10,4,8,11,2,5,9,12,3,6,
-		7,10,1,8,11,2,5,9,12,3,6,
-		7,10,1,4,11,2,5,9,12,3,6,
-		7,10,1,4,8,2,5,9,12,3,6,
-		7,10,1,4,8,11,5,9,12,3,6,
-		7,10,1,4,8,11,2,9,12,3,6 };
+	// hiearchy is target type -> target name -> struct with vector of route ids
+	// ie: "Blue Fish" -> "Sothis" -> {shortName, {id1, id2...}}
+	std::map <std::string, std::map<std::string, targets_t>> mTargetToRouteIdMap;
+	std::unordered_map <uint32_t, std::string> mRouteIdToNameMap;
 
 	time_t convertBlockIndexToTime(const unsigned int blockIdx);
 	unsigned int convertTimeToBlockIndex(const time_t& t);
 	unsigned int getRoutePatternIndex(const unsigned int blockIdx, const unsigned int jump = 0);
+
+	std::string createImageNameFromRouteId(const uint32_t& routeId, PRIORITY priority);
+	std::string createButtonLabelFromRouteId(const uint32_t& routeId, PRIORITY priority);
 };
