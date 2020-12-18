@@ -192,6 +192,7 @@
     <ClInclude Include="..\Common\ESDUtilities.h" />
     <ClInclude Include="..\FFXIVOceanFishingTrackerPlugin.h" />
     <ClInclude Include="CallBackTimer.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="FFXIVOceanFishingHelper.h" />
     <ClInclude Include="ImageUtils.h" />
     <ClInclude Include="pch.h" />

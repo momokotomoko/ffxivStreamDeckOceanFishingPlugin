@@ -44,14 +44,16 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
             const payload = jsonObj.payload.settings;
          
             document.getElementById('Tracker').value = payload.Name;
-            if (payload.DateOrTime)
-            {
+            if (payload.DateOrTime != null && payload.DateOrTime)
                 document.getElementById('select_date').checked = true;
-            }
             else
-            {
                 document.getElementById('select_countdown').checked = true;
-            }
+
+			if (payload.Priority != null && !payload.Priority)
+				document.getElementById('select_bluefish').checked = true;
+            else
+                document.getElementById('select_achievement').checked = true;
+
             document.getElementById('set_skips').value = payload.Skips;
             if (payload.url != null)
             {
@@ -79,6 +81,7 @@ function sendSettingsToPlugin() {
             'Name':tracker_el.value,
             'Tracker':group,
             'DateOrTime':document.getElementById('select_date').checked,
+            'Priority':document.getElementById('select_achievement').checked,
             'Skips':document.getElementById('set_skips').value,
             'url':document.getElementById('set_url').value
     };

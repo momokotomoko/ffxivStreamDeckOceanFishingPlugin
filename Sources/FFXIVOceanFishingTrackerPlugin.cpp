@@ -29,10 +29,6 @@ FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 	//timer that is called every half a second to update UI
 	mSecondsTimer = new CallBackTimer();
 
-	// the "Next Route" name has no attached image, the image gets assigned in the callback
-	// Insert a null image here so there's no error thrown for a missing image file.
-	mImageNameToBase64Map.insert({ "Next Route", "" });
-
 	startTimers();
 }
 
@@ -85,32 +81,32 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 			{
 				// First find what routes we are actually looking for.
 				// So convert what is requested to be tracked into route IDs
-				std::set<unsigned int> routeIds;
-				if (context.second.tracker == "Blue Fish")
-				{
-					routeIds = mFFXIVOceanFishingHelper->getRoutesWithBlueFish(context.second.name);
-				}
-				else if (context.second.tracker == "Routes")
-				{
-					routeIds = mFFXIVOceanFishingHelper->getRouteIdFromName(context.second.name);
-				}
-				else if (context.second.tracker == "Other")
-				{
-					routeIds = {};
-					time_t startTime = time(0);
-					context.second.name = mFFXIVOceanFishingHelper->getNextRouteName(startTime, context.second.skips);
-					updateImage(context.second.name, context.first);
-				}
+				std::unordered_set<uint32_t> routeIds = mFFXIVOceanFishingHelper->getRouteIdByTracker(context.second.tracker, context.second.name);
 
 				// now call the helper to compute the relative time until the next window
 				int relativeSecondsTillNextRoute = 0;
 				int relativeWindowTime = 0;
 				time_t startTime = time(0);
-				status = mFFXIVOceanFishingHelper->getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, startTime, routeIds, context.second.skips);
-
+				uint32_t nextRoute;
+				status = mFFXIVOceanFishingHelper->getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, nextRoute, startTime, routeIds, context.second.skips);
 				// store the absolute times
 				context.second.routeTime = startTime + relativeSecondsTillNextRoute;
 				context.second.windowTime = startTime + relativeWindowTime;
+
+				std::string imageName;
+				std::string buttonLabel;
+				mFFXIVOceanFishingHelper->getImageNameAndLabel(imageName, buttonLabel, context.second.tracker, context.second.name, context.second.priority, context.second.skips);
+				if (context.second.imageName != imageName || context.second.buttonLabel != buttonLabel)
+					context.second.needUpdate = true;
+
+				// update the image
+				if (status && context.second.needUpdate)
+				{
+					context.second.imageName = imageName;
+					context.second.buttonLabel = buttonLabel;
+					updateImage(context.second.imageName, context.first);
+					context.second.needUpdate = false;
+				}
 			}
 			this->mVisibleContextsMutex.unlock();
 
@@ -141,7 +137,7 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 		{
 			if (context.second.name.length() > 0)
 			{
-				std::string titleString = context.second.name + "\n";
+				std::string titleString = context.second.buttonLabel + "\n";
 				// if we have skips, add a number to the top right
 				if (context.second.skips != 0)
 				{
@@ -220,10 +216,18 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	if (payload.find("Name") != payload.end())
 	{
 		data.name = payload["Name"].get<std::string>();
+		data.buttonLabel = data.name;
+		data.imageName = data.imageName;
 	}
 	if (payload.find("DateOrTime") != payload.end())
 	{
 		data.dateOrTime = payload["DateOrTime"].get<bool>();
+	}
+	data.priority = BLUE_FISH;
+	if (payload.find("Priority") != payload.end())
+	{
+		if (payload["Priority"].get<bool>())
+			data.priority = ACHIEVEMENTS;
 	}
 	if (payload.find("Skips") != payload.end())
 	{
@@ -237,6 +241,7 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	}
 	data.routeTime = 0;
 	data.windowTime = 0;
+	data.needUpdate = false;
 	return data;
 }
 
@@ -269,6 +274,7 @@ void FFXIVOceanFishingTrackerPlugin::updateImage(std::string name, const std::st
 		}
 	}
 }
+
 /**
 	@brief Runs when app shows up on streamdeck profile
 **/
@@ -279,17 +285,7 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 	if (mConnectionManager != nullptr && mIsInit == false)
 	{
 		json j;
-		std::set<std::string> blueFish = mFFXIVOceanFishingHelper->getAllBlueFishNames();
-		for (const auto& name : blueFish)
-		{
-			j["menu"].emplace(name, "Blue Fish");
-		}
-		std::set<std::string> routes = mFFXIVOceanFishingHelper->getAllRouteNames();
-		for (const auto& name : routes)
-		{
-			j["menu"].emplace(name, "Routes");
-		}
-		j["menu"].emplace("Next Route", "Other");
+		j["menu"] = mFFXIVOceanFishingHelper->getTargetsJson();
 		mConnectionManager->SetGlobalSettings(j);
 		mIsInit = true;
 	}
@@ -301,15 +297,16 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 	{
 		data = readJsonIntoMetaData(inPayload["settings"]);
 	}
-	updateImage(data.name, inContext);
+	data.needUpdate = true;
 
-	// Remember the context and the saved server name for this app
-	mVisibleContextsMutex.lock();
 	// if this is the first plugin to be displayed, boot up the timers
 	if (mContextServerMap.empty())
 	{
 		startTimers();
 	}
+
+	// Remember the context and the saved server name for this app
+	mVisibleContextsMutex.lock();
 	mContextServerMap.insert({ inContext, data });
 	mVisibleContextsMutex.unlock();
 
@@ -351,17 +348,15 @@ void FFXIVOceanFishingTrackerPlugin::DeviceDidDisconnect(const std::string& inDe
 void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
 	// PI dropdown menu has saved new settings for this context, load those
-	bool nameChanged = false;
-	std::string newName;
+	contextMetaData_t data;
 	mVisibleContextsMutex.lock();
 	if (mContextServerMap.find(inContext) != mContextServerMap.end())
 	{
-		contextMetaData_t data = readJsonIntoMetaData(inPayload);
-		if (data.name != mContextServerMap.at(inContext).name)
+		data = readJsonIntoMetaData(inPayload);
+		if (data.name != mContextServerMap.at(inContext).name || data.tracker != mContextServerMap.at(inContext).tracker)
 		{
 			// update image since name changed
-			nameChanged = true;
-			newName = data.name;
+			data.needUpdate = true;
 		}
 
 		// updated stored settings
@@ -373,12 +368,6 @@ void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, c
 		mConnectionManager->LogMessage(inContext);
 	}
 	mVisibleContextsMutex.unlock();
-
-	// update image if we've switched to a different tracker
-	if (nameChanged)
-	{
-		updateImage(newName, inContext);
-	}
 
 	// update tracked timers
 	this->mTimer->wake();

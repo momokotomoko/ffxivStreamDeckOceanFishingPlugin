@@ -10,6 +10,8 @@
 #include <mutex>
 #include <unordered_map>
 #include <string>
+#include "Windows/Common.h"
+
 #include "Vendor/json/src/json.hpp"
 using json = nlohmann::json;
 
@@ -49,6 +51,10 @@ private:
 	{
 		std::string name; // name of what we are tracking
 		std::string tracker; // tracker type, ie: blue fish or route name
+		std::string buttonLabel; // the text on the top of the button
+		std::string imageName; // the name of hte image to use for this button
+		PRIORITY priority; // whether to prioritize showing achievements or blue fish for this button
+		bool needUpdate; // true if this button needs an update to image name and label
 		time_t routeTime; // time of next route
 		time_t windowTime; // if we are in a fishing window, this holds the time remaining
 		bool dateOrTime; // true for date, false for time

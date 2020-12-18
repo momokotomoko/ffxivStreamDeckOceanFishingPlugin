@@ -1,0 +1,355 @@
+{
+    "stops": {
+        "Outer Gladion Bay": {
+            "shortform": "Gladion"
+        },
+        "The Southern Strait of Merlthor": {
+            "shortform": "Southern Strait"
+        },
+        "The Northern Strait of Merlthor": {
+            "shortform": "Northern Strait"
+        },
+        "Open Rhotano Sea": {
+            "shortform": "Rhotano"
+        },
+        "Cieldalaes Margin": {
+            "shortform": "Cieldalaes"
+        },
+        "Open Bloodbrine Sea": {
+            "shortform": "Bloodbrine"
+        },
+        "Outer Rothlyt Sound": {
+            "shortform": "Rothlyt Sound"
+        }
+    },
+    "routes": {
+            "Northern Strait by Sunset": {
+                "shortform": "Northern-S",
+                "id": 1,
+                "stops": [
+                    {
+                        "name": "The Southern Strait of Merlthor",
+                        "time": "night"
+                    },
+                    {
+                        "name": "Outer Gladion Bay",
+                        "time": "day"
+                    },
+                    {
+                        "name": "The Northern Strait of Merlthor",
+                        "time": "sunset"
+                    }
+                ]
+            },
+            "Northern Strait by Night": {
+                "shortform": "Northern-N",
+                "id": 2,
+                "stops": [
+                    {
+                        "name": "The Southern Strait of Merlthor",
+                        "time": "day"
+                    },
+                    {
+                        "name": "Outer Gladion Bay",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "The Northern Strait of Merlthor",
+                        "time": "night"
+                    }
+                ]
+            },
+            "Northern Strait by Day": {
+                "shortform": "Northern-D",
+                "id": 3,
+                "stops": [
+                    {
+                        "name": "The Southern Strait of Merlthor",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "Outer Gladion Bay",
+                        "time": "night"
+                    },
+                    {
+                        "name": "The Northern Strait of Merlthor",
+                        "time": "day"
+                    }
+                ]
+            },
+            "Rhotano by Sunset": {
+                "shortform": "Rhotano-S",
+                "id": 4,
+                "stops": [
+                    {
+                        "name": "Outer Gladion Bay",
+                        "time": "night"
+                    },
+                    {
+                        "name": "The Southern Strait of Merlthor",
+                        "time": "day"
+                    },
+                    {
+                        "name": "Open Rhotano Sea",
+                        "time": "sunset"
+                    }
+                ]
+            },
+            "Rhotano by Night": {
+                "shortform": "Rhotano-N",
+                "id": 5,
+                "stops": [
+                    {
+                        "name": "Outer Gladion Bay",
+                        "time": "day"
+                    },
+                    {
+                        "name": "The Southern Strait of Merlthor",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "Open Rhotano Sea",
+                        "time": "night"
+                    }
+                ]
+            },
+            "Rhotano by Day": {
+                "shortform": "Rhotano-D",
+                "id": 6,
+                "stops": [
+                    {
+                        "name": "Outer Gladion Bay",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "The Southern Strait of Merlthor",
+                        "time": "night"
+                    },
+                    {
+                        "name": "Open Rhotano Sea",
+                        "time": "day"
+                    }
+                ]
+            },
+            "Bloodbrine by Sunset": {
+                "shortform": "Bloodbrine-S",
+                "id": 7,
+                "stops": [
+                    {
+                        "name": "Cieldalaes Margin",
+                        "time": "night"
+                    },
+                    {
+                        "name": "The Northern Strait of Merlthor",
+                        "time": "day"
+                    },
+                    {
+                        "name": "Open Bloodbrine Sea",
+                        "time": "sunset"
+                    }
+                ]
+            },
+            "Bloodbrine by Night": {
+                "shortform": "Bloodbrine-N",
+                "id": 8,
+                "stops": [
+                    {
+                        "name": "Cieldalaes Margin",
+                        "time": "day"
+                    },
+                    {
+                        "name": "The Northern Strait of Merlthor",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "Open Bloodbrine Sea",
+                        "time": "night"
+                    }
+                ]
+            },
+            "Bloodbrine by Day": {
+                "shortform": "Bloodbrine-D",
+                "id": 9,
+                "stops": [
+                    {
+                        "name": "Cieldalaes Margin",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "The Northern Strait of Merlthor",
+                        "time": "night"
+                    },
+                    {
+                        "name": "Open Bloodbrine Sea",
+                        "time": "day"
+                    }
+                ]
+            },
+            "Rothlyt Sound by Sunset": {
+                "shortform": "Sound-S",
+                "id": 10,
+                "stops": [
+                    {
+                        "name": "Cieldalaes Margin",
+                        "time": "night"
+                    },
+                    {
+                        "name": "Open Rhotano Sea",
+                        "time": "day"
+                    },
+                    {
+                        "name": "Outer Rothlyt Sound",
+                        "time": "sunset"
+                    }
+                ]
+            },
+            "Rothlyt Sound by Night": {
+                "shortform": "Sound-N",
+                "id": 11,
+                "stops": [
+                    {
+                        "name": "Cieldalaes Margin",
+                        "time": "day"
+                    },
+                    {
+                        "name": "Open Rhotano Sea",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "Outer Rothlyt Sound",
+                        "time": "night"
+                    }
+                ]
+            },
+            "Rothlyt Sound by Day": {
+                "shortform": "Sound-D",
+                "id": 12,
+                "stops": [
+                    {
+                        "name": "Cieldalaes Margin",
+                        "time": "sunset"
+                    },
+                    {
+                        "name": "Open Rhotano Sea",
+                        "time": "night"
+                    },
+                    {
+                        "name": "Outer Rothlyt Sound",
+                        "time": "day"
+                    }
+                ]
+            }
+    },
+    "targets": {
+        "fish":
+            {
+            "Blue Fish": {
+                "Sothis": {
+                    "shortform": "Soth",
+                    "locations": [
+                        {
+                            "name": "Outer Gladion Bay",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Coral Manta": {
+                    "shortform": "Manta",
+                    "locations": [
+                        {
+                            "name": "The Southern Strait of Merlthor",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Elasmosaurus": {
+                    "shortform": "Elas",
+                    "locations": [
+                        {
+                            "name": "The Northern Strait of Merlthor",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Stonescale": {
+                    "shortform": "Stone",
+                    "locations": [
+                        {
+                            "name": "Open Rhotano Sea",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Hafgufa": {
+                    "shortform": "Hafg",
+                    "locations": [
+                        {
+                            "name": "Cieldalaes Margin",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Seafaring Toad": {
+                    "shortform": "Toad",
+                    "locations": [
+                        {
+                            "name": "Open Bloodbrine Sea",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Placodus": {
+                    "shortform": "Placo",
+                    "locations": [
+                        {
+                            "name": "Outer Rothlyt Sound",
+                            "time": "sunset"
+                        }
+                    ]
+                }
+            }
+        },
+        "achievements": {
+            "Dragon": {
+                "routeIds": [1]
+            },
+            "Octo": {
+                "routeIds": [2]
+            },
+            "Jelly": {
+                "routeIds": [5]
+            },
+            "Shark": {
+                "routeIds": [6]
+            },
+            "Manta": {
+                "routeIds": [8]
+            },
+            "Crab": {
+                "routeIds": [9]
+            },
+            "Balloon": {
+                "routeIds": [12, 11]
+            }
+        }
+    },
+    "schedule": {
+        "pattern": [
+            7,10,1,4,8,11,2,5,12,3,6,
+            7,10,1,4,8,11,2,5,9,3,6,
+            7,10,1,4,8,11,2,5,9,12,6,
+            7,10,1,4,8,11,2,5,9,12,3,
+            7,10,1,4,8,11,2,5,9,12,3,6,
+            10,1,4,8,11,2,5,9,12,3,6,
+            7,1,4,8,11,2,5,9,12,3,6,
+            7,10,4,8,11,2,5,9,12,3,6,
+            7,10,1,8,11,2,5,9,12,3,6,
+            7,10,1,4,11,2,5,9,12,3,6,
+            7,10,1,4,8,2,5,9,12,3,6,
+            7,10,1,4,8,11,5,9,12,3,6,
+            7,10,1,4,8,11,2,9,12,3,6],
+        "offset": 85,
+        "comment": "Pattern obtained from https://github.com/proyebat/FFXIVOceanFishingTimeCalculator"
+    },
+    "version": "1.0"
+}
