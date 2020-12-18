@@ -47,6 +47,49 @@
                value="https://docs.google.com/spreadsheets/d/1brCfvmSdYl7RcY9lkgm_ds8uaFqq7qaxOOz-5BfHuuk/htmlview"
                placeholder="Enter a URL" oninput="sendSettingsToPlugin()">
     </div>
+    <details class="sdpi-item">
+        <summary>About</summary>
+        <p>Made by Momoko Tomoko from Sargatanas.</p>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+
+            .column {
+                float: left;
+                width: 50%;
+                text-align: center;
+            }
+
+            .row:after {
+                content: "";
+                display: table;
+                clear: both;
+                text-align: center;
+            }
+
+            .center {
+                text-align: center;
+            }
+        </style>
+        <div class="row">
+            <div class="column">
+                <a href="#" onclick="openUrl('https://na.finalfantasyxiv.com/lodestone/character/1525660/'); return false;">Lodestone</a>
+                <br />
+                <a href="#" onclick="openUrl('https://www.youtube.com/channel/UCAqH9TEBLONg22Espxyw-Rg'); return false;">Youtube</a>
+            </div>
+            <div class="column">
+                <a href="#" onclick="openUrl('https://twitter.com/momoko_tomoko'); return false;">Twitter</a>
+                <br />
+                <a href="#" onclick="openUrl('https://github.com/momokotomoko/ffxivStreamDeckOceanFishingPlugin'); return false;">Github</a>
+            </div>
+        </div>
+        <p class="center">
+            <a href="#" onclick="openUrl('https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=886JLXQKS39U4&currency_code=USD&source=url'); return false;">
+                <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" />
+            </a>
+        </p>
+    </details>
     <script src="ffxivoceanfishing_pi.js"></script>
 </body>
 </html>

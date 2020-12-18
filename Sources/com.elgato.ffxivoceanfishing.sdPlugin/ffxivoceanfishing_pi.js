@@ -122,3 +122,16 @@ function insertOption(optgroupID, name, value) {
     opt.value = value;
     el.appendChild(opt);
 }
+
+// opens a url in the default browser
+function openUrl(url) {
+    if (websocket) {
+        const json = {
+                "event": "openUrl",
+                "payload": {
+                    "url": url
+                }
+        };
+        websocket.send(JSON.stringify(json));
+    }
+}
