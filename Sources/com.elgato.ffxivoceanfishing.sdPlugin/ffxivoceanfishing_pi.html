@@ -41,6 +41,19 @@
             <option value="10">10</option>
         </select>
     </div>
+    <div type="radio" class="sdpi-item" id="priority_select">
+        <div class="sdpi-item-label">Display Priority</div>
+        <div class="sdpi-item-value" onchange="sendSettingsToPlugin()">
+            <span class="sdpi-item-child">
+                <input id="select_achievement" type="radio" name="rdio2">
+                <label for="select_achievement" class="sdpi-item-label"><span></span>Achievement</label>
+            </span>
+            <span class="sdpi-item-child">
+                <input id="select_bluefish" type="radio" name="rdio2">
+                <label for="select_bluefish" class="sdpi-item-label"><span></span>Blue Fish</label>
+            </span>
+        </div>
+    </div>
     <div class="sdpi-item">
         <div class="sdpi-item-label">Button URL</div>
         <input class="sdpi-item-value" id="set_url"

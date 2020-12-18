@@ -256,8 +256,7 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string dataFile)
 	
 	// special targets:
 	mTargetToRouteIdMap.insert({ "Other", {}});
-	mTargetToRouteIdMap.at("Other").insert({ "Next Route (Achievements Priority)", {"", "", {}} });
-	mTargetToRouteIdMap.at("Other").insert({ "Next Route (Blue Fish Priority)", {"", "", {}} });
+	mTargetToRouteIdMap.at("Other").insert({ "Next Route", {"", "", {}} });
 }
 
 /**
@@ -519,7 +518,7 @@ std::string FFXIVOceanFishingHelper::createButtonLabelFromRouteId(const uint32_t
 		return blueFishName;
 }
 
-void FFXIVOceanFishingHelper::getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const uint32_t skips)
+void FFXIVOceanFishingHelper::getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const PRIORITY priority, const uint32_t skips)
 {
 	imageName = "";
 	buttonLabel = "";
@@ -543,10 +542,6 @@ void FFXIVOceanFishingHelper::getImageNameAndLabel(std::string& imageName, std::
 				uint32_t nextRoute;
 				if (getNextRoute(nextRoute, startTime, routeIds, skips))
 				{
-					PRIORITY priority = ACHIEVEMENTS;
-					if (name == "Next Route (Blue Fish Priority)")
-						priority = BLUE_FISH;
-
 					// create the names
 					if (buttonLabel.empty())
 						buttonLabel = createButtonLabelFromRouteId(nextRoute, priority);

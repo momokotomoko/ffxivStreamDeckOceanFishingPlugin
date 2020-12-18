@@ -29,10 +29,6 @@ FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 	//timer that is called every half a second to update UI
 	mSecondsTimer = new CallBackTimer();
 
-	// the "Next Route" name has no attached image, the image gets assigned in the callback
-	// Insert a null image here so there's no error thrown for a missing image file.
-	mImageNameToBase64Map.insert({ "Next Route", "" });
-
 	startTimers();
 }
 
@@ -99,14 +95,15 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 
 				std::string imageName;
 				std::string buttonLabel;
-				mFFXIVOceanFishingHelper->getImageNameAndLabel(imageName, buttonLabel, context.second.tracker, context.second.name, context.second.skips);
+				mFFXIVOceanFishingHelper->getImageNameAndLabel(imageName, buttonLabel, context.second.tracker, context.second.name, context.second.priority, context.second.skips);
 				if (context.second.imageName != imageName || context.second.buttonLabel != buttonLabel)
 					context.second.needUpdate = true;
 
-				// update the image if we're using the "Other" tracker
+				// update the image
 				if (status && context.second.needUpdate)
 				{
-					mFFXIVOceanFishingHelper->getImageNameAndLabel(context.second.imageName, context.second.buttonLabel, context.second.tracker, context.second.name, context.second.skips);
+					context.second.imageName = imageName;
+					context.second.buttonLabel = buttonLabel;
 					updateImage(context.second.imageName, context.first);
 					context.second.needUpdate = false;
 				}
@@ -225,6 +222,12 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	if (payload.find("DateOrTime") != payload.end())
 	{
 		data.dateOrTime = payload["DateOrTime"].get<bool>();
+	}
+	data.priority = BLUE_FISH;
+	if (payload.find("Priority") != payload.end())
+	{
+		if (payload["Priority"].get<bool>())
+			data.priority = ACHIEVEMENTS;
 	}
 	if (payload.find("Skips") != payload.end())
 	{

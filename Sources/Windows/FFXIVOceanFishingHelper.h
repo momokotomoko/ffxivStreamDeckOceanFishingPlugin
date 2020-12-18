@@ -14,6 +14,7 @@
 #include <unordered_set>
 #include <set>
 #include <vector>
+#include "Common.h"
 
 #include "../Vendor/json/src/json.hpp"
 using json = nlohmann::json;
@@ -21,13 +22,6 @@ using json = nlohmann::json;
 class FFXIVOceanFishingHelper
 {
 public:
-	// priority to show achievement or blue fish
-	enum PRIORITY
-	{
-		ACHIEVEMENTS,
-		BLUE_FISH,
-	};
-
 	FFXIVOceanFishingHelper();
 	~FFXIVOceanFishingHelper() {};
 
@@ -38,7 +32,7 @@ public:
 	std::string getNextRouteName(const time_t& t, const unsigned int skips = 0);
 
 	std::unordered_set<uint32_t> getRouteIdByTracker(const std::string& tracker, const std::string& name);
-	void getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const uint32_t skips);
+	void getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const PRIORITY priority, const uint32_t skips);
 	json getTargetsJson();
 private:
 	struct locations_t
@@ -86,7 +80,7 @@ private:
 	};
 	// hiearchy is target type -> target name -> struct with vector of route ids
 	// ie: "Blue Fish" -> "Sothis" -> {shortName, {id1, id2...}}
-	std::map <std::string, std::map<std::string, targets_t>> mTargetToRouteIdMap;
+	std::unordered_map <std::string, std::map<std::string, targets_t>> mTargetToRouteIdMap;
 	std::unordered_map <uint32_t, std::string> mRouteIdToNameMap;
 
 	time_t convertBlockIndexToTime(const unsigned int blockIdx);
