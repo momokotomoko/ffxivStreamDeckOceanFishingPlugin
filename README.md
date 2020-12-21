@@ -23,6 +23,8 @@ During a possible window to board the boat, the plugin also displays additional 
 
 ![](window.png)
 
+Youtube Description: https://www.youtube.com/watch?v=ewgarAlZi5w
+
 ## Installation
 
 In the Release folder, you can find the file `com.elgato.ffxivoceanfishing.streamDeckPlugin`. If you double-click this file on your machine, StreamDeck will install the plugin.
