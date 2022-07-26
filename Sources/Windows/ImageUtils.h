@@ -19,7 +19,7 @@ namespace imageutils
 		@param[out] out the output base 64
 		@param[in] in the input image
 	**/
-	template<typename T, typename U> //T and U can be std::string or std::vector<unsigned char>//T and U can be std::string or std::vector<unsigned char>
+	template<typename T, typename U> //T and U can be std::string or std::vector<unsigned char>
 	void pngToBase64(T& out, const U& in) {
 		for (size_t i = 0; i < in.size(); i += 3) {
 			int v = 65536 * in[i];
