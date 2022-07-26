@@ -35,6 +35,7 @@ public:
 	std::unordered_set<uint32_t> getRouteIdByTracker(const std::string& tracker, const std::string& name);
 	void getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const PRIORITY priority, const uint32_t skips);
 	json getTargetsJson();
+	json getTrackerTypesJson();
 private:
 	struct locations_t
 	{

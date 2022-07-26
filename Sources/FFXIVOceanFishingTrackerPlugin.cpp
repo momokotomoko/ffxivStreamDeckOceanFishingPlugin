@@ -285,7 +285,8 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 	if (mConnectionManager != nullptr && mIsInit == false)
 	{
 		json j;
-		j["menu"] = mFFXIVOceanFishingHelper->getTargetsJson();
+		j["menuheaders"] = mFFXIVOceanFishingHelper->getTrackerTypesJson();
+		j["targets"] = mFFXIVOceanFishingHelper->getTargetsJson();
 		mConnectionManager->SetGlobalSettings(j);
 		mIsInit = true;
 	}

@@ -228,7 +228,6 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string& dataFile)
 	mTargetToRouteIdMap.insert({ "Achievement", {} });
 	for (const auto& achievement : mAchievements)
 	{
-		mTargetToRouteIdMap.insert({ achievement.first, {} });
 		std::unordered_set <uint32_t> ids;
 		for (const auto& routeId : achievement.second)
 		{
@@ -614,6 +613,24 @@ json FFXIVOceanFishingHelper::getTargetsJson()
 		}
 	}
 
+	return j;
+}
+
+/**
+	@brief gets tracker types as json
+
+	@return json containing tracker types
+**/
+json FFXIVOceanFishingHelper::getTrackerTypesJson()
+{
+	json j;
+
+	for (const auto& type : mTargetToRouteIdMap)
+	{
+		j.push_back(type.first);
+	}
+
+	std::sort(j.begin(), j.end());
 	return j;
 }
 

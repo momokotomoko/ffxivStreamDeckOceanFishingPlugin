@@ -63,9 +63,20 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         if (jsonObj.event === 'didReceiveGlobalSettings') {
             const payload = jsonObj.payload.settings;
 
-            if (payload.hasOwnProperty('menu')) {
-                for (name in payload.menu) {
-                    insertOption(payload.menu[name], name, name);
+			// create all the headers, this should arrive from plugin in the order we want the headers
+			// to be displayed in the dropdown menu
+			// ie: Blue Fish
+			if (payload.hasOwnProperty('menuheaders')) {
+                for (var i = 0; i < payload.menuheaders.length; i++) {
+					insertOptGroup(payload.menuheaders[i]);
+                }
+            }
+
+			// insert the targets under the appropriate headers
+			// ie: Elasomosaurus -> Blue Fish
+            if (payload.hasOwnProperty('targets')) {
+                for (name in payload.targets) {
+                    insertOption(payload.targets[name], name, name);
                 }
             }
         }
@@ -110,8 +121,8 @@ function saveValues(obj) {
     }
 }
 
-// inserts an option to specified optgroup ID in the tracker dropdown menu
-function insertOption(optgroupID, name, value) {
+// inserts an optgroup
+function insertOptGroup(optgroupID) {
     menu = document.getElementById("Tracker");
     if (menu.querySelector("optgroup[label='" + optgroupID + "']") == null)
     {
@@ -119,6 +130,13 @@ function insertOption(optgroupID, name, value) {
         grp.label = optgroupID;
         menu.appendChild(grp);
     }
+}
+
+// inserts an option to specified optgroup ID in the tracker dropdown menu
+function insertOption(optgroupID, name, value) {
+    menu = document.getElementById("Tracker");
+	insertOptGroup(optgroupID);
+
     const el = menu.querySelector("optgroup[label='" + optgroupID + "']");
     opt = document.createElement('OPTION');
     opt.textContent = name;
