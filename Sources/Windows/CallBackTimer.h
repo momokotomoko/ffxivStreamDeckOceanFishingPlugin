@@ -13,6 +13,7 @@
 #include <vector>
 #include <functional> // for function
 #include <algorithm> // for min
+#include <set>
 
 /**
 	@brief Timer that triggers on a specified interval

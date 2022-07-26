@@ -243,71 +243,330 @@
     "targets": {
         "fish":
             {
-            "Blue Fish": {
-                "Sothis": {
-                    "shortform": "Soth",
-                    "locations": [
-                        {
-                            "name": "Outer Gladion Bay",
-                            "time": "night"
-                        }
-                    ]
+                "Blue Fish": {
+                    "Sothis": {
+                        "shortform": "Soth",
+                        "locations": [
+                            {
+                                "name": "Outer Gladion Bay",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Coral Manta": {
+                        "shortform": "Manta",
+                        "locations": [
+                            {
+                                "name": "The Southern Strait of Merlthor",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Elasmosaurus": {
+                        "shortform": "Elas",
+                        "locations": [
+                            {
+                                "name": "The Northern Strait of Merlthor",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Stonescale": {
+                        "shortform": "Stone",
+                        "locations": [
+                            {
+                                "name": "Open Rhotano Sea",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Hafgufa": {
+                        "shortform": "Hafg",
+                        "locations": [
+                            {
+                                "name": "Cieldalaes Margin",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Seafaring Toad": {
+                        "shortform": "Toad",
+                        "locations": [
+                            {
+                                "name": "Open Bloodbrine Sea",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Placodus": {
+                        "shortform": "Placo",
+                        "locations": [
+                            {
+                                "name": "Outer Rothlyt Sound",
+                                "time": "sunset"
+                            }
+                        ]
+                    }
                 },
-                "Coral Manta": {
-                    "shortform": "Manta",
-                    "locations": [
-                        {
-                            "name": "The Southern Strait of Merlthor",
-                            "time": "night"
-                        }
-                    ]
-                },
-                "Elasmosaurus": {
-                    "shortform": "Elas",
-                    "locations": [
-                        {
-                            "name": "The Northern Strait of Merlthor",
-                            "time": "day"
-                        }
-                    ]
-                },
-                "Stonescale": {
-                    "shortform": "Stone",
-                    "locations": [
-                        {
-                            "name": "Open Rhotano Sea",
-                            "time": "sunset"
-                        }
-                    ]
-                },
-                "Hafgufa": {
-                    "shortform": "Hafg",
-                    "locations": [
-                        {
-                            "name": "Cieldalaes Margin",
-                            "time": "night"
-                        }
-                    ]
-                },
-                "Seafaring Toad": {
-                    "shortform": "Toad",
-                    "locations": [
-                        {
-                            "name": "Open Bloodbrine Sea",
-                            "time": "day"
-                        }
-                    ]
-                },
-                "Placodus": {
-                    "shortform": "Placo",
-                    "locations": [
-                        {
-                            "name": "Outer Rothlyt Sound",
-                            "time": "sunset"
-                        }
-                    ]
+                "Green Fish": {
+                    "DrunkFish": {
+                        "locations": [
+                            {
+                                "name": "Outer Gladion Bay"
+                            }
+                        ]
+                    },
+                    "Casket Oyster": {
+                        "locations": [
+                            {
+                                "name": "Outer Gladion Bay",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Quicksilver Blade": {
+                        "locations": [
+                            {
+                                "name": "Outer Gladion Bay",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Funnel Shark": {
+                        "locations": [
+                            {
+                                "name": "Outer Gladion Bay",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Nimble Dancer": {
+                        "locations": [
+                            {
+                                "name": "Outer Gladion Bay",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Little Leviathan": {
+                        "locations": [
+                            {
+                                "name": "The Southern Strait of Merlthor"
+                            }
+                        ]
+                    },
+                    "Sea Nettle": {
+                        "locations": [
+                            {
+                                "name": "The Southern Strait of Merlthor",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Aetheric Seadragon": {
+                        "locations": [
+                            {
+                                "name": "The Southern Strait of Merlthor",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Mythril Sovereign": {
+                        "locations": [
+                            {
+                                "name": "The Southern Strait of Merlthor",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Roguesaurus": {
+                        "locations": [
+                            {
+                                "name": "The Southern Strait of Merlthor",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Shooting Star": {
+                        "locations": [
+                            {
+                                "name": "The Northern Strait of Merlthor"
+                            }
+                        ]
+                    },
+                    "Bartholomew the Chopper": {
+                        "locations": [
+                            {
+                                "name": "The Northern Strait of Merlthor",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Mopbeard": {
+                        "locations": [
+                            {
+                                "name": "The Northern Strait of Merlthor",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Coral Seadragon": {
+                        "locations": [
+                            {
+                                "name": "The Northern Strait of Merlthor",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "The Fallen One": {
+                        "locations": [
+                            {
+                                "name": "The Northern Strait of Merlthor",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Sabaton": {
+                        "locations": [
+                            {
+                                "name": "Open Rhotano Sea"
+                            }
+                        ]
+                    },
+                    "Sweeper": {
+                        "locations": [
+                            {
+                                "name": "Open Rhotano Sea",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Executioner": {
+                        "locations": [
+                            {
+                                "name": "Open Rhotano Sea",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Floating Saucer": {
+                        "locations": [
+                            {
+                                "name": "Open Rhotano Sea",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Slipsnail": {
+                        "locations": [
+                            {
+                                "name": "Open Rhotano Sea",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Cieldalaes Geode": {
+                        "locations": [
+                            {
+                                "name": "Cieldalaes Margin"
+                            }
+                        ]
+                    },
+                    "Flaming Eel": {
+                        "locations": [
+                            {
+                                "name": "Cieldalaes Margin",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Devil's Sting": {
+                        "locations": [
+                            {
+                                "name": "Cieldalaes Margin",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Callichthyid": {
+                        "locations": [
+                            {
+                                "name": "Cieldalaes Margin",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Meandering Mora": {
+                        "locations": [
+                            {
+                                "name": "Cieldalaes Margin",
+                                "time": "sunset"
+                            }
+                        ]
+                    },
+                    "Bareface": {
+                        "locations": [
+                            {
+                                "name": "Open Bloodbrine Sea"
+                            }
+                        ]
+                    },
+                    "Oracular Crab": {
+                        "locations": [
+                            {
+                                "name": "Open Bloodbrine Sea",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Skaldminni": {
+                        "locations": [
+                            {
+                                "name": "Open Bloodbrine Sea",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Exterminator": {
+                        "locations": [
+                            {
+                                "name": "Open Bloodbrine Sea",
+                                "time": "day"
+                            }
+                        ]
+                    },
+                    "Ginkgo Fin": {
+                        "locations": [
+                            {
+                                "name": "Outer Rothlyt Sound"
+                            }
+                        ]
+                    },
+                    "Garum Jug": {
+                        "locations": [
+                            {
+                                "name": "Outer Rothlyt Sound",
+                                "time": [ "day", "night" ]
+                            }
+                        ]
+                    },
+                    "Pearl Bombfish": {
+                        "locations": [
+                            {
+                                "name": "Outer Rothlyt Sound",
+                                "time": [ "day", "night" ]
+                            }
+                        ]
+                    },
+                    "Panoptes": {
+                        "locations": [
+                            {
+                                "name": "Outer Rothlyt Sound",
+                                "time": "day"
+                            }
+                        ]
+                    }
                 }
-            }
         },
         "achievements": {
             "Dragon": {

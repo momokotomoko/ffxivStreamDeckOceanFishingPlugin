@@ -23,9 +23,10 @@ class FFXIVOceanFishingHelper
 {
 public:
 	FFXIVOceanFishingHelper();
+	FFXIVOceanFishingHelper(const std::string& dataFile);
 	~FFXIVOceanFishingHelper() {};
 
-	void loadDatabase(const std::string dataFile);
+	void loadDatabase(const std::string& dataFile);
 
 	bool getNextRoute(uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
 	bool getSecondsUntilNextRoute(int& secondsTillNextRoute, int& secondsLeftInWindow, uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
@@ -38,7 +39,7 @@ private:
 	struct locations_t
 	{
 		const std::string name;
-		const std::string time;
+		const std::vector<std::string> time;
 	};
 
 	struct fish_t

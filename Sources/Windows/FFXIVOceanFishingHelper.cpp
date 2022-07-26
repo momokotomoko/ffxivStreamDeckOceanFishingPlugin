@@ -15,16 +15,20 @@
 using json = nlohmann::json;
 
 FFXIVOceanFishingHelper::FFXIVOceanFishingHelper()
+	: FFXIVOceanFishingHelper("oceanFishingDatabase.json")
 {
-	// TODO make this a setting
-	loadDatabase("oceanFishingDatabase.json");
 }
 
-void FFXIVOceanFishingHelper::loadDatabase(const std::string dataFile)
+FFXIVOceanFishingHelper::FFXIVOceanFishingHelper(const std::string& dataFile)
+{
+	loadDatabase(dataFile);
+}
+
+void FFXIVOceanFishingHelper::loadDatabase(const std::string& dataFile)
 {
 	// TODO handle parse errors
 	// TODO refactor this function
-	std::ifstream ifs("oceanFishingDatabase.json");
+	std::ifstream ifs(dataFile);
 	json j = j.parse(ifs);
 	ifs.close();
 
@@ -41,7 +45,7 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string dataFile)
 		mStops.insert({ stops.first, stops.second["shortform"].get<std::string>() });
 	}
 
-	// get blue fish
+	// get fish
 	for (const auto& fishType : j["targets"]["fish"].get<json::object_t>())
 	{
 		mFishes.insert({ fishType.first, {} });
@@ -50,10 +54,29 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string dataFile)
 			std::vector<locations_t> locations;
 			for (const auto& location : fish.second["locations"])
 			{
-				locations.push_back({ location["name"].get<std::string>(), location["time"].get<std::string>() });
+				// construct a vector of times the fish is available
+				// an empty vector means any time is allowed
+
+				std::vector<std::string> times;
+				if (location.find("time") != location.end())
+				{
+					// location["time"] can be a single entry ("time": "day") or an array ("time": ["day", night"])
+					if (location["time"].is_array())
+						for (const auto& time : location["time"])
+							times.push_back(time.get<std::string>());
+					else
+						times.push_back(location["time"].get<std::string>());
+				}
+
+				locations.push_back({ location["name"].get<std::string>(), times });
 			}
+
+			std::string shortformName = fish.first; // by default the shortform name is just the fish name
+			if (fish.second.find("shortform") != fish.second.end())
+				shortformName = fish.second["shortform"].get<std::string>();
+
 			mFishes.at(fishType.first).insert({ fish.first,
-					{fish.second["shortform"].get<std::string>(),
+					{shortformName,
 					 locations}
 				});
 			if (fishType.first == "Blue Fish")
@@ -98,14 +121,33 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string dataFile)
 				{
 					for (const auto& location : fish.second.locations)
 					{
-						if (location.name == stopName && location.time == stopTime)
-						{
-							fishList.insert(fish.first);
-						}
+						if (location.name != stopName)
+							continue;
+
+						bool isTimeMatch = false;
+						// empty time vector means any time is allowed
+						if (location.time.empty())
+							isTimeMatch = true;
+						else
+							// go through each time and check for any match
+							for (const auto& time : location.time)
+							{
+								if (time == stopTime)
+								{
+									isTimeMatch = true;
+									break;
+								}
+							}
+
+						if (!isTimeMatch)
+							continue;
+
+						fishList.insert(fish.first);
+						break;
 					}
 				}
 			}
-			stops.push_back({ {stopName, stopTime} , fishList });
+			stops.push_back({ {stopName, {stopTime} } , fishList });
 		}
 
 		const uint32_t id = route.second["id"].get<uint32_t>();
@@ -124,7 +166,7 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string dataFile)
 				id,
 				stops,
 				achievements,
-				"" // bluefishpatter, generated later
+				"" // bluefishpattern, generated later
 			}
 		});
 		mRouteIdToNameMap.insert({ id, routeName });
