@@ -24,9 +24,13 @@ class FFXIVOceanFishingHelper
 public:
 	FFXIVOceanFishingHelper();
 	FFXIVOceanFishingHelper(const std::string& dataFile);
+	FFXIVOceanFishingHelper(const json& j);
 	~FFXIVOceanFishingHelper() {};
 
-	void loadDatabase(const std::string& dataFile);
+	bool isInit() { return mIsInit; };
+	std::string getErrorMessage() { return errorMessage; };
+
+	void loadDatabase(const json& j);
 
 	bool getNextRoute(uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
 	bool getSecondsUntilNextRoute(int& secondsTillNextRoute, int& secondsLeftInWindow, uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
@@ -37,6 +41,19 @@ public:
 	json getTargetsJson();
 	json getTrackerTypesJson();
 private:
+	bool mIsInit = false;
+	std::string errorMessage = "";
+
+	bool isBadKey(const json& j, const std::string& key, const std::string& msg)
+	{
+		if (!j.contains(key))
+		{
+			errorMessage = msg + "\nJson Dump:\n" + j.dump(4);
+			return true;
+		}
+		return false;
+	}
+
 	struct locations_t
 	{
 		const std::string name;
@@ -71,7 +88,7 @@ private:
 	};
 	std::unordered_map <std::string, route_t> mRoutes;
 
-	uint32_t mPatternOffset;
+	uint32_t mPatternOffset = 0;
 	std::vector<uint32_t> mRoutePattern;
 
 	struct targets_t
@@ -91,4 +108,7 @@ private:
 
 	std::string createImageNameFromRouteId(const uint32_t& routeId, PRIORITY priority);
 	std::string createButtonLabelFromRouteId(const uint32_t& routeId, PRIORITY priority);
+
+	// database loading functions
+	bool loadSchedule(const json& j);
 };

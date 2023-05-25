@@ -38,7 +38,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\FFXIVOceanFishingHelper.cpp" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="FFXIVOceanFishingHelperInitializationTests.cpp" />
+    <ClCompile Include="FFXIVOceanFishingHelperTests.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

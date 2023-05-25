@@ -11,33 +11,81 @@
 #include <time.h>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include "../Vendor/json/src/json.hpp"
 using json = nlohmann::json;
 
 FFXIVOceanFishingHelper::FFXIVOceanFishingHelper()
-	: FFXIVOceanFishingHelper("oceanFishingDatabase.json")
+	: FFXIVOceanFishingHelper(std::string("oceanFishingDatabase.json"))
 {
 }
 
 FFXIVOceanFishingHelper::FFXIVOceanFishingHelper(const std::string& dataFile)
 {
-	loadDatabase(dataFile);
+	std::ifstream ifs(dataFile);
+
+	if (ifs.fail())
+	{
+		errorMessage = "Failed to open datafile: " + dataFile;
+		return;
+	}
+
+	json j;
+	bool jsonIsGood = false;
+	try
+	{
+		j = j.parse(ifs);
+		jsonIsGood = true;
+	}
+	catch (...)
+	{
+		errorMessage = "Failed to parse dataFile into json object.";
+	}
+	ifs.close();
+
+	if (jsonIsGood)
+		loadDatabase(j);
 }
 
-void FFXIVOceanFishingHelper::loadDatabase(const std::string& dataFile)
+FFXIVOceanFishingHelper::FFXIVOceanFishingHelper(const json& j)
+{
+	loadDatabase(j);
+}
+
+bool FFXIVOceanFishingHelper::loadSchedule(const json& j)
+{
+	if (isBadKey(j, "schedule", "Missing schedule in database.")) return false;
+	if (isBadKey(j["schedule"], "pattern", "Missing pattern in schedule.")) return false;
+	if (isBadKey(j["schedule"], "offset", "Missing offset in schedule.")) return false;
+
+	// get the pattern and store it in mRoutePattern
+	for (const auto& id : j["schedule"]["pattern"])
+		if (id.is_number_integer())
+			mRoutePattern.push_back(id.get<uint32_t>());
+		else
+		{
+			errorMessage = "Invalid pattern in schedule: " + id.dump(4) + "\n" + j["schedule"].dump(4);
+			return false;
+		}
+
+	// get the offset and store it in mPatternOffset
+	if (j["schedule"]["offset"].is_number_integer())
+		mPatternOffset = j["schedule"]["offset"].get<uint32_t>();
+	else
+	{
+		errorMessage = "Invalid offset in schedule:\n" + j["schedule"].dump(4);
+		return false;
+	}
+	return true;
+}
+
+void FFXIVOceanFishingHelper::loadDatabase(const json& j)
 {
 	// TODO handle parse errors
 	// TODO refactor this function
-	std::ifstream ifs(dataFile);
-	json j = j.parse(ifs);
-	ifs.close();
 
-	// get pattern
-	for (const auto& data : j["schedule"]["pattern"])
-	{
-		mRoutePattern.push_back(data.get<uint32_t>());
-	}
-	mPatternOffset = j["schedule"]["offset"].get<uint32_t>();
+	// get schedule
+	if (!loadSchedule(j)) return;
 
 	// get stops
 	for (const auto& stops : j["stops"].get<json::object_t>())
@@ -46,41 +94,44 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string& dataFile)
 	}
 
 	// get fish
-	for (const auto& fishType : j["targets"]["fish"].get<json::object_t>())
+	if (j["targets"].contains("fish"))
 	{
-		mFishes.insert({ fishType.first, {} });
-		for (const auto& fish : fishType.second.get<json::object_t>())
+		for (const auto& fishType : j["targets"]["fish"].get<json::object_t>())
 		{
-			std::vector<locations_t> locations;
-			for (const auto& location : fish.second["locations"])
+			mFishes.insert({ fishType.first, {} });
+			for (const auto& fish : fishType.second.get<json::object_t>())
 			{
-				// construct a vector of times the fish is available
-				// an empty vector means any time is allowed
-
-				std::vector<std::string> times;
-				if (location.find("time") != location.end())
+				std::vector<locations_t> locations;
+				for (const auto& location : fish.second["locations"])
 				{
-					// location["time"] can be a single entry ("time": "day") or an array ("time": ["day", night"])
-					if (location["time"].is_array())
-						for (const auto& time : location["time"])
-							times.push_back(time.get<std::string>());
-					else
-						times.push_back(location["time"].get<std::string>());
+					// construct a vector of times the fish is available
+					// an empty vector means any time is allowed
+
+					std::vector<std::string> times;
+					if (location.contains("time"))
+					{
+						// location["time"] can be a single entry ("time": "day") or an array ("time": ["day", night"])
+						if (location["time"].is_array())
+							for (const auto& time : location["time"])
+								times.push_back(time.get<std::string>());
+						else
+							times.push_back(location["time"].get<std::string>());
+					}
+
+					locations.push_back({ location["name"].get<std::string>(), times });
 				}
 
-				locations.push_back({ location["name"].get<std::string>(), times });
+				std::string shortformName = fish.first; // by default the shortform name is just the fish name
+				if (fish.second.contains("shortform"))
+					shortformName = fish.second["shortform"].get<std::string>();
+
+				mFishes.at(fishType.first).insert({ fish.first,
+						{shortformName,
+						 locations}
+					});
+				if (fishType.first == "Blue Fish")
+					mBlueFishNames.insert({ fish.first, mFishes.at(fishType.first).at(fish.first) });
 			}
-
-			std::string shortformName = fish.first; // by default the shortform name is just the fish name
-			if (fish.second.find("shortform") != fish.second.end())
-				shortformName = fish.second["shortform"].get<std::string>();
-
-			mFishes.at(fishType.first).insert({ fish.first,
-					{shortformName,
-					 locations}
-				});
-			if (fishType.first == "Blue Fish")
-				mBlueFishNames.insert({ fish.first, mFishes.at(fishType.first).at(fish.first)});
 		}
 	}
 
@@ -298,6 +349,8 @@ void FFXIVOceanFishingHelper::loadDatabase(const std::string& dataFile)
 	// special targets:
 	mTargetToRouteIdMap.insert({ "Other", {}});
 	mTargetToRouteIdMap.at("Other").insert({ "Next Route", {"", "", {}} });
+
+	mIsInit = true;
 }
 
 /**
@@ -592,8 +645,6 @@ void FFXIVOceanFishingHelper::getImageNameAndLabel(std::string& imageName, std::
 			}
 		}
 	}
-
-	return;
 }
 
 /**
