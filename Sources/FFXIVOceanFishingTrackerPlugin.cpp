@@ -252,27 +252,28 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 **/
 void FFXIVOceanFishingTrackerPlugin::updateImage(std::string name, const std::string& inContext)
 {
-	if (mImageNameToBase64Map.find(name) != mImageNameToBase64Map.end()) // if image was cached, just retrieve from cache
+	// if image was cached, just retrieve from cache
+	if (mImageNameToBase64Map.contains(name))
 	{
 		mConnectionManager->SetImage(mImageNameToBase64Map.at(name), inContext, 0);
+		return;
 	}
-	else // load image if not cached, have to load it from disk
+
+	// image was not cached, try to load the image from file
+	std::vector<unsigned char> buffer;
+	std::string filename = "Icons/" + name + ".png";
+	if (lodepng::load_file(buffer, filename) == 0)
 	{
-		std::vector<unsigned char> buffer;
-		std::string filename = "Icons/" + name + ".png";
-		if (lodepng::load_file(buffer, filename) == 0)
-		{
-			std::string base64Image;
-			imageutils::pngToBase64(base64Image, buffer);
-			mImageNameToBase64Map.insert({ name, base64Image }); // store to cache for next time
-			mConnectionManager->SetImage(base64Image, inContext, 0);
-		}
-		else
-		{
-			mConnectionManager->LogMessage("Error: unable to load image icon for target: " + name);
-			mConnectionManager->SetImage("", inContext, 0);
-		}
+		std::string base64Image;
+		imageutils::pngToBase64(base64Image, buffer);
+		mImageNameToBase64Map.insert({ name, base64Image }); // store to cache for next time
+		mConnectionManager->SetImage(base64Image, inContext, 0);
+		return;
 	}
+
+	// image failed to load
+	mConnectionManager->LogMessage("Error: unable to load image icon for target: " + name);
+	mConnectionManager->SetImage("", inContext, 0);
 }
 
 /**
