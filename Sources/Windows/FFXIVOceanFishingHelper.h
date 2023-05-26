@@ -1,20 +1,17 @@
 //==============================================================================
 /**
 @file       FFXIVOceanFishingHelper.h
-@brief      Computes Ocean Fishing Times
-@copyright  (c) 2020, Momoko Tomoko
+@brief      Handles multiple instances of processor for various fishing routes
+@copyright  (c) 2023, Momoko Tomoko
 **/
 //==============================================================================
 
 #pragma once
 
+#include "FFXIVOceanFishingProcessor.h"
 #include <string>
-#include <unordered_map>
-#include <map>
-#include <unordered_set>
-#include <set>
 #include <vector>
-#include "Common.h"
+#include <unordered_map>
 
 #include "../Vendor/json/src/json.hpp"
 using json = nlohmann::json;
@@ -22,93 +19,60 @@ using json = nlohmann::json;
 class FFXIVOceanFishingHelper
 {
 public:
-	FFXIVOceanFishingHelper();
-	FFXIVOceanFishingHelper(const std::string& dataFile);
-	FFXIVOceanFishingHelper(const json& j);
+	FFXIVOceanFishingHelper(const std::vector<std::string>& dataFiles);
 	~FFXIVOceanFishingHelper() {};
 
-	bool isInit() { return mIsInit; };
-	std::string getErrorMessage() { return errorMessage; };
-
-	void loadDatabase(const json& j);
-
-	bool getNextRoute(uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
-	bool getSecondsUntilNextRoute(int& secondsTillNextRoute, int& secondsLeftInWindow, uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
-	std::string getNextRouteName(const time_t& t, const unsigned int skips = 0);
-
-	std::unordered_set<uint32_t> getRouteIdByTracker(const std::string& tracker, const std::string& name);
-	void getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const PRIORITY priority, const uint32_t skips);
-	json getTargetsJson();
-	json getTrackerTypesJson();
-private:
-	bool mIsInit = false;
-	std::string errorMessage = "";
-
-	bool isBadKey(const json& j, const std::string& key, const std::string& msg)
+	bool isInit()
 	{
-		if (!j.contains(key))
+		for (const auto& processor : processors)
+			if (!processor.second->isInit())
+				return false;
+		return true;
+	};
+
+	std::string getErrorMessage()
+	{
+		std::string err;
+		for (const auto& processor : processors)
 		{
-			errorMessage = msg + "\nJson Dump:\n" + j.dump(4);
-			return true;
+			std::string msg = processor.second->getErrorMessage();
+
+			if (!msg.empty())
+				err += processor.first
+					+ " error message:\n"
+					+ msg;
 		}
-		return false;
-	}
-
-	struct locations_t
-	{
-		const std::string name;
-		const std::vector<std::string> time;
+		return err;
 	};
 
-	struct fish_t
-	{
-		const std::string shortName;
-		const std::vector<locations_t> locations;
-	};
+	bool getSecondsUntilNextVoyage(
+		uint32_t& secondsTillNextVoyage,
+		uint32_t& secondsLeftInWindow,
+		const time_t& startTime,
+		const std::unordered_set<uint32_t>& voyageIds,
+		const std::string& routeNameUsed,
+		const uint32_t skips = 0
+	);
 
+	std::unordered_set<uint32_t> getVoyageIdByTracker(
+		const std::string& routeName,
+		const std::string& tracker,
+		const std::string& name
+	);
 
-	std::unordered_map<std::string, std::string> mStops;
-	std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> mFishes;
-	std::unordered_map<std::string, std::unordered_set<uint32_t>> mAchievements;
-	std::map<std::string, fish_t> mBlueFishNames;
+	void getImageNameAndLabel(
+		std::string& imageName,
+		std::string& buttonLabel,
+		const std::string& routeName,
+		const std::string& tracker,
+		const std::string& name,
+		const PRIORITY priority,
+		const uint32_t skips
+	);
+	json getTargetsJson(const std::string& routeName);
+	json getTrackerTypesJson(const std::string& routeName);
+	json getRouteNames();
 
-	struct stop_t
-	{
-		const locations_t location;
-		const std::unordered_set<std::string> fish;
-	};
-
-	struct route_t
-	{
-		const std::string shortName;
-		const uint32_t id;
-		const std::vector<stop_t> stops;
-		const std::unordered_set<std::string> achievements;
-		std::string blueFishPattern;
-	};
-	std::unordered_map <std::string, route_t> mRoutes;
-
-	uint32_t mPatternOffset = 0;
-	std::vector<uint32_t> mRoutePattern;
-
-	struct targets_t
-	{
-		const std::string labelName;
-		const std::string imageName;
-		std::unordered_set <uint32_t> ids;
-	};
-	// hiearchy is target type -> target name -> struct with vector of route ids
-	// ie: "Blue Fish" -> "Sothis" -> {shortName, {id1, id2...}}
-	std::unordered_map <std::string, std::map<std::string, targets_t>> mTargetToRouteIdMap;
-	std::unordered_map <uint32_t, std::string> mRouteIdToNameMap;
-
-	time_t convertBlockIndexToTime(const unsigned int blockIdx);
-	unsigned int convertTimeToBlockIndex(const time_t& t);
-	unsigned int getRoutePatternIndex(const unsigned int blockIdx, const unsigned int jump = 0);
-
-	std::string createImageNameFromRouteId(const uint32_t& routeId, PRIORITY priority);
-	std::string createButtonLabelFromRouteId(const uint32_t& routeId, PRIORITY priority);
-
-	// database loading functions
-	bool loadSchedule(const json& j);
+private:
+	std::unordered_map<std::string, std::unique_ptr<FFXIVOceanFishingProcessor>> processors;
 };

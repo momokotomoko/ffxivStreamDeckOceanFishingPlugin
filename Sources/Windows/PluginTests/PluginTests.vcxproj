@@ -34,12 +34,16 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="..\FFXIVOceanFishingHelper.h" />
+    <ClInclude Include="..\FFXIVOceanFishingProcessor.h" />
+    <ClInclude Include="..\TimeUtils.hpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\FFXIVOceanFishingHelper.cpp" />
-    <ClCompile Include="FFXIVOceanFishingHelperInitializationTests.cpp" />
-    <ClCompile Include="FFXIVOceanFishingHelperTests.cpp" />
+    <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp" />
+    <ClCompile Include="FFXIVOceanFishingHelperTests .cpp" />
+    <ClCompile Include="FFXIVOceanFishingProcessorInitializationTests.cpp" />
+    <ClCompile Include="FFXIVOceanFishingProcessorTests.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -98,6 +102,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

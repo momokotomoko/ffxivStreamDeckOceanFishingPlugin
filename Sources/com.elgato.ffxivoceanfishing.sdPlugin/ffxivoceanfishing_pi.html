@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="sdpi.css">
 </head>
 <body>
+    <div class="sdpi-item" id="select_route">
+        <div class="sdpi-item-label">Route</div>
+        <select class="sdpi-item-value select" id="Routes" onchange="removeAllChildNodes(document.getElementById('Tracker')); sendSettingsToPlugin();">
+            <option disabled="disabled" selected="selected" hidden="hidden"></option>
+        </select>
+    </div>
     <div class="sdpi-item" id="select_tracker">
         <div class="sdpi-item-label">Track by</div>
         <select class="sdpi-item-value select" id="Tracker" onchange="sendSettingsToPlugin()">

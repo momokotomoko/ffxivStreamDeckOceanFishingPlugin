@@ -1,6 +1,8 @@
+//copyright  (c) 2023, Momoko Tomoko
+
 #include "pch.h"
 
-#include "../FFXIVOceanFishingHelper.h"
+#include "../FFXIVOceanFishingProcessor.h"
 
 namespace
 {
@@ -12,16 +14,17 @@ namespace
         PRIORITY priority;
     } createButtonLabelFromRouteIdTestParams;
 
-    class FFXIVOceanFishingHelperTests : public ::testing::TestWithParam<createButtonLabelFromRouteIdTestParams>
+    class FFXIVOceanFishingProcessorTests : public ::testing::TestWithParam<createButtonLabelFromRouteIdTestParams>
     {
     protected:
         void SetUp()
         {
-            mFFXIVOceanFishingHelper.reset(new FFXIVOceanFishingHelper(j));
+            mFFXIVOceanFishingProcessor.reset(new FFXIVOceanFishingProcessor(j));
         }
 
         json j = json::parse(R"(
 {
+    "name": "Test Route",
     "stops": {
         "StopA": {
             "shortform": "A"
@@ -136,20 +139,21 @@ namespace
     }
 }
 	)");
-        std::unique_ptr< FFXIVOceanFishingHelper> mFFXIVOceanFishingHelper;
+
+        std::unique_ptr<FFXIVOceanFishingProcessor> mFFXIVOceanFishingProcessor;
     };
 
-    TEST_F(FFXIVOceanFishingHelperTests, getRouteIdByTrackerAchievementTest) {
+    TEST_F(FFXIVOceanFishingProcessorTests, getRouteIdByTrackerAchievementTest) {
         std::string tracker = "Achievement";
         std::string name = "AchieveAB";
-        std::unordered_set<uint32_t> ids = mFFXIVOceanFishingHelper->getRouteIdByTracker(tracker, name);
+        std::unordered_set<uint32_t> ids = mFFXIVOceanFishingProcessor->getRouteIdByTracker(tracker, name);
         ASSERT_EQ(ids, std::unordered_set<uint32_t>({ 1,2 }));
     }
 
-    TEST_F(FFXIVOceanFishingHelperTests, getRouteIdByTrackerTest) {
+    TEST_F(FFXIVOceanFishingProcessorTests, getRouteIdByTrackerTest) {
         std::string tracker = "Blue Fish";
         std::string name = "Fish from A night or sunset";
-        std::unordered_set<uint32_t> ids = mFFXIVOceanFishingHelper->getRouteIdByTracker(tracker, name);
+        std::unordered_set<uint32_t> ids = mFFXIVOceanFishingProcessor->getRouteIdByTracker(tracker, name);
         ASSERT_EQ(ids, std::unordered_set<uint32_t>({ 1,2 }));
     }
 }

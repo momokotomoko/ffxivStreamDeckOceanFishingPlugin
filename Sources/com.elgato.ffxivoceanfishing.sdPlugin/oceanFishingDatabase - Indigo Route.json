@@ -1,4 +1,5 @@
 {
+    "name":  "Indigo Route",
     "stops": {
         "Outer Gladion Bay": {
             "shortform": "Gladion"
@@ -581,7 +582,7 @@
                 "routeIds": [ 6 ]
             },
             "Manta": {
-                "routeIds": [ 8 ]
+                "routeIds": [ 12, 8 ]
             },
             "Crab": {
                 "routeIds": [ 9 ]
@@ -741,5 +742,5 @@
         "offset": 85,
         "comment": "Pattern obtained from https://github.com/proyebat/FFXIVOceanFishingTimeCalculator"
     },
-    "version": "1.0"
+    "version": "1.1"
 }

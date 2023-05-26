@@ -2,7 +2,7 @@
 /**
 @file       FFXIVOceanFishingTrackerPlugin.cpp
 @brief      FFXIV Ocean Fishing Tracker plugin
-@copyright  (c) 2020, Momoko Tomoko
+@copyright  (c) 2023, Momoko Tomoko
 **/
 //==============================================================================
 
@@ -22,7 +22,12 @@
 
 FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 {
-	mFFXIVOceanFishingHelper = new FFXIVOceanFishingHelper();
+	mFFXIVOceanFishingHelper = new FFXIVOceanFishingHelper(
+		{
+			"oceanFishingDatabase - Indigo Route.json",
+			"oceanFishingDatabase - Ruby Route.json"
+		}
+	);
 
 	// timer that is called on certain minutes of the hour
 	mTimer = new CallBackTimer();
@@ -81,26 +86,45 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 			{
 				// First find what routes we are actually looking for.
 				// So convert what is requested to be tracked into route IDs
-				std::unordered_set<uint32_t> routeIds = mFFXIVOceanFishingHelper->getRouteIdByTracker(context.second.tracker, context.second.name);
+				std::unordered_set<uint32_t> routeIds =
+					mFFXIVOceanFishingHelper->getVoyageIdByTracker(
+						context.second.routeName,
+						context.second.tracker,
+						context.second.targetName
+					);
 
 				// now call the helper to compute the relative time until the next window
-				int relativeSecondsTillNextRoute = 0;
-				int relativeWindowTime = 0;
+				uint32_t relativeSecondsTillNextRoute = 0;
+				uint32_t relativeWindowTime = 0;
 				time_t startTime = time(0);
-				uint32_t nextRoute;
-				status = mFFXIVOceanFishingHelper->getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, nextRoute, startTime, routeIds, context.second.skips);
+				status = mFFXIVOceanFishingHelper->getSecondsUntilNextVoyage(
+					relativeSecondsTillNextRoute,
+					relativeWindowTime,
+					startTime,
+					routeIds,
+					context.second.routeName,
+					context.second.skips
+				);
 				// store the absolute times
 				context.second.routeTime = startTime + relativeSecondsTillNextRoute;
 				context.second.windowTime = startTime + relativeWindowTime;
 
 				std::string imageName;
 				std::string buttonLabel;
-				mFFXIVOceanFishingHelper->getImageNameAndLabel(imageName, buttonLabel, context.second.tracker, context.second.name, context.second.priority, context.second.skips);
+				mFFXIVOceanFishingHelper->getImageNameAndLabel(
+					imageName,
+					buttonLabel,
+					context.second.routeName,
+					context.second.tracker,
+					context.second.targetName,
+					context.second.priority,
+					context.second.skips
+				);
 				if (context.second.imageName != imageName || context.second.buttonLabel != buttonLabel)
 					context.second.needUpdate = true;
 
 				// update the image
-				if (status && context.second.needUpdate)
+				if (context.second.needUpdate)
 				{
 					context.second.imageName = imageName;
 					context.second.buttonLabel = buttonLabel;
@@ -135,9 +159,10 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 		time_t now = time(0);
 		for (const auto & context : mContextServerMap)
 		{
-			if (context.second.name.length() > 0)
+			std::string titleString = "";
+			if (context.second.targetName.length() > 0)
 			{
-				std::string titleString = context.second.buttonLabel + "\n";
+				titleString = context.second.buttonLabel + "\n";
 				// if we have skips, add a number to the top right
 				if (context.second.skips != 0)
 				{
@@ -167,12 +192,11 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 				}
 				else
 				{
-					titleString += timeutils::convertSecondsToHMSString(static_cast<int>(difftime(context.second.routeTime, now)));
+					titleString += "\n" + timeutils::convertSecondsToHMSString(static_cast<int>(difftime(context.second.routeTime, now)));
 				}
-				
-				// send the title to StreamDeck
-				mConnectionManager->SetTitle(titleString, context.first, kESDSDKTarget_HardwareAndSoftware);
 			}
+			// send the title to StreamDeck
+			mConnectionManager->SetTitle(titleString, context.first, kESDSDKTarget_HardwareAndSoftware);
 		}
 		mVisibleContextsMutex.unlock();
 	}
@@ -209,14 +233,19 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	mConnectionManager->LogMessage(payload.dump(4));
 	#endif
 	contextMetaData_t data{};
-	if (payload.find("Tracker") != payload.end())
+	if (payload.find("Route") != payload.end())
+	{
+		data.routeName = payload["Route"].get<std::string>();
+	}
+	if (payload.find("Tracker") != payload.end() &&
+		payload["Tracker"].is_string())
 	{
 		data.tracker = payload["Tracker"].get<std::string>();
 	}
 	if (payload.find("Name") != payload.end())
 	{
-		data.name = payload["Name"].get<std::string>();
-		data.buttonLabel = data.name;
+		data.targetName = payload["Name"].get<std::string>();
+		data.buttonLabel = data.targetName;
 		data.imageName = data.imageName;
 	}
 	if (payload.find("DateOrTime") != payload.end())
@@ -252,6 +281,9 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 **/
 void FFXIVOceanFishingTrackerPlugin::updateImage(std::string name, const std::string& inContext)
 {
+	if (name.empty())
+		name = "default";
+
 	// if image was cached, just retrieve from cache
 	if (mImageNameToBase64Map.contains(name))
 	{
@@ -281,18 +313,6 @@ void FFXIVOceanFishingTrackerPlugin::updateImage(std::string name, const std::st
 **/
 void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-	// setup the dropdown menu by sending all possible settings
-	mInitMutex.lock();
-	if (mConnectionManager != nullptr && mIsInit == false)
-	{
-		json j;
-		j["menuheaders"] = mFFXIVOceanFishingHelper->getTrackerTypesJson();
-		j["targets"] = mFFXIVOceanFishingHelper->getTargetsJson();
-		mConnectionManager->SetGlobalSettings(j);
-		mIsInit = true;
-	}
-	mInitMutex.unlock();
-
 	// read payload for any saved settings, update image if needed
 	contextMetaData_t data{};
 	if (inPayload.find("settings") != inPayload.end())
@@ -300,6 +320,17 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 		data = readJsonIntoMetaData(inPayload["settings"]);
 	}
 	data.needUpdate = true;
+
+	// setup the routes menu
+	mInitMutex.lock();
+	if (mConnectionManager != nullptr && mIsInit == false)
+	{
+		json j;
+		j["routes"] = mFFXIVOceanFishingHelper->getRouteNames();
+		mConnectionManager->SetGlobalSettings(j);
+		mIsInit = true;
+	}
+	mInitMutex.unlock();
 
 	// if this is the first plugin to be displayed, boot up the timers
 	if (mContextServerMap.empty())
@@ -355,10 +386,20 @@ void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, c
 	if (mContextServerMap.find(inContext) != mContextServerMap.end())
 	{
 		data = readJsonIntoMetaData(inPayload);
-		if (data.name != mContextServerMap.at(inContext).name || data.tracker != mContextServerMap.at(inContext).tracker)
+		if (data.routeName != mContextServerMap.at(inContext).routeName ||
+			data.targetName != mContextServerMap.at(inContext).targetName ||
+			data.tracker != mContextServerMap.at(inContext).tracker)
 		{
 			// update image since name changed
 			data.needUpdate = true;
+		}
+
+		if (data.routeName != mContextServerMap.at(inContext).routeName)
+		{
+			json j;
+			j["menuheaders"] = mFFXIVOceanFishingHelper->getTrackerTypesJson(data.routeName);
+			j["targets"] = mFFXIVOceanFishingHelper->getTargetsJson(data.routeName);
+			mConnectionManager->SetSettings(j, inContext);
 		}
 
 		// updated stored settings
