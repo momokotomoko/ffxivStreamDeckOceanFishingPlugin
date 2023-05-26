@@ -1,0 +1,393 @@
+{
+    "name":  "Ruby Route",
+    "stops": {
+        "Open Sirensong Sea": {
+            "shortform": "Sirensong"
+        },
+        "Kugane Coast": {
+            "shortform": "Kugane"
+        },
+        "Open Ruby Sea": {
+            "shortform": "Ruby Sea"
+        },
+        "Lower One River": {
+            "shortform": "One River"
+        }
+    },
+    "routes": {
+        "One River by Day": {
+            "shortform": "One River-D",
+            "id": 1,
+            "stops": [
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "sunset"
+                },
+                {
+                    "name": "Kugane Coast",
+                    "time": "night"
+                },
+                {
+                    "name": "Lower One River",
+                    "time": "day"
+                }
+            ]
+        },
+        "Ruby Sea by Day": {
+            "shortform": "Ruby Sea-D",
+            "id": 2,
+            "stops": [
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "sunset"
+                },
+                {
+                    "name": "Kugane Coast",
+                    "time": "night"
+                },
+                {
+                    "name": "Open Ruby Sea",
+                    "time": "day"
+                }
+            ]
+        },
+        "One River by Sunset": {
+            "shortform": "One River-S",
+            "id": 3,
+            "stops": [
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "night"
+                },
+                {
+                    "name": "Kugane Coast",
+                    "time": "day"
+                },
+                {
+                    "name": "Lower One River",
+                    "time": "sunset"
+                }
+            ]
+        },
+        "Ruby Sea by Sunset": {
+            "shortform": "Ruby Sea-S",
+            "id": 4,
+            "stops": [
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "night"
+                },
+                {
+                    "name": "Kugane Coast",
+                    "time": "day"
+                },
+                {
+                    "name": "Open Ruby Sea",
+                    "time": "sunset"
+                }
+            ]
+        },
+        "One River by Night": {
+            "shortform": "One River-N",
+            "id": 5,
+            "stops": [
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "day"
+                },
+                {
+                    "name": "Kugane Coast",
+                    "time": "sunset"
+                },
+                {
+                    "name": "Lower One River",
+                    "time": "night"
+                }
+            ]
+        },
+        "Ruby Sea by Night": {
+            "shortform": "Ruby Sea-N",
+            "id": 6,
+            "stops": [
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "day"
+                },
+                {
+                    "name": "Kugane Coast",
+                    "time": "sunset"
+                },
+                {
+                    "name": "Open Ruby Sea",
+                    "time": "night"
+                }
+            ]
+        }
+    },
+    "targets": {
+        "fish": {
+            "Blue Fish": {
+                "Taniwha": {
+                    "shortform": "Tani",
+                    "locations": [
+                        {
+                            "name": "Open Sirensong Sea",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Glass Dragon": {
+                    "shortform": "Glass",
+                    "locations": [
+                        {
+                            "name": "Kugane Coast",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Hells' Claw": {
+                    "shortform": "Claw",
+                    "locations": [
+                        {
+                            "name": "Open Ruby Sea",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Jewel of Plum Spring": {
+                    "shortform": "Jewel",
+                    "locations": [
+                        {
+                            "name": "Lower One River",
+                            "time": "day"
+                        }
+                    ]
+                }
+            },
+            "Green Fish": {
+                "Dusk Shark": {
+                    "locations": [
+                        {
+                            "name": "Open Sirensong Sea"
+                        }
+                    ]
+                },
+                "Vivid Pink Shrimp": {
+                    "locations": [
+                        {
+                            "name": "Open Sirensong Sea",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Black-jawed Helicoprion": {
+                    "locations": [
+                        {
+                            "name": "Open Sirensong Sea",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Mizuhiki": {
+                    "locations": [
+                        {
+                            "name": "Kugane Coast"
+                        }
+                    ]
+                },
+                "Stingfin Trevally": {
+                    "locations": [
+                        {
+                            "name": "Kugane Coast",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Mailfish": {
+                    "locations": [
+                        {
+                            "name": "Kugane Coast",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Spadefish": {
+                    "locations": [
+                        {
+                            "name": "Kugane Coast",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Heavensent Shark": {
+                    "locations": [
+                        {
+                            "name": "Open Ruby Sea"
+                        }
+                    ]
+                },
+                "Pitch Pickle": {
+                    "locations": [
+                        {
+                            "name": "Open Ruby Sea",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Bekko Rockhugger": {
+                    "locations": [
+                        {
+                            "name": "Open Ruby Sea",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Yellow Iris": {
+                    "locations": [
+                        {
+                            "name": "Open Ruby Sea",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Crimson Sentry": {
+                    "locations": [
+                        {
+                            "name": "Open Ruby Sea",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Fishy Shark": {
+                    "locations": [
+                        {
+                            "name": "Lower One River"
+                        }
+                    ]
+                },
+                "Iridescent Trout": {
+                    "locations": [
+                        {
+                            "name": "Lower One River",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Un-Namazu": {
+                    "locations": [
+                        {
+                            "name": "Lower One River",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Gakugyo": {
+                    "locations": [
+                        {
+                            "name": "Lower One River",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Ginrin Goshiki": {
+                    "locations": [
+                        {
+                            "name": "Lower One River",
+                            "time": "sunset"
+                        }
+                    ]
+                }
+            }
+        },
+        "achievements": {
+            "Shellfish": {
+                "routeIds": [ 3, 5 ]
+            },
+            "Shrimp": {
+                "routeIds": [ 3, 4 ]
+            },
+            "Squid": {
+                "routeIds": [ 2, 6 ]
+            }
+        }
+    },
+    "schedule": {
+        "pattern": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        "offset": 41,
+        "comment": "Pattern obtained from https://millhio.re/oceancalculator2.html"
+    },
+    "version": "1.1"
+}

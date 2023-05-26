@@ -2,7 +2,7 @@
 /**
 @file       FFXIVOceanFishingTrackerPlugin.h
 @brief      FFXIV Ocean Fishing Tracker plugin
-@copyright  (c) 2020, Momoko Tomoko
+@copyright  (c) 2023, Momoko Tomoko
 **/
 //==============================================================================
 
@@ -49,7 +49,8 @@ private:
 	// this struct contains a context's saved settings
 	struct contextMetaData_t
 	{
-		std::string name; // name of what we are tracking
+		std::string routeName; // name of the route we are using
+		std::string targetName; // name of target we are tracking
 		std::string tracker; // tracker type, ie: blue fish or route name
 		std::string buttonLabel; // the text on the top of the button
 		std::string imageName; // the name of hte image to use for this button

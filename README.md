@@ -1,5 +1,8 @@
 # FFXIV Ocean Fishing Plugin for the Elgato StreamDeck
 
+## NOW UPDATED FOR PATCH 6.4 RUBY ROUTE
+[Please refer to Installation section](#installation), **the previous installation must be removed or it won't install properly.**
+
 StreamDeck is an external LCD key macro device that allows the installation of plugins to improve productivity.
 
 Final Fantasy XIV is a MMORPG video game.

@@ -3,6 +3,10 @@
 var websocket = null,
 uuid = null,
 actionInfo = {};
+
+// stored menu info
+menuheadersJson = {};
+targetsJson = {};
          
 function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
     uuid = inUUID;
@@ -42,7 +46,32 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         const jsonObj = JSON.parse(evt.data);
         if (jsonObj.event === 'didReceiveSettings') {
             const payload = jsonObj.payload.settings;
-         
+            const menu = document.getElementById("Tracker")
+
+            if (payload.hasOwnProperty('Route'))
+                document.getElementById('Routes').value = payload.Route;
+
+            // create all the headers, this should arrive from plugin in the order we want the headers
+            // to be displayed in the dropdown menu
+            // ie: Blue Fish
+            if (payload.hasOwnProperty('menuheaders')) {
+                menuheadersJson = payload.menuheaders; // save the menus globally
+                // note this loop has to use .length, without it extra elements like 0,1,2,3
+                // get put into the menu
+                for (var i = 0; i < payload.menuheaders.length; i++) {
+                    insertOptGroup(menu, payload.menuheaders[i]);
+                }
+            }
+
+            // insert the targets under the appropriate headers
+            // ie: Elasomosaurus -> Blue Fish
+            if (payload.hasOwnProperty('targets')) {
+                targetsJson = payload.targets; // save the targets globally
+                for (name in payload.targets) {
+                    insertOptionToOptGroup(menu, payload.targets[name], name, name);
+                }
+            }
+
             document.getElementById('Tracker').value = payload.Name;
             if (payload.DateOrTime != null && payload.DateOrTime)
                 document.getElementById('select_date').checked = true;
@@ -63,20 +92,11 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         if (jsonObj.event === 'didReceiveGlobalSettings') {
             const payload = jsonObj.payload.settings;
 
-			// create all the headers, this should arrive from plugin in the order we want the headers
-			// to be displayed in the dropdown menu
-			// ie: Blue Fish
-			if (payload.hasOwnProperty('menuheaders')) {
-                for (var i = 0; i < payload.menuheaders.length; i++) {
-					insertOptGroup(payload.menuheaders[i]);
-                }
-            }
-
-			// insert the targets under the appropriate headers
-			// ie: Elasomosaurus -> Blue Fish
-            if (payload.hasOwnProperty('targets')) {
-                for (name in payload.targets) {
-                    insertOption(payload.targets[name], name, name);
+            // create route dropdown list
+            if (payload.hasOwnProperty('routes')) {
+                el = document.getElementById("Routes");
+                for (var i = 0; i < payload.routes.length; i++) {
+                    insertOption(el, payload.routes[i], payload.routes[i]);
                 }
             }
         }
@@ -85,10 +105,15 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
 
 // pass settings to the plugin
 function sendSettingsToPlugin() {
+    route_el = document.getElementById('Routes');
+
     tracker_el = document.getElementById('Tracker');
-    group = tracker_el.options[tracker_el.selectedIndex].parentElement.getAttribute('label');
+    group = null;
+    if (tracker_el.selectedIndex >= 0)
+        group = tracker_el.options[tracker_el.selectedIndex].parentElement.getAttribute('label');
 
     payload = {
+            'Route':route_el.value,
             'Name':tracker_el.value,
             'Tracker':group,
             'DateOrTime':document.getElementById('select_date').checked,
@@ -106,6 +131,10 @@ function sendSettingsToPlugin() {
         };
         websocket.send(JSON.stringify(json));
     }
+
+    payload['menuheaders'] = menuheadersJson;
+    payload['targets'] = targetsJson;
+
     saveValues(payload);
 }
          
@@ -122,26 +151,29 @@ function saveValues(obj) {
 }
 
 // inserts an optgroup
-function insertOptGroup(optgroupID) {
-    menu = document.getElementById("Tracker");
-    if (menu.querySelector("optgroup[label='" + optgroupID + "']") == null)
+function insertOptGroup(el, optgroupID) {
+    if (el.querySelector("optgroup[label='" + optgroupID + "']") == null)
     {
         grp = document.createElement('OPTGROUP');
         grp.label = optgroupID;
-        menu.appendChild(grp);
+        el.appendChild(grp);
     }
 }
 
-// inserts an option to specified optgroup ID in the tracker dropdown menu
-function insertOption(optgroupID, name, value) {
-    menu = document.getElementById("Tracker");
-	insertOptGroup(optgroupID);
+// inserts an option to specified optgroup ID
+function insertOptionToOptGroup(el, optgroupID, name, value) {
+	insertOptGroup(el, optgroupID);
 
-    const el = menu.querySelector("optgroup[label='" + optgroupID + "']");
+    const optgroup = el.querySelector("optgroup[label='" + optgroupID + "']");
+    insertOption(optgroup, name, value);
+}
+
+// inserts an option to specified element
+function insertOption(optgroup, name, value) {
     opt = document.createElement('OPTION');
     opt.textContent = name;
     opt.value = value;
-    el.appendChild(opt);
+    optgroup.appendChild(opt);
 }
 
 // opens a url in the default browser
@@ -154,5 +186,11 @@ function openUrl(url) {
                 }
         };
         websocket.send(JSON.stringify(json));
+    }
+}
+
+function removeAllChildNodes(el) {
+    while (el.firstChild) {
+        el.removeChild(el.firstChild);
     }
 }
