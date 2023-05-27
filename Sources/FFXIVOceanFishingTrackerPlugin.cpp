@@ -22,44 +22,28 @@
 
 FFXIVOceanFishingTrackerPlugin::FFXIVOceanFishingTrackerPlugin()
 {
-	mFFXIVOceanFishingHelper = new FFXIVOceanFishingHelper(
-		{
+	mFFXIVOceanFishingHelper = std::make_unique<FFXIVOceanFishingHelper>(
+		std::vector <std::string>({
 			"oceanFishingDatabase - Indigo Route.json",
 			"oceanFishingDatabase - Ruby Route.json"
-		}
+		})
 	);
 
 	// timer that is called on certain minutes of the hour
-	mTimer = new CallBackTimer();
+	mTimer = std::make_unique <CallBackTimer>();
 	//timer that is called every half a second to update UI
-	mSecondsTimer = new CallBackTimer();
+	mSecondsTimer = std::make_unique <CallBackTimer>();
 
 	startTimers();
 }
 
 FFXIVOceanFishingTrackerPlugin::~FFXIVOceanFishingTrackerPlugin()
 {
-	if(mTimer != nullptr)
-	{
+	if(mTimer)
 		mTimer->stop();
-		
-		delete mTimer;
-		mTimer = nullptr;
-	}
 	
-	if (mSecondsTimer != nullptr)
-	{
+	if (mSecondsTimer)
 		mSecondsTimer->stop();
-
-		delete mSecondsTimer;
-		mSecondsTimer = nullptr;
-	}
-
-	if(mFFXIVOceanFishingHelper != nullptr)
-	{
-		delete mFFXIVOceanFishingHelper;
-		mFFXIVOceanFishingHelper = nullptr;
-	}
 }
 
 /**

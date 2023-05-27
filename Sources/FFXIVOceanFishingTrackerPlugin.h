@@ -71,9 +71,9 @@ private:
 
 	void updateImage(std::string pngfile, const std::string& inContext);
 	
-	FFXIVOceanFishingHelper *mFFXIVOceanFishingHelper = nullptr;
-	CallBackTimer *mTimer = nullptr;
-	CallBackTimer* mSecondsTimer = nullptr;
+	std::unique_ptr<FFXIVOceanFishingHelper> mFFXIVOceanFishingHelper;
+	std::unique_ptr <CallBackTimer> mTimer;
+	std::unique_ptr <CallBackTimer> mSecondsTimer;
 
 	void startTimers();
 };
