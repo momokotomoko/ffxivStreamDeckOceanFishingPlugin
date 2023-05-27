@@ -14,7 +14,7 @@
             "shortform": "One River"
         }
     },
-    "routes": {
+    "voyages": {
         "One River by Day": {
             "shortform": "One River-D",
             "id": 1,
@@ -301,13 +301,13 @@
         },
         "achievements": {
             "Shellfish": {
-                "routeIds": [ 3, 5 ]
+                "voyageIds": [ 3, 5 ]
             },
             "Shrimp": {
-                "routeIds": [ 3, 4 ]
+                "voyageIds": [ 3, 4 ]
             },
             "Squid": {
-                "routeIds": [ 2, 6 ]
+                "voyageIds": [ 2, 6 ]
             }
         }
     },

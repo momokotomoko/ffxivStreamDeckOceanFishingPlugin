@@ -28,8 +28,8 @@ namespace
             "shortform": "D"
         }
     },
-    "routes": {
-            "Route1": {
+    "voyages": {
+            "Voyage1": {
                 "shortform": "r1",
                 "id": 1,
                 "stops": [
@@ -47,7 +47,7 @@ namespace
                     }
                 ]
             },
-            "Route2": {
+            "Voyage2": {
                 "shortform": "r2",
                 "id": 2,
                 "stops": [
@@ -65,7 +65,7 @@ namespace
                     }
                 ]
             },
-            "Route3": {
+            "Voyage3": {
                 "shortform": "r3",
                 "id": 3,
                 "stops": [
@@ -83,7 +83,7 @@ namespace
                     }
                 ]
             },
-            "Route4": {
+            "Voyage4": {
                 "shortform": "r4",
                 "id": 4,
                 "stops": [
@@ -135,10 +135,10 @@ namespace
         },
         "achievements": {
             "AchieveAB": {
-                "routeIds": [1, 2]
+                "voyageIds": [1, 2]
             },
             "AchieveB": {
-                "routeIds": [2]
+                "voyageIds": [2]
             }
         }
     },
@@ -153,7 +153,7 @@ namespace
         std::unique_ptr<FFXIVOceanFishingProcessor> mFFXIVOceanFishingProcessor;
     };
 
-    class GetRouteIdByTrackerTestFixture :
+    class GetVoyageIdByTrackerTestFixture :
         public FFXIVOceanFishingProcessorBase,
         public ::testing::TestWithParam<
         ::testing::tuple<
@@ -169,24 +169,24 @@ namespace
     };
 
     INSTANTIATE_TEST_CASE_P(
-        GetRouteIdByTrackerTest,
-        GetRouteIdByTrackerTestFixture,
+        GetVoyageIdByTrackerTest,
+        GetVoyageIdByTrackerTestFixture,
         ::testing::Values(
             std::make_tuple("Achievement", "AchieveAB", std::unordered_set<uint32_t>({ 1, 2 })),
             std::make_tuple("Blue Fish", "Fish from B night", std::unordered_set<uint32_t>({ 2 })),
             std::make_tuple("Blue Fish", "Fish from A night or sunset", std::unordered_set<uint32_t>({ 1, 2 })),
             std::make_tuple("Blue Fish", "Fish from any time B", std::unordered_set<uint32_t>({ 1, 2 })),
-            std::make_tuple("Other", "Next Route", std::unordered_set<uint32_t>({ 1, 2, 3, 4 })),
+            std::make_tuple("Other", "Next Voyage", std::unordered_set<uint32_t>({ 1, 2, 3, 4 })),
             std::make_tuple("Blue Fish", "Does not exist", std::unordered_set<uint32_t>({ })),
             std::make_tuple("Achievement", "Does not exist", std::unordered_set<uint32_t>({ })),
             std::make_tuple("Invalid Tracker", "AchieveAB", std::unordered_set<uint32_t>({ }))
         )
     );
 
-    TEST_P(GetRouteIdByTrackerTestFixture, GetRouteIdByTrackerTest) {
+    TEST_P(GetVoyageIdByTrackerTestFixture, GetVoyageIdByTrackerTest) {
         std::string tracker = std::get<0>(GetParam());
         std::string name = std::get<1>(GetParam());
-        std::unordered_set<uint32_t> ids = mFFXIVOceanFishingProcessor->getRouteIdByTracker(tracker, name);
+        std::unordered_set<uint32_t> ids = mFFXIVOceanFishingProcessor->getVoyageIdByTracker(tracker, name);
         EXPECT_EQ(ids, std::get<2>(GetParam()));
     }
 
@@ -220,25 +220,25 @@ namespace
             std::make_tuple("Fish from B night", "Fish from B night", "Blue Fish", "Fish from B night", 0, PRIORITY::ACHIEVEMENTS, 0),
             std::make_tuple("AchieveAB", "AchieveAB", "Achievement", "AchieveAB", 0, PRIORITY::ACHIEVEMENTS, 0),
             std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Blue Fish Pattern", "f1-Fish from any time B-X", 0, PRIORITY::ACHIEVEMENTS, 0),
-            std::make_tuple("", "", "Routes", "A", 0, PRIORITY::ACHIEVEMENTS, 0), // location A has no last stop, so it is not a route
-            std::make_tuple("AchieveAB-AchieveB", "AchieveAB-AchieveB", "Routes", "B", 0, PRIORITY::ACHIEVEMENTS, 1),
-            std::make_tuple("X-f1-f2", "X-f1-f2", "Routes", "B", 0, PRIORITY::BLUE_FISH, 1),
-            std::make_tuple("", "", "Routes", "C", 0, PRIORITY::ACHIEVEMENTS, 0),
-            std::make_tuple("", "", "Routes", "C", 0, PRIORITY::ACHIEVEMENTS, 1),
-            std::make_tuple("AchieveAB", "AchieveAB", "Routes", "C", 0, PRIORITY::ACHIEVEMENTS, 2),
-            std::make_tuple("", "", "Routes", "C", 0, PRIORITY::BLUE_FISH, 0),
-            std::make_tuple("", "", "Routes", "C", 0, PRIORITY::BLUE_FISH, 1),
-            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Routes", "C", 0, PRIORITY::BLUE_FISH, 2),
-            std::make_tuple("", "", "Routes", "D", 0, PRIORITY::BLUE_FISH, 2),
-            std::make_tuple("", "", "Routes", "D", 0, PRIORITY::ACHIEVEMENTS, 2),
-            std::make_tuple("", "", "Other", "Next Route", 0, PRIORITY::BLUE_FISH, 0),
-            std::make_tuple("", "", "Other", "Next Route", 0, PRIORITY::ACHIEVEMENTS, 0),
-            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Route", 0, PRIORITY::BLUE_FISH, 2),
-            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Route", 0, PRIORITY::ACHIEVEMENTS, 2),
-            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Route", 1, PRIORITY::BLUE_FISH, 2),
-            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Route", 1, PRIORITY::ACHIEVEMENTS, 2),
-            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Route", 7200 * 3, PRIORITY::BLUE_FISH, 0),
-            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Route", 7200 * 3, PRIORITY::ACHIEVEMENTS, 0)
+            std::make_tuple("", "", "Voyages", "A", 0, PRIORITY::ACHIEVEMENTS, 0), // location A has no last stop, so it is not a voyage
+            std::make_tuple("AchieveAB-AchieveB", "AchieveAB-AchieveB", "Voyages", "B", 0, PRIORITY::ACHIEVEMENTS, 1),
+            std::make_tuple("X-f1-f2", "X-f1-f2", "Voyages", "B", 0, PRIORITY::BLUE_FISH, 1),
+            std::make_tuple("", "", "Voyages", "C", 0, PRIORITY::ACHIEVEMENTS, 0),
+            std::make_tuple("", "", "Voyages", "C", 0, PRIORITY::ACHIEVEMENTS, 1),
+            std::make_tuple("AchieveAB", "AchieveAB", "Voyages", "C", 0, PRIORITY::ACHIEVEMENTS, 2),
+            std::make_tuple("", "", "Voyages", "C", 0, PRIORITY::BLUE_FISH, 0),
+            std::make_tuple("", "", "Voyages", "C", 0, PRIORITY::BLUE_FISH, 1),
+            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Voyages", "C", 0, PRIORITY::BLUE_FISH, 2),
+            std::make_tuple("", "", "Voyages", "D", 0, PRIORITY::BLUE_FISH, 2),
+            std::make_tuple("", "", "Voyages", "D", 0, PRIORITY::ACHIEVEMENTS, 2),
+            std::make_tuple("", "", "Other", "Next Voyage", 0, PRIORITY::BLUE_FISH, 0),
+            std::make_tuple("", "", "Other", "Next Voyage", 0, PRIORITY::ACHIEVEMENTS, 0),
+            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Voyage", 0, PRIORITY::BLUE_FISH, 2),
+            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Voyage", 0, PRIORITY::ACHIEVEMENTS, 2),
+            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Voyage", 1, PRIORITY::BLUE_FISH, 2),
+            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Voyage", 1, PRIORITY::ACHIEVEMENTS, 2),
+            std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Voyage", 7200 * 3, PRIORITY::BLUE_FISH, 0),
+            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Voyage", 7200 * 3, PRIORITY::ACHIEVEMENTS, 0)
         )
     );
 

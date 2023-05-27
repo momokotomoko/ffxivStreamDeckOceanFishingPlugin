@@ -51,12 +51,12 @@ private:
 	{
 		std::string routeName; // name of the route we are using
 		std::string targetName; // name of target we are tracking
-		std::string tracker; // tracker type, ie: blue fish or route name
+		std::string tracker; // tracker type, ie: blue fish or voyage name
 		std::string buttonLabel; // the text on the top of the button
 		std::string imageName; // the name of hte image to use for this button
 		PRIORITY priority = PRIORITY::BLUE_FISH; // whether to prioritize showing achievements or blue fish for this button
 		bool needUpdate = false; // true if this button needs an update to image name and label
-		time_t routeTime = 0; // time of next route
+		time_t voyageTime = 0; // time of next voyage
 		time_t windowTime = 0; // if we are in a fishing window, this holds the time remaining
 		bool dateOrTime = false; // true for date, false for time
 		uint32_t skips = 0;

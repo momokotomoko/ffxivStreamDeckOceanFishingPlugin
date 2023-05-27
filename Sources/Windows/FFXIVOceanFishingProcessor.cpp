@@ -21,7 +21,7 @@ FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const std::string& dataFi
 
 	if (ifs.fail())
 	{
-		errorMessage = "Failed to open datafile: " + dataFile;
+		mErrorMessage = "Failed to open datafile: " + dataFile;
 		return;
 	}
 
@@ -34,7 +34,7 @@ FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const std::string& dataFi
 	}
 	catch (...)
 	{
-		errorMessage = "Failed to parse dataFile into json object.";
+		mErrorMessage = "Failed to parse dataFile into json object.";
 	}
 	ifs.close();
 
@@ -59,17 +59,17 @@ bool FFXIVOceanFishingProcessor::loadSchedule(const json& j)
 		mRouteName = j["name"].get<std::string>();
 	else
 	{
-		errorMessage = "Invalid route name:\n" + j["schedule"].dump(4);
+		mErrorMessage = "Invalid route name:\n" + j["schedule"].dump(4);
 		return false;
 	}
 
-	// get the pattern and store it in mRoutePattern
+	// get the pattern and store it in mVoyagePattern
 	for (const auto& id : j["schedule"]["pattern"])
 		if (id.is_number_unsigned())
-			mRoutePattern.push_back(id.get<uint32_t>());
+			mVoyagePattern.push_back(id.get<uint32_t>());
 		else
 		{
-			errorMessage = "Invalid pattern in schedule: " + id.dump(4) + "\n" + j["schedule"].dump(4);
+			mErrorMessage = "Invalid pattern in schedule: " + id.dump(4) + "\n" + j["schedule"].dump(4);
 			return false;
 		}
 
@@ -78,7 +78,7 @@ bool FFXIVOceanFishingProcessor::loadSchedule(const json& j)
 		mPatternOffset = j["schedule"]["offset"].get<uint32_t>();
 	else
 	{
-		errorMessage = "Invalid offset in schedule:\n" + j["schedule"].dump(4);
+		mErrorMessage = "Invalid offset in schedule:\n" + j["schedule"].dump(4);
 		return false;
 	}
 	return true;
@@ -144,29 +144,29 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	for (const auto& achievement : j["targets"]["achievements"].get<json::object_t>())
 	{
 		std::unordered_set <uint32_t> ids;
-		for (const auto routeId : achievement.second["routeIds"])
+		for (const auto voyageId : achievement.second["voyageIds"])
 		{
-			ids.insert(routeId.get<uint32_t>());
+			ids.insert(voyageId.get<uint32_t>());
 		}
 		mAchievements.insert({achievement.first, ids});
 	}
 
-	// get routes
-	std::unordered_set<uint32_t> allRouteIds;
-	for (const auto& route : j["routes"].get<json::object_t>())
+	// get voyages
+	std::unordered_set<uint32_t> allVoyageIds;
+	for (const auto& voyage : j["voyages"].get<json::object_t>())
 	{
-		std::string routeName = route.first;
-		if (mRoutes.contains(routeName))
-			throw std::runtime_error("Error: duplicate route name in json: " + routeName);
-		if (!route.second["id"].is_number_unsigned())
-			throw std::runtime_error("Error: invalid route ID in json: " + route.second["id"].dump(4));
-		const uint32_t id = route.second["id"].get<uint32_t>();
-		if (allRouteIds.contains(id))
-			throw std::runtime_error("Error: duplidcate route id in json: " + id);
-		allRouteIds.insert(id);
+		std::string voyageName = voyage.first;
+		if (mVoyages.contains(voyageName))
+			throw std::runtime_error("Error: duplicate voyage name in json: " + voyageName);
+		if (!voyage.second["id"].is_number_unsigned())
+			throw std::runtime_error("Error: invalid voyage ID in json: " + voyage.second["id"].dump(4));
+		const uint32_t id = voyage.second["id"].get<uint32_t>();
+		if (allVoyageIds.contains(id))
+			throw std::runtime_error("Error: duplidcate voyage id in json: " + id);
+		allVoyageIds.insert(id);
 
 		std::vector<stop_t> stops;
-		for (const auto& stop : route.second["stops"])
+		for (const auto& stop : voyage.second["stops"])
 		{
 			const std::string stopName = stop["name"].get<std::string>();
 			const std::string stopTime = stop["time"].get<std::string>();
@@ -174,7 +174,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			// double check that the stops exist, and create list of fishes
 			if (!mStops.contains(stopName))
 			{
-				throw std::runtime_error("Error: stop " + stopName + " in route " + routeName + " does not exist in j[\"stops\"]");
+				throw std::runtime_error("Error: stop " + stopName + " in voyage " + voyageName + " does not exist in j[\"stops\"]");
 			}
 			for (const auto& fishType : mFishes)
 			{
@@ -211,7 +211,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			stops.push_back({ {stopName, {stopTime} } , fishList });
 		}
 
-		// load achievements into route
+		// load achievements into voyage
 		std::set<std::string> achievements;
 		for (const auto& achievement : mAchievements)
 		{
@@ -219,28 +219,28 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 				achievements.insert(achievement.first);
 		}
 
-		mRoutes.insert({routeName,
+		mVoyages.insert({voyageName,
 			{
-				route.second["shortform"].get<std::string>(),
+				voyage.second["shortform"].get<std::string>(),
 				id,
 				stops,
 				achievements,
 				"" // bluefishpattern, generated later
 			}
 		});
-		mRouteIdToNameMap.insert({ id, routeName });
+		mVoyageIdToNameMap.insert({ id, voyageName });
 	}
 
 	// construct search target mapping
-	// targets by blue fish per route
-	mTargetToRouteIdMap.insert({ "Blue Fish Pattern", {} });
-	for (const auto& route : mRoutes)
+	// targets by blue fish per voyage
+	mTargetToVoyageIdMap.insert({ "Blue Fish Pattern", {} });
+	for (const auto& voyage : mVoyages)
 	{
 		std::string blueFishPattern;
 		std::unordered_set<std::string> blueFish;
 
 		// create pattern string as fish1-fish2-fish3, and use X if there is no blue fish
-		for (const auto& stop : route.second.stops)
+		for (const auto& stop : voyage.second.stops)
 		{
 			bool blueFishFound = false;
 			for (const auto& fish : stop.fish) // go through all the possible fishes at this stop
@@ -268,28 +268,28 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 
 		if (blueFishPattern != "X-X-X")
 		{
-			mTargetToRouteIdMap.at("Blue Fish Pattern").insert({ blueFishPattern, 
+			mTargetToVoyageIdMap.at("Blue Fish Pattern").insert({ blueFishPattern, 
 				{
 					blueFishPattern, // label name
 					imageName, // image name
-					{} // route ids
+					{} // voyage ids
 				}
 			});
-			mTargetToRouteIdMap.at("Blue Fish Pattern").at(blueFishPattern).ids.insert(route.second.id);
-			mRoutes.at(route.first).blueFishPattern = blueFishPattern;
+			mTargetToVoyageIdMap.at("Blue Fish Pattern").at(blueFishPattern).ids.insert(voyage.second.id);
+			mVoyages.at(voyage.first).blueFishPattern = blueFishPattern;
 		}
 	}
 	
 	// achievements targets:
-	mTargetToRouteIdMap.insert({ "Achievement", {} });
+	mTargetToVoyageIdMap.insert({ "Achievement", {} });
 	for (const auto& achievement : mAchievements)
 	{
 		std::unordered_set <uint32_t> ids;
-		for (const auto& routeId : achievement.second)
+		for (const auto& voyageId : achievement.second)
 		{
-			ids.insert(routeId);
+			ids.insert(voyageId);
 		}
-		mTargetToRouteIdMap.at("Achievement").insert({ achievement.first, 
+		mTargetToVoyageIdMap.at("Achievement").insert({ achievement.first, 
 			{
 				achievement.first, // achievement label and imagename are the same as just the acheivement name
 				achievement.first,
@@ -301,22 +301,22 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	// fish targets:
 	for (const auto& fishType : mFishes)
 	{
-		mTargetToRouteIdMap.insert({ fishType.first, {} });
+		mTargetToVoyageIdMap.insert({ fishType.first, {} });
 		for (const auto& fish : fishType.second)
 		{
 			const std::string fishName = fish.first;
 			std::unordered_set <uint32_t> ids;
-			for (const auto& route : mRoutes)
+			for (const auto& voyage : mVoyages)
 			{
-				for (const auto& stop : route.second.stops)
+				for (const auto& stop : voyage.second.stops)
 				{
 					if (stop.fish.contains(fish.first))
 					{
-						ids.insert(route.second.id);
+						ids.insert(voyage.second.id);
 					}
 				}
 			}
-			mTargetToRouteIdMap.at(fishType.first).insert({ fishName,
+			mTargetToVoyageIdMap.at(fishType.first).insert({ fishName,
 				{
 					fish.first, // fish label and imagename are the same as just the fish name
 					fish.first,
@@ -326,129 +326,129 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 		}
 	}
 
-	// targets by route name:
-	mTargetToRouteIdMap.insert({ "Routes", {} });
-	for (const auto& route : mRoutes)
+	// targets by voyage name:
+	mTargetToVoyageIdMap.insert({ "Voyages", {} });
+	for (const auto& voyage : mVoyages)
 	{
-		// create an name for this route. Priority goes to achievement, then to the route bluefishpattern
-		std::string name = route.first;
-		// TODO: This assumes only 1 achievement per route, although can have more. Right now just grab the first one and use that as the icon
-		if (route.second.achievements.size() != 0)
-			name = *route.second.achievements.begin();
-		else if (route.second.blueFishPattern.length() > 0)
-			name = route.second.blueFishPattern;
+		// create an name for this voyage. Priority goes to achievement, then to the voyage bluefishpattern
+		std::string name = voyage.first;
+		// TODO: This assumes only 1 achievement per voyage, although can have more. Right now just grab the first one and use that as the icon
+		if (voyage.second.achievements.size() != 0)
+			name = *voyage.second.achievements.begin();
+		else if (voyage.second.blueFishPattern.length() > 0)
+			name = voyage.second.blueFishPattern;
 		
-		std::string lastStop = route.second.stops.back().location.name;
+		std::string lastStop = voyage.second.stops.back().location.name;
 		if (mStops.contains(lastStop))
 		{
 			std::string lastStopShortName = mStops.at(lastStop);
 
-			if (!mTargetToRouteIdMap.contains(lastStopShortName))
-				mTargetToRouteIdMap.at("Routes").insert({ lastStopShortName, {"", "", {}} });
-			mTargetToRouteIdMap.at("Routes").at(lastStopShortName).ids.insert(route.second.id);
+			if (!mTargetToVoyageIdMap.contains(lastStopShortName))
+				mTargetToVoyageIdMap.at("Voyages").insert({ lastStopShortName, {"", "", {}} });
+			mTargetToVoyageIdMap.at("Voyages").at(lastStopShortName).ids.insert(voyage.second.id);
 		}
 
-		mTargetToRouteIdMap.at("Routes").insert({ route.first, {name, "", {route.second.id}} });
+		mTargetToVoyageIdMap.at("Voyages").insert({ voyage.first, {name, "", {voyage.second.id}} });
 	}
 	
 	// special targets:
-	mTargetToRouteIdMap.insert({ "Other", {}});
-	mTargetToRouteIdMap.at("Other").insert({ "Next Route", {"", "", allRouteIds} });
+	mTargetToVoyageIdMap.insert({ "Other", {}});
+	mTargetToVoyageIdMap.at("Other").insert({ "Next Voyage", {"", "", allVoyageIds} });
 
 	mIsInit = true;
 }
 
 /**
-	@brief gets the next route number
+	@brief gets the next voyage number
 
-	@param[out] nextRoute the routeId used
+	@param[out] nextVoyageId the voyage id used
 	@param[in] startTime the time to start counting from.
-	@param[in] routeIds A set of routeIds we are looking for. The closest time is returned out of all the routes. =
+	@param[in] voyageIds A set of voyage ids we are looking for. The closest time is returned out of all the voyages.
 	@param[in] skips number of windows to skip over. Default is 0.
 
 	@return true if successful
 **/
-bool FFXIVOceanFishingProcessor::getNextRoute(
-	uint32_t& nextRoute,
+bool FFXIVOceanFishingProcessor::getNextVoyage(
+	uint32_t& nextVoyageId,
 	const time_t& startTime,
-	const std::unordered_set<uint32_t>& routeIds,
+	const std::unordered_set<uint32_t>& voyageIds,
 	const uint32_t skips
 )
 {
-	uint32_t relativeSecondsTillNextRoute = 0;
+	uint32_t relativeSecondsTillNextVoyage = 0;
 	uint32_t relativeWindowTime = 0;
-	return getSecondsUntilNextRoute(relativeSecondsTillNextRoute, relativeWindowTime, nextRoute, startTime, routeIds, skips);
+	return getSecondsUntilNextVoyage(relativeSecondsTillNextVoyage, relativeWindowTime, nextVoyageId, startTime, voyageIds, skips);
 }
 
 /**
 	@brief gets the number of seconds until the next window. If already in a window, it will also get the seconds left in that window
 
-	@param[out] secondsTillNextRoute number of seconds until the next window, not including the one we are currently in
+	@param[out] secondsTillNextVoyage number of seconds until the next window, not including the one we are currently in
 	@param[out] secondsLeftInWindow number of seconds left in the current window. Is set to 0 if not in a current window
-	@param[out] nextRoute the routeId used
+	@param[out] nextVoyageId the voyage id used
 	@param[in] startTime the time to start counting from.
-	@param[in] routeIds A set of routeIds we are looking for. The closest time is returned out of all the routes.
+	@param[in] voyageIds A set of voyage ids we are looking for. The closest time is returned out of all the voyages.
 	@param[in] skips number of windows to skip over. Default is 0.
 
 	@return true if successful
 **/
-bool FFXIVOceanFishingProcessor::getSecondsUntilNextRoute(
-	uint32_t& secondsTillNextRoute,
+bool FFXIVOceanFishingProcessor::getSecondsUntilNextVoyage(
+	uint32_t& secondsTillNextVoyage,
 	uint32_t& secondsLeftInWindow,
-	uint32_t& nextRoute,
+	uint32_t& nextVoyageId,
 	const time_t& startTime,
-	const std::unordered_set<uint32_t> & routeIds,
+	const std::unordered_set<uint32_t> & voyageIds,
 	const uint32_t skips
 )
 {
-	bool nextRouteUpdated = false;
-	secondsTillNextRoute = UINT32_MAX;
+	bool nextVoyageUpdated = false;
+	secondsTillNextVoyage = UINT32_MAX;
 	secondsLeftInWindow = 0;
 
-	if (routeIds.empty())
+	if (voyageIds.empty())
 		return false;
 
 	// Get the status of where we are currently
 	uint32_t currBlockIdx = convertTimeToBlockIndex(startTime);
 
-	// Cycle through the route pattern until we get a match to a route we are looking for.
+	// Cycle through the voyage pattern until we get a match to a voyage we are looking for.
 	uint32_t skipcounts = 0;
 	uint32_t maxCycles = 1000; // limit cycles just in case
 	for (uint32_t i = 0; i < maxCycles; i++)
 	{
 		// Current place in the pattern we are looking at.
-		uint32_t wrappedIdx = getRoutePatternIndex(currBlockIdx, i);
+		uint32_t wrappedIdx = getVoyagePatternIndex(currBlockIdx, i);
 
-		// Check to see if we match any of our desired routes
+		// Check to see if we match any of our desired voyages
 		// TODO: exit cycle loop if we went through entire pattern with no match, remove maxCycles
-		if (routeIds.contains(mRoutePattern[wrappedIdx]))
+		if (voyageIds.contains(mVoyagePattern[wrappedIdx]))
 		{
 			// Find the difference in time from the pattern position to the current time
-			time_t routeTime = convertBlockIndexToTime(currBlockIdx + i);
-			int timeDifference = static_cast<int>(difftime(routeTime, startTime));
+			time_t voyageTime = convertBlockIndexToTime(currBlockIdx + i);
+			int timeDifference = static_cast<int>(difftime(voyageTime, startTime));
 
-			// If the time of the route is more than 15m behind us, then it's not a valid route
+			// If the time of the voyage is more than 15m behind us, then it's not a valid voyage
 			if (timeDifference < -60 * 15)
 			{
 				continue;
 			}
 
-			// If we are skipping routes, skip now
+			// If we are skipping voyages, skip now
 			if (skipcounts < skips)
 			{
 				skipcounts++;
 				continue;
 			}
 
-			// If we reach here we found a valid route.
+			// If we reach here we found a valid voyage.
 			// If timeDifference <= 0, that means we are in a window,
-			// but we still want the time of the next route, so don't return
+			// but we still want the time of the next voyage, so don't return
 			// and continue for another cycle to get a positive timeDifference
 
-			if (!nextRouteUpdated) // remember the next route. Use the current window as the route if we are in window
+			if (!nextVoyageUpdated) // remember the next voyage. Use the current window as the voyage if we are in window
 			{
-				nextRoute = mRoutePattern[wrappedIdx];
-				nextRouteUpdated = true;
+				nextVoyageId = mVoyagePattern[wrappedIdx];
+				nextVoyageUpdated = true;
 			}
 			if (timeDifference <= 0) // needs to have the = also otherwise trigging this on the turn of the hour will not record that we're in a window
 			{
@@ -456,7 +456,7 @@ bool FFXIVOceanFishingProcessor::getSecondsUntilNextRoute(
 			}
 			else
 			{
-				secondsTillNextRoute = static_cast<uint32_t>(timeDifference);
+				secondsTillNextVoyage = static_cast<uint32_t>(timeDifference);
 				return true;
 			}
 		}
@@ -465,14 +465,14 @@ bool FFXIVOceanFishingProcessor::getSecondsUntilNextRoute(
 }
 
 /**
-	@brief gets the route name at a selected time, with option to skip. If in a window, that window is the routes name. If not, the next window will be the name.
+	@brief gets the voyage name at a selected time, with option to skip. If in a window, that window is the voyages name. If not, the next window will be the name.
 
 	@param[in] t the time to start the check
 	@param[in] skips number of windows to skip over. Default is 0.
 
-	@return name of the route
+	@return name of the voyage
 **/
-std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const uint32_t skips)
+std::string FFXIVOceanFishingProcessor::getNextVoyageName(const time_t& t, const uint32_t skips)
 {
 	uint32_t currBlockIdx = convertTimeToBlockIndex(t);
 
@@ -481,31 +481,31 @@ std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const 
 	for (uint32_t i = 0; i < maxCycles; i++)
 	{
 		// Find the difference in time from the pattern position to the current time
-		time_t routeTime = convertBlockIndexToTime(currBlockIdx + i);
-		int timeDifference = static_cast<int>(difftime(routeTime, t));
+		time_t voyageTime = convertBlockIndexToTime(currBlockIdx + i);
+		int timeDifference = static_cast<int>(difftime(voyageTime, t));
 
-		// If the time of the route is more than 15m behind us, then it's not a valid route
+		// If the time of the voyage is more than 15m behind us, then it's not a valid voyage
 		if (timeDifference < -60 * 15)
 		{
 			continue;
 		}
 
-		// If we are skipping routes, skip now
+		// If we are skipping voyages, skip now
 		if (skipcounts < skips)
 		{
 			skipcounts++;
 			continue;
 		}
 
-		// get route index
-		uint32_t routeIdx = mRoutePattern[getRoutePatternIndex(currBlockIdx + i)];
+		// get voyage index
+		uint32_t voyageIdx = mVoyagePattern[getVoyagePatternIndex(currBlockIdx + i)];
 
 		// convert from id
-		if (mRouteIdToNameMap.contains(routeIdx))
+		if (mVoyageIdToNameMap.contains(voyageIdx))
 		{
-			const std::string routeName = mRouteIdToNameMap.at(routeIdx);
-			if (mRoutes.contains(routeName))
-				return routeName;
+			const std::string voyageName = mVoyageIdToNameMap.at(voyageIdx);
+			if (mVoyages.contains(voyageName))
+				return voyageName;
 		}
 	}
 	return "";
@@ -547,16 +547,16 @@ uint32_t FFXIVOceanFishingProcessor::convertTimeToBlockIndex(const time_t& t)
 }
 
 /**
-	@brief gets the route's id from the pattern given a block index
+	@brief gets the voyage's id from the pattern given a block index
 
 	@param[in] blockIdx the block to convert
 	@param[in] jump number of steps to jump ahead, default is 0
 
-	@return the route id at the blockIdx + jump
+	@return the voyage id at the blockIdx + jump
 **/
-uint32_t FFXIVOceanFishingProcessor::getRoutePatternIndex(const uint32_t blockIdx, const uint32_t jump)
+uint32_t FFXIVOceanFishingProcessor::getVoyagePatternIndex(const uint32_t blockIdx, const uint32_t jump)
 {
-	return (blockIdx + jump) % mRoutePattern.size();
+	return (blockIdx + jump) % mVoyagePattern.size();
 }
 
 /**
@@ -570,7 +570,7 @@ std::string FFXIVOceanFishingProcessor::createAchievementName(const std::string 
 {
 	std::string achievementName = "";
 	bool firstAchievement = true;
-	for (const auto& achievement : mRoutes.at(voyageName).achievements)
+	for (const auto& achievement : mVoyages.at(voyageName).achievements)
 	{
 		if (!firstAchievement)
 			achievementName += "-";
@@ -582,29 +582,29 @@ std::string FFXIVOceanFishingProcessor::createAchievementName(const std::string 
 }
 
 /**
-	@brief converts a routeId to image name
+	@brief converts a voyageId to image name
 
-	@param[in] routeId the routeId to get the image for
+	@param[in] voyageId the voyageId to get the image for
 	@param[in] priority whether to prioritize achievement name or blue fish name
 
 	@return the image name
 
 	@relatesalso getImageName
 **/
-std::string FFXIVOceanFishingProcessor::createImageNameFromRouteId(const uint32_t& routeId, PRIORITY priority)
+std::string FFXIVOceanFishingProcessor::createImageNameFromVoyageId(const uint32_t& voyageId, PRIORITY priority)
 {
-	if (!mRouteIdToNameMap.contains(routeId))
+	if (!mVoyageIdToNameMap.contains(voyageId))
 		return "";
-	std::string routeName = mRouteIdToNameMap.at(routeId);
-	if (!mRoutes.contains(routeName))
+	std::string voyageName = mVoyageIdToNameMap.at(voyageId);
+	if (!mVoyages.contains(voyageName))
 		return "";
 
 	std::string blueFishName = "";
-	std::string blueFishPattern = mRoutes.at(routeName).blueFishPattern;
-	if (mTargetToRouteIdMap.contains("Blue Fish Pattern") &&
-		mTargetToRouteIdMap.at("Blue Fish Pattern").contains(blueFishPattern))
-		blueFishName = mTargetToRouteIdMap.at("Blue Fish Pattern").at(blueFishPattern).imageName;
-	std::string achievementName = createAchievementName(routeName);
+	std::string blueFishPattern = mVoyages.at(voyageName).blueFishPattern;
+	if (mTargetToVoyageIdMap.contains("Blue Fish Pattern") &&
+		mTargetToVoyageIdMap.at("Blue Fish Pattern").contains(blueFishPattern))
+		blueFishName = mTargetToVoyageIdMap.at("Blue Fish Pattern").at(blueFishPattern).imageName;
+	std::string achievementName = createAchievementName(voyageName);
 
 	if ((priority == PRIORITY::ACHIEVEMENTS && !achievementName.empty()) || blueFishName.empty())
 		return achievementName;
@@ -613,25 +613,25 @@ std::string FFXIVOceanFishingProcessor::createImageNameFromRouteId(const uint32_
 }
 
 /**
-	@brief converts a routeId to button label
+	@brief converts a voyageId to button label
 
-	@param[in] routeId the routeId to get the image for
+	@param[in] voyageId the voyageId to get the image for
 	@param[in] priority whether to prioritize achievement name or blue fish name
 
 	@return the button label
 
 	@relatesalso getButtonLabel
 **/
-std::string FFXIVOceanFishingProcessor::createButtonLabelFromRouteId(const uint32_t& routeId, PRIORITY priority)
+std::string FFXIVOceanFishingProcessor::createButtonLabelFromVoyageId(const uint32_t& voyageId, PRIORITY priority)
 {
-	if (!mRouteIdToNameMap.contains(routeId))
+	if (!mVoyageIdToNameMap.contains(voyageId))
 		return "";
-	std::string routeName = mRouteIdToNameMap.at(routeId);
-	if (!mRoutes.contains(routeName))
+	std::string voyageName = mVoyageIdToNameMap.at(voyageId);
+	if (!mVoyages.contains(voyageName))
 		return "";
 
-	std::string blueFishName = mRoutes.at(routeName).blueFishPattern;
-	std::string achievementName = createAchievementName(routeName);
+	std::string blueFishName = mVoyages.at(voyageName).blueFishPattern;
+	std::string achievementName = createAchievementName(voyageName);
 
 	if ((priority == PRIORITY::ACHIEVEMENTS && !achievementName.empty()) || blueFishName.empty())
 		return achievementName;
@@ -644,7 +644,7 @@ std::string FFXIVOceanFishingProcessor::createButtonLabelFromRouteId(const uint3
 
 	@param[out] imageName the name of the png image for this tracker
 	@param[out] buttonLabel the string label for this button
-	@param[in] routeName the name of the route
+	@param[in] voyageName the name of the voyage
 	@param[in] tracker the name of the tracker type (ie: Blue Fish, Achievement)
 	@param[in] name the name of the actual thing to track (ie: name of fish, name of Achievement)
 	@param[in] startTime the time to start counting from.
@@ -665,28 +665,28 @@ void FFXIVOceanFishingProcessor::getImageNameAndLabel(
 	buttonLabel = "";
 
 	// first look for tracker+name in the map
-	if (mTargetToRouteIdMap.contains(tracker))
+	if (mTargetToVoyageIdMap.contains(tracker))
 	{
-		if (mTargetToRouteIdMap.at(tracker).contains(name))
+		if (mTargetToVoyageIdMap.at(tracker).contains(name))
 		{
-			buttonLabel = mTargetToRouteIdMap.at(tracker).at(name).labelName;
-			imageName = mTargetToRouteIdMap.at(tracker).at(name).imageName;
+			buttonLabel = mTargetToVoyageIdMap.at(tracker).at(name).labelName;
+			imageName = mTargetToVoyageIdMap.at(tracker).at(name).imageName;
 
 			// if labelName or imageName not provided, we need to create them
 			if (buttonLabel.empty() || imageName.empty())
 			{
-				// first get routeId for this tracker
-				std::unordered_set<uint32_t> routeIds = getRouteIdByTracker(tracker, name);
+				// first get voyageId for this tracker
+				std::unordered_set<uint32_t> voyageIds = getVoyageIdByTracker(tracker, name);
 
-				// get next route
-				uint32_t nextRoute;
-				if (getNextRoute(nextRoute, startTime, routeIds, skips))
+				// get next voyage
+				uint32_t nextVoyage;
+				if (getNextVoyage(nextVoyage, startTime, voyageIds, skips))
 				{
 					// create the names
 					if (buttonLabel.empty())
-						buttonLabel = createButtonLabelFromRouteId(nextRoute, priority);
+						buttonLabel = createButtonLabelFromVoyageId(nextVoyage, priority);
 					if (imageName.empty())
-						imageName = createImageNameFromRouteId(nextRoute, priority);
+						imageName = createImageNameFromVoyageId(nextVoyage, priority);
 				}
 			}
 		}
@@ -701,7 +701,7 @@ void FFXIVOceanFishingProcessor::getImageNameAndLabel(
 json FFXIVOceanFishingProcessor::getTargetsJson()
 {
 	json j;
-	for (const auto& type : mTargetToRouteIdMap)
+	for (const auto& type : mTargetToVoyageIdMap)
 		for (const auto& target : type.second)
 			j.emplace(target.first, type.first);
 
@@ -716,25 +716,25 @@ json FFXIVOceanFishingProcessor::getTargetsJson()
 json FFXIVOceanFishingProcessor::getTrackerTypesJson()
 {
 	json j;
-	for (const auto& type : mTargetToRouteIdMap)
+	for (const auto& type : mTargetToVoyageIdMap)
 		j.push_back(type.first);
 	std::sort(j.begin(), j.end());
 	return j;
 }
 
 /**
-	@brief converts a target to a set of route ids that matches the target
+	@brief converts a target to a set of voyage ids that matches the target
 
 	@param[in] type the targets type
 	@param[in] name the targets name
 
-	@return a set of route ids if found, and a null set if the route is not found
+	@return a set of voyage ids if found, and a null set if the voyage is not found
 **/
-std::unordered_set<uint32_t> FFXIVOceanFishingProcessor::getRouteIdByTracker(const std::string& tracker, const std::string& name)
+std::unordered_set<uint32_t> FFXIVOceanFishingProcessor::getVoyageIdByTracker(const std::string& tracker, const std::string& name)
 {
 	// this map was precomputed in initializer
-	if (mTargetToRouteIdMap.contains(tracker))
-		if (mTargetToRouteIdMap.at(tracker).contains(name))
-			return mTargetToRouteIdMap.at(tracker).at(name).ids;
+	if (mTargetToVoyageIdMap.contains(tracker))
+		if (mTargetToVoyageIdMap.at(tracker).contains(name))
+			return mTargetToVoyageIdMap.at(tracker).at(name).ids;
 	return {};
 }

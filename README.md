@@ -5,7 +5,7 @@
 ## NOW UPDATED FOR PATCH 6.4 RUBY ROUTE
 [Please refer to Installation section](#installation), **the previous installation must be removed or it won't install properly.**
 
-Note: it is rare but some users may not see a dropdown menu for Routes on first install and initial use. This bug is still being investigated, but may be fixed in v2.01. A restart typically solves this issue.
+Note: it is rare but some users may not see a dropdown menu for Routes on first install and initial use. This bug is still being investigated, but may be fixed in v2.02+. A restart typically solves this issue.
 
 -----------------------
 
@@ -17,8 +17,8 @@ Final Fantasy XIV is a MMORPG video game.
 
 `FFXIV Ocean Fishing Plugin` can track and display the following:
 - Upcoming windows for Blue Fish. (Coral Manta, Stonescale, etc.)
-- Upcoming windows for a particular Route. (Jelly Route, Shark Route, etc.)
-- Whatever the next route is.
+- Upcoming windows for a particular voyage. (Jelly, Shark, etc.)
+- Whatever the next voyage is.
 
 For any of the above trackers, you can also select number of windows to skip, to display the "next" window or "next-next" window, and so forth.
 
@@ -66,7 +66,7 @@ Select an Ocean Fishing route, such as the Indigo Route or Ruby Route.
 
 `Track by:`
 
-Select either an Achievement, Blue Fish or a Route to track. You can also select Next Route to display whatever is coming up next. Icons will be dynamically updated.
+Select either an Achievement, Blue Fish or a Voyage to track. You can also select Next Voyage to display whatever is coming up next. Icons will be dynamically updated.
 
 `Display Time:`
 
@@ -78,15 +78,15 @@ Select number of windows to skip over. Using different skip numbers across multi
 
 If set to a non-zero number, the selected value will be displayed in the top-right corner.
 
-In the image below, an example is shown where in the first two rows the next 5 upcoming windows for Coral Manta and Stonescale are shown. The last row shows what the next 5 routes will be in general.
+In the image below, an example is shown where in the first two rows the next 5 upcoming windows for Coral Manta and Stonescale are shown. The last row shows what the next 5 voyages will be in general.
 
 ![](skips.png)
 
 `Display Priority:`
 
-If tracking by Routes or by Next Route, this option will prioritize displaying either the Achievement or the Blue Fish of that route.
+If tracking by Voyages or by Next Voyage, this option will prioritize displaying either the Achievement or the Blue Fish of that voyage.
 
-Note that if a route has no Achievement, it will always just display the Blue Fish for that route. Similarly, if the route has no Blue Fish, it will fall back to displaying any Achievements in that route.
+Note that if a voyage has no Achievement, it will always just display the Blue Fish for that voyage. Similarly, if the voyage has no Blue Fish, it will fall back to displaying any Achievements in that voyage.
 
 This option has no effect if tracking by Achievements or Blue Fish directly.
 
