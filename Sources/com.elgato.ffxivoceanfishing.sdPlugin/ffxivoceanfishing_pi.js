@@ -7,6 +7,10 @@ actionInfo = {};
 // stored menu info
 menuheadersJson = {};
 targetsJson = {};
+
+globalSettingsInitialized = false;
+settingsInitialized = false;
+isInitialized = false;
          
 function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
     uuid = inUUID;
@@ -36,8 +40,6 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
             "context": uuid,
         };
         websocket.send(JSON.stringify(json));
-
-
     }
          
     // retrieve saved settings if there are any
@@ -49,7 +51,12 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
             const menu = document.getElementById("Tracker")
 
             if (payload.hasOwnProperty('Route'))
-                document.getElementById('Routes').value = payload.Route;
+            {
+                if (payload.Route) {
+                    document.getElementById('Routes').value = payload.Route;
+                    removeAllChildOptions(document.getElementById('Tracker'), '>>Select Tracker<<');
+                }
+            }
 
             // create all the headers, this should arrive from plugin in the order we want the headers
             // to be displayed in the dropdown menu
@@ -88,6 +95,8 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
             {
                 document.getElementById('set_url').value = payload.url;
             }
+
+            settingsInitialized = true;
         }
         if (jsonObj.event === 'didReceiveGlobalSettings') {
             const payload = jsonObj.payload.settings;
@@ -95,10 +104,17 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
             // create route dropdown list
             if (payload.hasOwnProperty('routes')) {
                 el = document.getElementById("Routes");
+                removeAllChildOptions(el, ">>Select Route<<");
                 for (var i = 0; i < payload.routes.length; i++) {
                     insertOption(el, payload.routes[i], payload.routes[i]);
                 }
             }
+
+            globalSettingsInitialized = true;
+        }
+        if (globalSettingsInitialized && settingsInitialized && !isInitialized) {
+            sendSettingsToPlugin();
+            isInitialized = true;
         }
     };
 }
@@ -113,21 +129,21 @@ function sendSettingsToPlugin() {
         group = tracker_el.options[tracker_el.selectedIndex].parentElement.getAttribute('label');
 
     payload = {
-            'Route':route_el.value,
-            'Name':tracker_el.value,
-            'Tracker':group,
-            'DateOrTime':document.getElementById('select_date').checked,
-            'Priority':document.getElementById('select_achievement').checked,
-            'Skips':document.getElementById('set_skips').value,
-            'url':document.getElementById('set_url').value
+        'Route':route_el.value,
+        'Name':tracker_el.value,
+        'Tracker':group,
+        'DateOrTime':document.getElementById('select_date').checked,
+        'Priority':document.getElementById('select_achievement').checked,
+        'Skips':document.getElementById('set_skips').value,
+        'url':document.getElementById('set_url').value
     };
 
     if (websocket) {
         const json = {
-                "action": actionInfo['action'],
-                "event": "sendToPlugin",
-                "context": uuid,
-                "payload": payload
+            "action": actionInfo['action'],
+            "event": "sendToPlugin",
+            "context": uuid,
+            "payload": payload
         };
         websocket.send(JSON.stringify(json));
     }
@@ -142,9 +158,9 @@ function sendSettingsToPlugin() {
 function saveValues(obj) {
     if (websocket) {
         const json = {
-                "event": "setSettings",
-                "context": uuid,
-                "payload": obj
+            "event": "setSettings",
+            "context": uuid,
+            "payload": obj
         };
         websocket.send(JSON.stringify(json));
     }
@@ -180,17 +196,34 @@ function insertOption(optgroup, name, value) {
 function openUrl(url) {
     if (websocket) {
         const json = {
-                "event": "openUrl",
-                "payload": {
-                    "url": url
-                }
+            "event": "openUrl",
+            "payload": {
+                "url": url
+            }
         };
         websocket.send(JSON.stringify(json));
     }
 }
 
-function removeAllChildNodes(el) {
+// remove all child options in a dropdown menu
+// and then inserts a default placeholder
+function removeAllChildOptions(el, placeholderText) {
+    // delete all the child options
     while (el.firstChild) {
         el.removeChild(el.firstChild);
     }
+
+    // insert a placeholder option
+    createPlaceholderOption(el, placeholderText)
+}
+
+// insert a placeholder option into an element
+function createPlaceholderOption(el, text) {
+    opt = document.createElement('OPTION');
+    opt.disabled = "disabled";
+    opt.selected = "selected";
+    opt.hidden = "hidden";
+    opt.value = "";
+    opt.textContent = text;
+    el.appendChild(opt);
 }

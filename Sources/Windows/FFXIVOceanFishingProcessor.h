@@ -33,11 +33,27 @@ public:
 	void loadDatabase(const json& j);
 
 	bool getNextRoute(uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
-	bool getSecondsUntilNextRoute(uint32_t& secondsTillNextRoute, uint32_t& secondsLeftInWindow, uint32_t& nextRoute, const time_t& startTime, const std::unordered_set<uint32_t>& routeIds, const uint32_t skips = 0);
+	bool getSecondsUntilNextRoute(
+		uint32_t& secondsTillNextRoute,
+		uint32_t& secondsLeftInWindow,
+		uint32_t& nextRoute,
+		const time_t& startTime,
+		const std::unordered_set<uint32_t>& routeIds,
+		const uint32_t skips = 0
+	);
 	std::string getNextRouteName(const time_t& t, const uint32_t skips = 0);
 
 	std::unordered_set<uint32_t> getRouteIdByTracker(const std::string& tracker, const std::string& name);
-	void getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const PRIORITY priority, const uint32_t skips);
+	void getImageNameAndLabel(
+		std::string& imageName,
+		std::string& buttonLabel,
+		const std::string& tracker,
+		const std::string& name,
+		const time_t& startTime,
+		const PRIORITY priority,
+		const uint32_t skips
+	);
+
 	json getTargetsJson();
 	json getTrackerTypesJson();
 private:

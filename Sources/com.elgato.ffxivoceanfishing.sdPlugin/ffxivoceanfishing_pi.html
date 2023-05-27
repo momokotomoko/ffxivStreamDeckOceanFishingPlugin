@@ -8,14 +8,13 @@
 <body>
     <div class="sdpi-item" id="select_route">
         <div class="sdpi-item-label">Route</div>
-        <select class="sdpi-item-value select" id="Routes" onchange="removeAllChildNodes(document.getElementById('Tracker')); sendSettingsToPlugin();">
-            <option disabled="disabled" selected="selected" hidden="hidden"></option>
+        <select class="sdpi-item-value select" id="Routes" onchange="removeAllChildOptions(document.getElementById('Tracker'), '>>Select Tracker<<'); sendSettingsToPlugin();">
+            <option disabled="disabled" selected="selected" hidden="hidden" value=""></option>
         </select>
     </div>
     <div class="sdpi-item" id="select_tracker">
         <div class="sdpi-item-label">Track by</div>
         <select class="sdpi-item-value select" id="Tracker" onchange="sendSettingsToPlugin()">
-            <option disabled="disabled" selected="selected" hidden="hidden"></option>
         </select>
     </div>
     <div type="radio" class="sdpi-item" id="time_date_select">
@@ -63,7 +62,7 @@
     <div class="sdpi-item">
         <div class="sdpi-item-label">Button URL</div>
         <input class="sdpi-item-value" id="set_url"
-               value="https://docs.google.com/spreadsheets/d/1brCfvmSdYl7RcY9lkgm_ds8uaFqq7qaxOOz-5BfHuuk/htmlview"
+               value="https://docs.google.com/spreadsheets/d/1R0Nt8Ye7EAQtU8CXF1XRRj67iaFpUk1BXeDgt6abxsQ/edit#gid=93698338"
                placeholder="Enter a URL" oninput="sendSettingsToPlugin()">
     </div>
     <details class="sdpi-item">

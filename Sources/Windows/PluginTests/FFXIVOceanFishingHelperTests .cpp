@@ -130,9 +130,6 @@ namespace {
 		}
 	};
 
-	std::unordered_set<uint32_t> zeroId = { 0 };
-	std::unordered_set<uint32_t> emptyId = { };
-
 	INSTANTIATE_TEST_CASE_P(
 		NoRouteTests,
 		FFXIVOceanFishingHelperNoRouteFixture,
@@ -141,7 +138,8 @@ namespace {
 			::testing::Values(0), // window time
 			::testing::Values(0, 1), // start time
 			::testing::Values( // routes
-				zeroId, emptyId
+				std::unordered_set<uint32_t>({ 0 }), // no route should have index 0
+				std::unordered_set<uint32_t>({ }) // empty routes shouldn't crash protram
 			),
 			::testing::Values("Indigo Route", "Ruby Route", "Invalid Name"), // routeName
 			::testing::Values(0, 1, 2) // skips

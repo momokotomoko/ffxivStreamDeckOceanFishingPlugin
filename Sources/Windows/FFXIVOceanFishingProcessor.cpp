@@ -627,7 +627,7 @@ std::string FFXIVOceanFishingProcessor::createButtonLabelFromRouteId(const uint3
 	if (!mRouteIdToNameMap.contains(routeId))
 		return "";
 	std::string routeName = mRouteIdToNameMap.at(routeId);
-	if (mRoutes.contains(routeName))
+	if (!mRoutes.contains(routeName))
 		return "";
 
 	std::string blueFishName = mRoutes.at(routeName).blueFishPattern;
@@ -647,10 +647,19 @@ std::string FFXIVOceanFishingProcessor::createButtonLabelFromRouteId(const uint3
 	@param[in] routeName the name of the route
 	@param[in] tracker the name of the tracker type (ie: Blue Fish, Achievement)
 	@param[in] name the name of the actual thing to track (ie: name of fish, name of Achievement)
+	@param[in] startTime the time to start counting from.
 	@param[in] priority whether to prioritize achievement name or blue fish name
 	@param[in] skips number of windows to skip over
 **/
-void FFXIVOceanFishingProcessor::getImageNameAndLabel(std::string& imageName, std::string& buttonLabel, const std::string& tracker, const std::string& name, const PRIORITY priority, const uint32_t skips)
+void FFXIVOceanFishingProcessor::getImageNameAndLabel(
+	std::string& imageName,
+	std::string& buttonLabel,
+	const std::string& tracker,
+	const std::string& name,
+	const time_t& startTime,
+	const PRIORITY priority,
+	const uint32_t skips
+)
 {
 	imageName = "";
 	buttonLabel = "";
@@ -670,7 +679,6 @@ void FFXIVOceanFishingProcessor::getImageNameAndLabel(std::string& imageName, st
 				std::unordered_set<uint32_t> routeIds = getRouteIdByTracker(tracker, name);
 
 				// get next route
-				time_t startTime = time(0);
 				uint32_t nextRoute;
 				if (getNextRoute(nextRoute, startTime, routeIds, skips))
 				{

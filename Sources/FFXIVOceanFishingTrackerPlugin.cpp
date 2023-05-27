@@ -101,14 +101,15 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 					context.second.routeName,
 					context.second.tracker,
 					context.second.targetName,
+					startTime,
 					context.second.priority,
 					context.second.skips
 				);
-				if (context.second.imageName != imageName || context.second.buttonLabel != buttonLabel)
-					context.second.needUpdate = true;
 
-				// update the image
-				if (context.second.needUpdate)
+				// update the image if needUpdate flag was set, or if name/label changed
+				if (context.second.needUpdate ||
+					context.second.imageName != imageName ||
+					context.second.buttonLabel != buttonLabel)
 				{
 					context.second.imageName = imageName;
 					context.second.buttonLabel = buttonLabel;
@@ -293,7 +294,7 @@ void FFXIVOceanFishingTrackerPlugin::updateImage(std::string name, const std::st
 /**
 	@brief Runs when app shows up on streamdeck profile
 **/
-void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAction, const std::string& inContext, const json& inPayload, const std::string& inDeviceID)
 {
 	// read payload for any saved settings, update image if needed
 	contextMetaData_t data{};
@@ -374,7 +375,7 @@ void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, c
 
 		if (data.routeName != mContextServerMap.at(inContext).routeName)
 		{
-			json j;
+			json j = inPayload;
 			j["menuheaders"] = mFFXIVOceanFishingHelper->getTrackerTypesJson(data.routeName);
 			j["targets"] = mFFXIVOceanFishingHelper->getTargetsJson(data.routeName);
 			mConnectionManager->SetSettings(j, inContext);
