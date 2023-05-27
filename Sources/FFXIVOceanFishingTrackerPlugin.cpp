@@ -68,9 +68,9 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 			this->mVisibleContextsMutex.lock();
 			for (auto& context : mContextServerMap)
 			{
-				// First find what routes we are actually looking for.
-				// So convert what is requested to be tracked into route IDs
-				std::unordered_set<uint32_t> routeIds =
+				// First find what voyages we are actually looking for.
+				// So convert what is requested to be tracked into voyage IDs
+				std::unordered_set<uint32_t> voyageIds =
 					mFFXIVOceanFishingHelper->getVoyageIdByTracker(
 						context.second.routeName,
 						context.second.tracker,
@@ -78,19 +78,19 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 					);
 
 				// now call the helper to compute the relative time until the next window
-				uint32_t relativeSecondsTillNextRoute = 0;
+				uint32_t relativeSecondsTillNextVoyage = 0;
 				uint32_t relativeWindowTime = 0;
 				time_t startTime = time(0);
 				status = mFFXIVOceanFishingHelper->getSecondsUntilNextVoyage(
-					relativeSecondsTillNextRoute,
+					relativeSecondsTillNextVoyage,
 					relativeWindowTime,
 					startTime,
-					routeIds,
+					voyageIds,
 					context.second.routeName,
 					context.second.skips
 				);
 				// store the absolute times
-				context.second.routeTime = startTime + relativeSecondsTillNextRoute;
+				context.second.voyageTime = startTime + relativeSecondsTillNextVoyage;
 				context.second.windowTime = startTime + relativeWindowTime;
 
 				std::string imageName;
@@ -170,14 +170,14 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 				if (context.second.dateOrTime)
 				{
 					timeutils::date_t date{};
-					if (timeutils::convertTimeToDate(date, context.second.routeTime))
+					if (timeutils::convertTimeToDate(date, context.second.voyageTime))
 						titleString += date.weekday + " " + date.month + " " + std::to_string(date.day) + "\n" + date.time12H;
 					else
 						titleString += "Error";
 				}
 				else
 				{
-					titleString += "\n" + timeutils::convertSecondsToHMSString(static_cast<int>(difftime(context.second.routeTime, now)));
+					titleString += "\n" + timeutils::convertSecondsToHMSString(static_cast<int>(difftime(context.second.voyageTime, now)));
 				}
 			}
 			// send the title to StreamDeck
@@ -251,9 +251,13 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	if (payload.contains("url"))
 		data.url = payload["url"].get<std::string>();
 
-	data.routeTime = 0;
+	data.voyageTime = 0;
 	data.windowTime = 0;
 	data.needUpdate = false;
+
+	// TODO: This is just for backwards compatibility, remove later
+	if (data.targetName == "Next Route")
+		data.targetName = "Next Voyage";
 	return data;
 }
 
@@ -302,7 +306,7 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 		data = readJsonIntoMetaData(inPayload["settings"]);
 	data.needUpdate = true;
 
-	// setup the routes menu
+	// setup the voyages menu
 	mInitMutex.lock();
 	if (mConnectionManager != nullptr && mIsInit == false)
 	{

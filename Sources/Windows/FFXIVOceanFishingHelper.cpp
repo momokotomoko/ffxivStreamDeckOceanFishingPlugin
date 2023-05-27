@@ -64,7 +64,7 @@ bool FFXIVOceanFishingHelper::getSecondsUntilNextVoyage(
 	}
 
 	uint32_t returnedVoyageId;
-	return processors[routeName]->getSecondsUntilNextRoute(
+	return processors[routeName]->getSecondsUntilNextVoyage(
 		secondsTillNextVoyage,
 		secondsLeftInWindow,
 		returnedVoyageId, // unused here
@@ -160,5 +160,5 @@ std::unordered_set<uint32_t> FFXIVOceanFishingHelper::getVoyageIdByTracker(
 	if (!processors.contains(routeName))
 		return {};
 
-	return processors[routeName]->getRouteIdByTracker(tracker, name);
+	return processors[routeName]->getVoyageIdByTracker(tracker, name);
 }

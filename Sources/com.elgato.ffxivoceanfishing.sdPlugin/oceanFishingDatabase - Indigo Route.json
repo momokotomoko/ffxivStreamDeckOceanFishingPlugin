@@ -23,7 +23,7 @@
             "shortform": "Rothlyt Sound"
         }
     },
-    "routes": {
+    "voyages": {
         "Northern Strait by Sunset": {
             "shortform": "Northern-S",
             "id": 1,
@@ -570,25 +570,25 @@
         },
         "achievements": {
             "Dragon": {
-                "routeIds": [ 1 ]
+                "voyageIds": [ 1 ]
             },
             "Octo": {
-                "routeIds": [ 2 ]
+                "voyageIds": [ 2 ]
             },
             "Jelly": {
-                "routeIds": [ 5 ]
+                "voyageIds": [ 5 ]
             },
             "Shark": {
-                "routeIds": [ 6 ]
+                "voyageIds": [ 6 ]
             },
             "Manta": {
-                "routeIds": [ 12, 8 ]
+                "voyageIds": [ 12, 8 ]
             },
             "Crab": {
-                "routeIds": [ 9 ]
+                "voyageIds": [ 9 ]
             },
             "Balloon": {
-                "routeIds": [ 12, 11 ]
+                "voyageIds": [ 12, 11 ]
             }
         }
     },

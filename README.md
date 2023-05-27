@@ -17,7 +17,7 @@ Final Fantasy XIV is a MMORPG video game.
 
 `FFXIV Ocean Fishing Plugin` can track and display the following:
 - Upcoming windows for Blue Fish. (Coral Manta, Stonescale, etc.)
-- Upcoming windows for a particular Route. (Jelly Route, Shark Route, etc.)
+- Upcoming windows for a particular voyage. (Jelly, Shark, etc.)
 - Whatever the next route is.
 
 For any of the above trackers, you can also select number of windows to skip, to display the "next" window or "next-next" window, and so forth.
@@ -66,7 +66,7 @@ Select an Ocean Fishing route, such as the Indigo Route or Ruby Route.
 
 `Track by:`
 
-Select either an Achievement, Blue Fish or a Route to track. You can also select Next Route to display whatever is coming up next. Icons will be dynamically updated.
+Select either an Achievement, Blue Fish or a Voyage to track. You can also select Next Voyage to display whatever is coming up next. Icons will be dynamically updated.
 
 `Display Time:`
 
@@ -84,7 +84,7 @@ In the image below, an example is shown where in the first two rows the next 5 u
 
 `Display Priority:`
 
-If tracking by Routes or by Next Route, this option will prioritize displaying either the Achievement or the Blue Fish of that route.
+If tracking by Voyages or by Next Voyage, this option will prioritize displaying either the Achievement or the Blue Fish of that route.
 
 Note that if a route has no Achievement, it will always just display the Blue Fish for that route. Similarly, if the route has no Blue Fish, it will fall back to displaying any Achievements in that route.
 
