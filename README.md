@@ -56,11 +56,11 @@ Alternatively, delete the plugin folder located in Elgato's AppData folder. For 
 
 ![](settings.png)
 
-`Title`
+`Title:`
 
 The title is automatically set by the plugin to display the server name and progress percentage.
 
-`Route`
+`Route:`
 
 Select an Ocean Fishing route, such as the Indigo Route or Ruby Route.
 
@@ -98,7 +98,7 @@ By default, the webpage is set to the [Ocean Fishing Spreadsheet](https://docs.g
 
 Other suggested links include:
 
-- [Lulu's Tools'](https://ffxiv.pf-n.co/ocean-fishing)
+- [Lulu's Tools](https://ffxiv.pf-n.co/ocean-fishing)
 - Pastebin notes for macros/instructions for particular achievements/fish
 
 ## Source Code
