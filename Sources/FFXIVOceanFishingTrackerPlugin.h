@@ -54,12 +54,12 @@ private:
 		std::string tracker; // tracker type, ie: blue fish or route name
 		std::string buttonLabel; // the text on the top of the button
 		std::string imageName; // the name of hte image to use for this button
-		PRIORITY priority; // whether to prioritize showing achievements or blue fish for this button
-		bool needUpdate; // true if this button needs an update to image name and label
-		time_t routeTime; // time of next route
-		time_t windowTime; // if we are in a fishing window, this holds the time remaining
-		bool dateOrTime; // true for date, false for time
-		unsigned int skips;
+		PRIORITY priority = PRIORITY::BLUE_FISH; // whether to prioritize showing achievements or blue fish for this button
+		bool needUpdate = false; // true if this button needs an update to image name and label
+		time_t routeTime = 0; // time of next route
+		time_t windowTime = 0; // if we are in a fishing window, this holds the time remaining
+		bool dateOrTime = false; // true for date, false for time
+		uint32_t skips = 0;
 		std::string url; // webpage to open on click, each button can have a different webpage
 	};
 	std::unordered_map<std::string, contextMetaData_t> mContextServerMap;

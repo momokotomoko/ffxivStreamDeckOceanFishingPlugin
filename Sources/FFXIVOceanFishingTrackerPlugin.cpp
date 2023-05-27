@@ -236,10 +236,10 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	if (payload.contains("DateOrTime"))
 		data.dateOrTime = payload["DateOrTime"].get<bool>();
 
-	data.priority = BLUE_FISH;
+	data.priority = PRIORITY::BLUE_FISH;
 	if (payload.contains("Priority"))
 		if (payload["Priority"].get<bool>())
-			data.priority = ACHIEVEMENTS;
+			data.priority = PRIORITY::ACHIEVEMENTS;
 
 	if (payload.contains("Skips"))
 	{

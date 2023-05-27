@@ -18,10 +18,10 @@ namespace timeutils
 	{
 		std::string weekday;
 		std::string month;
-		unsigned int day;
+		uint32_t day;
 		std::string time24H;
 		std::string time12H;
-		unsigned int year;
+		uint32_t year;
 	};
 
 	/**
@@ -64,10 +64,10 @@ namespace timeutils
 				return false;
 
 			// parse the 24h time string into 12h time without seconds
-			unsigned int firstColonLoc = date.time24H.find(":");
+			uint32_t firstColonLoc = date.time24H.find(":");
 			if (firstColonLoc != std::string::npos)
 			{
-				unsigned int hour = stoi(date.time24H.substr(0, firstColonLoc));
+				uint32_t hour = stoi(date.time24H.substr(0, firstColonLoc));
 				std::string amPm = "AM";
 				if (hour >= 12)
 				{

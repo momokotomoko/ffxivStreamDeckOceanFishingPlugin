@@ -51,7 +51,7 @@ public:
 		@param[in] interval the milliseconds to wait
 		@param[in] func the function to trigger
 	**/
-	void start(unsigned int interval, std::function<void(void)> func)
+	void start(uint32_t interval, std::function<void(void)> func)
 	{
 		// can't be already running
 		if (running == true)

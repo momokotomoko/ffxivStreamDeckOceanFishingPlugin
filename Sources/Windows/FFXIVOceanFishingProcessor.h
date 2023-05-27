@@ -119,9 +119,9 @@ private:
 	std::unordered_map <std::string, std::map<std::string, targets_t>> mTargetToRouteIdMap;
 	std::unordered_map <uint32_t, std::string> mRouteIdToNameMap;
 
-	time_t convertBlockIndexToTime(const unsigned int blockIdx);
-	unsigned int convertTimeToBlockIndex(const time_t& t);
-	unsigned int getRoutePatternIndex(const unsigned int blockIdx, const unsigned int jump = 0);
+	time_t convertBlockIndexToTime(const uint32_t blockIdx);
+	uint32_t convertTimeToBlockIndex(const time_t& t);
+	uint32_t getRoutePatternIndex(const uint32_t blockIdx, const uint32_t jump = 0);
 
 	std::string createAchievementName(const std::string& voyageName);
 	std::string createImageNameFromRouteId(const uint32_t& routeId, PRIORITY priority);

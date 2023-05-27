@@ -409,15 +409,15 @@ bool FFXIVOceanFishingProcessor::getSecondsUntilNextRoute(
 		return false;
 
 	// Get the status of where we are currently
-	unsigned int currBlockIdx = convertTimeToBlockIndex(startTime);
+	uint32_t currBlockIdx = convertTimeToBlockIndex(startTime);
 
 	// Cycle through the route pattern until we get a match to a route we are looking for.
-	unsigned int skipcounts = 0;
-	unsigned int maxCycles = 1000; // limit cycles just in case
-	for (unsigned int i = 0; i < maxCycles; i++)
+	uint32_t skipcounts = 0;
+	uint32_t maxCycles = 1000; // limit cycles just in case
+	for (uint32_t i = 0; i < maxCycles; i++)
 	{
 		// Current place in the pattern we are looking at.
-		unsigned int wrappedIdx = getRoutePatternIndex(currBlockIdx, i);
+		uint32_t wrappedIdx = getRoutePatternIndex(currBlockIdx, i);
 
 		// Check to see if we match any of our desired routes
 		// TODO: exit cycle loop if we went through entire pattern with no match, remove maxCycles
@@ -472,13 +472,13 @@ bool FFXIVOceanFishingProcessor::getSecondsUntilNextRoute(
 
 	@return name of the route
 **/
-std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const unsigned int skips)
+std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const uint32_t skips)
 {
-	unsigned int currBlockIdx = convertTimeToBlockIndex(t);
+	uint32_t currBlockIdx = convertTimeToBlockIndex(t);
 
-	unsigned int skipcounts = 0;
-	const unsigned int maxCycles = 1000; // limit cycles just in case
-	for (unsigned int i = 0; i < maxCycles; i++)
+	uint32_t skipcounts = 0;
+	const uint32_t maxCycles = 1000; // limit cycles just in case
+	for (uint32_t i = 0; i < maxCycles; i++)
 	{
 		// Find the difference in time from the pattern position to the current time
 		time_t routeTime = convertBlockIndexToTime(currBlockIdx + i);
@@ -498,7 +498,7 @@ std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const 
 		}
 
 		// get route index
-		unsigned int routeIdx = mRoutePattern[getRoutePatternIndex(currBlockIdx + i)];
+		uint32_t routeIdx = mRoutePattern[getRoutePatternIndex(currBlockIdx + i)];
 
 		// convert from id
 		if (mRouteIdToNameMap.contains(routeIdx))
@@ -519,7 +519,7 @@ std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const 
 
 	@return the time in time_t
 **/
-time_t FFXIVOceanFishingProcessor::convertBlockIndexToTime(const unsigned int blockIdx)
+time_t FFXIVOceanFishingProcessor::convertBlockIndexToTime(const uint32_t blockIdx)
 {
 	return static_cast<time_t>(blockIdx - (mPatternOffset - 1)) * 60 * 60 * 2;
 }
@@ -532,7 +532,7 @@ time_t FFXIVOceanFishingProcessor::convertBlockIndexToTime(const unsigned int bl
 
 	@return the block index
 **/
-unsigned int FFXIVOceanFishingProcessor::convertTimeToBlockIndex(const time_t& t)
+uint32_t FFXIVOceanFishingProcessor::convertTimeToBlockIndex(const time_t& t)
 {
 	struct tm t_struct {};
 	localtime_s(&t_struct, &t);
@@ -543,7 +543,7 @@ unsigned int FFXIVOceanFishingProcessor::convertTimeToBlockIndex(const time_t& t
 		t_struct.tm_min -= 15;
 	}
 	time_t alignedTime = mktime(&t_struct);
-	return static_cast<unsigned int>(std::ceil(alignedTime / (60 * 60 * 2))) + mPatternOffset;
+	return static_cast<uint32_t>(std::ceil(alignedTime / (60 * 60 * 2))) + mPatternOffset;
 }
 
 /**
@@ -554,7 +554,7 @@ unsigned int FFXIVOceanFishingProcessor::convertTimeToBlockIndex(const time_t& t
 
 	@return the route id at the blockIdx + jump
 **/
-unsigned int FFXIVOceanFishingProcessor::getRoutePatternIndex(const unsigned int blockIdx, const unsigned int jump)
+uint32_t FFXIVOceanFishingProcessor::getRoutePatternIndex(const uint32_t blockIdx, const uint32_t jump)
 {
 	return (blockIdx + jump) % mRoutePattern.size();
 }
@@ -606,7 +606,7 @@ std::string FFXIVOceanFishingProcessor::createImageNameFromRouteId(const uint32_
 		blueFishName = mTargetToRouteIdMap.at("Blue Fish Pattern").at(blueFishPattern).imageName;
 	std::string achievementName = createAchievementName(routeName);
 
-	if ((priority == ACHIEVEMENTS && !achievementName.empty()) || blueFishName.empty())
+	if ((priority == PRIORITY::ACHIEVEMENTS && !achievementName.empty()) || blueFishName.empty())
 		return achievementName;
 	else
 		return blueFishName;
@@ -633,7 +633,7 @@ std::string FFXIVOceanFishingProcessor::createButtonLabelFromRouteId(const uint3
 	std::string blueFishName = mRoutes.at(routeName).blueFishPattern;
 	std::string achievementName = createAchievementName(routeName);
 
-	if ((priority == ACHIEVEMENTS && !achievementName.empty()) || blueFishName.empty())
+	if ((priority == PRIORITY::ACHIEVEMENTS && !achievementName.empty()) || blueFishName.empty())
 		return achievementName;
 	else
 		return blueFishName;
@@ -730,7 +730,7 @@ json FFXIVOceanFishingProcessor::getTrackerTypesJson()
 
 	@return a set of route ids if found, and a null set if the route is not found
 **/
-std::unordered_set<unsigned int> FFXIVOceanFishingProcessor::getRouteIdByTracker(const std::string& tracker, const std::string& name)
+std::unordered_set<uint32_t> FFXIVOceanFishingProcessor::getRouteIdByTracker(const std::string& tracker, const std::string& name)
 {
 	// this map was precomputed in initializer
 	if (mTargetToRouteIdMap.contains(tracker))

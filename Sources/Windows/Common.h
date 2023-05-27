@@ -9,7 +9,7 @@
 #include "pch.h"
 
 // priority to show achievement or blue fish
-enum PRIORITY
+enum class PRIORITY
 {
 	ACHIEVEMENTS,
 	BLUE_FISH,
