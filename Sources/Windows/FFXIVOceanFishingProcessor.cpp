@@ -156,7 +156,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	for (const auto& route : j["routes"].get<json::object_t>())
 	{
 		std::string routeName = route.first;
-		if (mRoutes.find(routeName) != mRoutes.end())
+		if (mRoutes.contains(routeName))
 			throw std::runtime_error("Error: duplicate route name in json: " + routeName);
 		if (!route.second["id"].is_number_unsigned())
 			throw std::runtime_error("Error: invalid route ID in json: " + route.second["id"].dump(4));
@@ -172,7 +172,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			const std::string stopTime = stop["time"].get<std::string>();
 			std::unordered_set<std::string> fishList;
 			// double check that the stops exist, and create list of fishes
-			if (mStops.find(stopName) == mStops.end())
+			if (!mStops.contains(stopName))
 			{
 				throw std::runtime_error("Error: stop " + stopName + " in route " + routeName + " does not exist in j[\"stops\"]");
 			}
@@ -215,7 +215,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 		std::set<std::string> achievements;
 		for (const auto& achievement : mAchievements)
 		{
-			if (achievement.second.find(id) != achievement.second.end())
+			if (achievement.second.contains(id))
 				achievements.insert(achievement.first);
 		}
 
@@ -245,7 +245,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			bool blueFishFound = false;
 			for (const auto& fish : stop.fish) // go through all the possible fishes at this stop
 			{
-				if (mBlueFishNames.find(fish) != mBlueFishNames.end()) // we only care about the blue fish
+				if (mBlueFishNames.contains(fish)) // we only care about the blue fish
 				{
 					blueFishFound = true;
 					blueFishPattern += mBlueFishNames.at(fish).shortName;
@@ -254,10 +254,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 				}
 			}
 			if (!blueFishFound)
-			{
 				blueFishPattern += "X";
-			}
-
 			blueFishPattern += "-";
 		}
 		// remove the last dash
@@ -313,7 +310,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			{
 				for (const auto& stop : route.second.stops)
 				{
-					if (stop.fish.find(fish.first) != stop.fish.end())
+					if (stop.fish.contains(fish.first))
 					{
 						ids.insert(route.second.id);
 					}
@@ -342,11 +339,11 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			name = route.second.blueFishPattern;
 		
 		std::string lastStop = route.second.stops.back().location.name;
-		if (mStops.find(lastStop) != mStops.end())
+		if (mStops.contains(lastStop))
 		{
 			std::string lastStopShortName = mStops.at(lastStop);
 
-			if (mTargetToRouteIdMap.find(lastStopShortName) == mTargetToRouteIdMap.end())
+			if (!mTargetToRouteIdMap.contains(lastStopShortName))
 				mTargetToRouteIdMap.at("Routes").insert({ lastStopShortName, {"", "", {}} });
 			mTargetToRouteIdMap.at("Routes").at(lastStopShortName).ids.insert(route.second.id);
 		}
@@ -504,10 +501,10 @@ std::string FFXIVOceanFishingProcessor::getNextRouteName(const time_t& t, const 
 		unsigned int routeIdx = mRoutePattern[getRoutePatternIndex(currBlockIdx + i)];
 
 		// convert from id
-		if (mRouteIdToNameMap.find(routeIdx) != mRouteIdToNameMap.end())
+		if (mRouteIdToNameMap.contains(routeIdx))
 		{
 			const std::string routeName = mRouteIdToNameMap.at(routeIdx);
-			if (mRoutes.find(routeName) != mRoutes.end())
+			if (mRoutes.contains(routeName))
 				return routeName;
 		}
 	}
@@ -596,16 +593,16 @@ std::string FFXIVOceanFishingProcessor::createAchievementName(const std::string 
 **/
 std::string FFXIVOceanFishingProcessor::createImageNameFromRouteId(const uint32_t& routeId, PRIORITY priority)
 {
-	if (mRouteIdToNameMap.find(routeId) == mRouteIdToNameMap.end())
+	if (!mRouteIdToNameMap.contains(routeId))
 		return "";
 	std::string routeName = mRouteIdToNameMap.at(routeId);
-	if (mRoutes.find(routeName) == mRoutes.end())
+	if (!mRoutes.contains(routeName))
 		return "";
 
 	std::string blueFishName = "";
 	std::string blueFishPattern = mRoutes.at(routeName).blueFishPattern;
-	if (mTargetToRouteIdMap.find("Blue Fish Pattern") != mTargetToRouteIdMap.end() &&
-		mTargetToRouteIdMap.at("Blue Fish Pattern").find(blueFishPattern) != mTargetToRouteIdMap.at("Blue Fish Pattern").end())
+	if (mTargetToRouteIdMap.contains("Blue Fish Pattern") &&
+		mTargetToRouteIdMap.at("Blue Fish Pattern").contains(blueFishPattern))
 		blueFishName = mTargetToRouteIdMap.at("Blue Fish Pattern").at(blueFishPattern).imageName;
 	std::string achievementName = createAchievementName(routeName);
 
@@ -627,10 +624,10 @@ std::string FFXIVOceanFishingProcessor::createImageNameFromRouteId(const uint32_
 **/
 std::string FFXIVOceanFishingProcessor::createButtonLabelFromRouteId(const uint32_t& routeId, PRIORITY priority)
 {
-	if (mRouteIdToNameMap.find(routeId) == mRouteIdToNameMap.end())
+	if (!mRouteIdToNameMap.contains(routeId))
 		return "";
 	std::string routeName = mRouteIdToNameMap.at(routeId);
-	if (mRoutes.find(routeName) == mRoutes.end())
+	if (mRoutes.contains(routeName))
 		return "";
 
 	std::string blueFishName = mRoutes.at(routeName).blueFishPattern;
@@ -659,9 +656,9 @@ void FFXIVOceanFishingProcessor::getImageNameAndLabel(std::string& imageName, st
 	buttonLabel = "";
 
 	// first look for tracker+name in the map
-	if (mTargetToRouteIdMap.find(tracker) != mTargetToRouteIdMap.end())
+	if (mTargetToRouteIdMap.contains(tracker))
 	{
-		if (mTargetToRouteIdMap.at(tracker).find(name) != mTargetToRouteIdMap.at(tracker).end())
+		if (mTargetToRouteIdMap.at(tracker).contains(name))
 		{
 			buttonLabel = mTargetToRouteIdMap.at(tracker).at(name).labelName;
 			imageName = mTargetToRouteIdMap.at(tracker).at(name).imageName;
@@ -696,14 +693,9 @@ void FFXIVOceanFishingProcessor::getImageNameAndLabel(std::string& imageName, st
 json FFXIVOceanFishingProcessor::getTargetsJson()
 {
 	json j;
-	
 	for (const auto& type : mTargetToRouteIdMap)
-	{
 		for (const auto& target : type.second)
-		{
 			j.emplace(target.first, type.first);
-		}
-	}
 
 	return j;
 }
@@ -716,12 +708,8 @@ json FFXIVOceanFishingProcessor::getTargetsJson()
 json FFXIVOceanFishingProcessor::getTrackerTypesJson()
 {
 	json j;
-
 	for (const auto& type : mTargetToRouteIdMap)
-	{
 		j.push_back(type.first);
-	}
-
 	std::sort(j.begin(), j.end());
 	return j;
 }
@@ -737,12 +725,8 @@ json FFXIVOceanFishingProcessor::getTrackerTypesJson()
 std::unordered_set<unsigned int> FFXIVOceanFishingProcessor::getRouteIdByTracker(const std::string& tracker, const std::string& name)
 {
 	// this map was precomputed in initializer
-	if (mTargetToRouteIdMap.find(tracker) != mTargetToRouteIdMap.end())
-	{
-		if (mTargetToRouteIdMap.at(tracker).find(name) != mTargetToRouteIdMap.at(tracker).end())
-		{
+	if (mTargetToRouteIdMap.contains(tracker))
+		if (mTargetToRouteIdMap.at(tracker).contains(name))
 			return mTargetToRouteIdMap.at(tracker).at(name).ids;
-		}
-	}
 	return {};
 }

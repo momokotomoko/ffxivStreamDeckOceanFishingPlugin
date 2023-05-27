@@ -91,21 +91,25 @@ namespace {
 		// pattern
 		EXPECT_EQ(jTargets["X-Glass-Jewel"].get<std::string>(), "Blue Fish Pattern");
 	}
+
 	TEST_F(FFXIVOceanFishingHelperTests, GetTrackerTypesJson) {
 		json jTrackerTypes = mFFXIVOceanFishingHelper->getTrackerTypesJson("Indigo Route");
 		std::cout << jTrackerTypes.dump(4) << std::endl;
 
-		EXPECT_EQ(jTrackerTypes, json::parse(R"(
-[
-    "Achievement",
-    "Any Next Route",
-    "Blue Fish",
-    "Blue Fish Pattern",
-    "Green Fish",
-    "Routes"
-]
-			)")
-		);
+		std::set <std::string> trackers = {};
+		for (const auto& trackerName : jTrackerTypes)
+			trackers.insert(trackerName.get<std::string>());
+
+		std::set <std::string> defaultTrackers = {
+			"Achievement",
+			"Blue Fish",
+			"Blue Fish Pattern",
+			"Green Fish",
+			"Other",
+			"Routes"
+		};
+
+		EXPECT_EQ(trackers, defaultTrackers);
 	}
 
 	class FFXIVOceanFishingHelperNoRouteFixture :

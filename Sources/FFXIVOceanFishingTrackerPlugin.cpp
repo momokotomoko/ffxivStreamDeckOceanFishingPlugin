@@ -233,41 +233,39 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	mConnectionManager->LogMessage(payload.dump(4));
 	#endif
 	contextMetaData_t data{};
-	if (payload.find("Route") != payload.end())
-	{
+
+	if (payload.contains("Route"))
 		data.routeName = payload["Route"].get<std::string>();
-	}
-	if (payload.find("Tracker") != payload.end() &&
+
+	if (payload.contains("Tracker") &&
 		payload["Tracker"].is_string())
-	{
 		data.tracker = payload["Tracker"].get<std::string>();
-	}
-	if (payload.find("Name") != payload.end())
+
+	if (payload.contains("Name"))
 	{
 		data.targetName = payload["Name"].get<std::string>();
 		data.buttonLabel = data.targetName;
 		data.imageName = data.imageName;
 	}
-	if (payload.find("DateOrTime") != payload.end())
-	{
+
+	if (payload.contains("DateOrTime"))
 		data.dateOrTime = payload["DateOrTime"].get<bool>();
-	}
+
 	data.priority = BLUE_FISH;
-	if (payload.find("Priority") != payload.end())
-	{
+	if (payload.contains("Priority"))
 		if (payload["Priority"].get<bool>())
 			data.priority = ACHIEVEMENTS;
-	}
-	if (payload.find("Skips") != payload.end())
+
+	if (payload.contains("Skips"))
 	{
 		std::string skips = payload["Skips"].get<std::string>();
 		if (skips.length() > 0)
 			data.skips = std::stoi(skips);
 	}
-	if (payload.find("url") != payload.end())
-	{
+
+	if (payload.contains("url"))
 		data.url = payload["url"].get<std::string>();
-	}
+
 	data.routeTime = 0;
 	data.windowTime = 0;
 	data.needUpdate = false;
@@ -315,10 +313,8 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 {
 	// read payload for any saved settings, update image if needed
 	contextMetaData_t data{};
-	if (inPayload.find("settings") != inPayload.end())
-	{
+	if (inPayload.contains("settings"))
 		data = readJsonIntoMetaData(inPayload["settings"]);
-	}
 	data.needUpdate = true;
 
 	// setup the routes menu
@@ -334,9 +330,7 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 
 	// if this is the first plugin to be displayed, boot up the timers
 	if (mContextServerMap.empty())
-	{
 		startTimers();
-	}
 
 	// Remember the context and the saved server name for this app
 	mVisibleContextsMutex.lock();
@@ -383,7 +377,7 @@ void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, c
 	// PI dropdown menu has saved new settings for this context, load those
 	contextMetaData_t data;
 	mVisibleContextsMutex.lock();
-	if (mContextServerMap.find(inContext) != mContextServerMap.end())
+	if (mContextServerMap.contains(inContext))
 	{
 		data = readJsonIntoMetaData(inPayload);
 		if (data.routeName != mContextServerMap.at(inContext).routeName ||
