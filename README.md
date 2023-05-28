@@ -26,17 +26,17 @@ You can drag and drop multiple plugins to display more than one tracker if desir
 
 Tested on Windows 10.
 
-![](screenshot.png)
+![](Images/screenshot.png)
 
 During a possible window to board the boat, the plugin also displays additional text indicating the time left to board. Note that while the text is cut-off in the software image, the StreamDeck hardware can fit the entire line.
 
-![](window.png)
+![](Images/window.png)
 
 Youtube Description: https://www.youtube.com/watch?v=ewgarAlZi5w
 
 ## Installation
 
-In the Release folder, you can find the file `com.elgato.ffxivoceanfishing.streamDeckPlugin`. If you double-click this file on your machine, StreamDeck will install the plugin.
+In the Release folder, you can find the file `com.elgato.ffxivoceanfishing.streamDeckPlugin`. If you double-click this file on your machine, StreamDeck will install the plugin:
 
 [com.elgato.ffxivoceanfishing.streamDeckPlugin](Release/com.elgato.ffxivoceanfishing.streamDeckPlugin)
 
@@ -48,13 +48,15 @@ The image below shows the steps:
 2. Right click the plugin name to bring up a menu.
 3. Click Uninstall.
 
-![](uninstall_steps.png)
+![](Images/uninstall_steps.png)
 
-Alternatively, delete the plugin folder located in Elgato's AppData folder. For example: `C:\Users\<username>\AppData\Roaming\Elgato\StreamDeck\Plugins`
+Alternatively, delete the plugin folder located in Elgato's AppData folder:
+
+`C:\Users\<username>\AppData\Roaming\Elgato\StreamDeck\Plugins`
 
 ## Settings
 
-![](settings.png)
+![](Images/settings.png)
 
 `Title:`
 
@@ -80,7 +82,7 @@ If set to a non-zero number, the selected value will be displayed in the top-rig
 
 In the image below, an example is shown where in the first two rows the next 5 upcoming windows for Coral Manta and Stonescale are shown. The last row shows what the next 5 voyages will be in general.
 
-![](skips.png)
+![](Images/skips.png)
 
 `Display Priority:`
 
@@ -111,7 +113,7 @@ General Elgato and 3rd party files are found in [`Common`](Sources/Common) and [
 
 Fish images are stored in [`Resources`](Sources/Resources), however the files used are rescaled and placed in [`Icons`](Sources/com.elgato.ffxivoceanfishing.sdPlugin/Icons).
 
-To repackage the plugin after compilation, [`repackage.bat`](repackage.bat) uses the included Elgato [distribution tool](DistributionTool.exe), creating the installable in [`Release/com.elgato.ffxivoceanfishing.streamDeckPlugin`](Release/com.elgato.ffxivoceanfishing.streamDeckPlugin).
+To repackage the plugin after compilation, [`repackage.bat`](repackage.bat) uses the included Elgato [distribution tool](Devtools/DistributionTool.exe), creating the installable in [`Release/com.elgato.ffxivoceanfishing.streamDeckPlugin`](Release/com.elgato.ffxivoceanfishing.streamDeckPlugin).
 
 For development, [`reload.bat`](reload.bat) removes the old installation and re-installs it.
 

@@ -1,6 +1,6 @@
-sourceFolder="./Sources/Resources/fish/" # input source folder
-resourcesFolder="./Sources/Resources/rescaled/" # place to put generated 40x40px images
-iconsFolder="./Sources/com.elgato.ffxivoceanfishing.sdPlugin/Icons/" # place to put finished streamdeck icons
+sourceFolder="./../Sources/Resources/fish/" # input source folder
+resourcesFolder="./../Sources/Resources/rescaled/" # place to put generated 40x40px images
+iconsFolder="./../Sources/com.elgato.ffxivoceanfishing.sdPlugin/Icons/" # place to put finished streamdeck icons
 
 mkdir -p "$resourcesFolder"
 mkdir -p "$iconsFolder"
