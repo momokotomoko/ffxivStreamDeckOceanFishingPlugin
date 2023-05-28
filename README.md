@@ -32,7 +32,9 @@ During a possible window to board the boat, the plugin also displays additional 
 
 ![](Images/window.png)
 
-Youtube Description: https://www.youtube.com/watch?v=ewgarAlZi5w
+Youtube Description:
+
+[![Youtube Video](Images/youtube_image.jpg)](https://www.youtube.com/watch?v=ewgarAlZi5w)
 
 ## Installation
 
