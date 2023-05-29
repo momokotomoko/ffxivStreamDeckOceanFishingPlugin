@@ -330,14 +330,6 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	mTargetToVoyageIdMap.insert({ "Voyages", {} });
 	for (const auto& voyage : mVoyages)
 	{
-		// create an name for this voyage. Priority goes to achievement, then to the voyage bluefishpattern
-		std::string name = voyage.first;
-		// TODO: This assumes only 1 achievement per voyage, although can have more. Right now just grab the first one and use that as the icon
-		if (voyage.second.achievements.size() != 0)
-			name = *voyage.second.achievements.begin();
-		else if (voyage.second.blueFishPattern.length() > 0)
-			name = voyage.second.blueFishPattern;
-		
 		std::string lastStop = voyage.second.stops.back().location.name;
 		if (mStops.contains(lastStop))
 		{
@@ -348,7 +340,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 			mTargetToVoyageIdMap.at("Voyages").at(lastStopShortName).ids.insert(voyage.second.id);
 		}
 
-		mTargetToVoyageIdMap.at("Voyages").insert({ voyage.first, {name, "", {voyage.second.id}} });
+		mTargetToVoyageIdMap.at("Voyages").insert({ voyage.first, {"", "", {voyage.second.id}} });
 	}
 	
 	// special targets:

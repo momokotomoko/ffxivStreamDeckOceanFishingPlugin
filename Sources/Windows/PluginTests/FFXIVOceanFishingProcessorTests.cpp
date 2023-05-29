@@ -29,7 +29,7 @@ namespace
         }
     },
     "voyages": {
-            "Voyage1": {
+            "C by Sunset": {
                 "shortform": "r1",
                 "id": 1,
                 "stops": [
@@ -47,7 +47,7 @@ namespace
                     }
                 ]
             },
-            "Voyage2": {
+            "B by Night": {
                 "shortform": "r2",
                 "id": 2,
                 "stops": [
@@ -65,7 +65,7 @@ namespace
                     }
                 ]
             },
-            "Voyage3": {
+            "C by Night": {
                 "shortform": "r3",
                 "id": 3,
                 "stops": [
@@ -83,7 +83,7 @@ namespace
                     }
                 ]
             },
-            "Voyage4": {
+            "D by Night": {
                 "shortform": "r4",
                 "id": 4,
                 "stops": [
@@ -238,7 +238,11 @@ namespace
             std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Voyage", 1, PRIORITY::BLUE_FISH, 2),
             std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Voyage", 1, PRIORITY::ACHIEVEMENTS, 2),
             std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Other", "Next Voyage", 7200 * 3, PRIORITY::BLUE_FISH, 0),
-            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Voyage", 7200 * 3, PRIORITY::ACHIEVEMENTS, 0)
+            std::make_tuple("AchieveAB", "AchieveAB", "Other", "Next Voyage", 7200 * 3, PRIORITY::ACHIEVEMENTS, 0),
+            std::make_tuple("AchieveAB-AchieveB", "AchieveAB-AchieveB", "Voyages", "B by Night", 0, PRIORITY::ACHIEVEMENTS, 0),
+            std::make_tuple("X-f1-f2", "X-f1-f2", "Voyages", "B by Night", 0, PRIORITY::BLUE_FISH, 0),
+            std::make_tuple("AchieveAB-AchieveB", "AchieveAB-AchieveB", "Voyages", "B by Night", 0, PRIORITY::ACHIEVEMENTS, 1),
+            std::make_tuple("X-f1-f2", "X-f1-f2", "Voyages", "B by Night", 0, PRIORITY::BLUE_FISH, 1)
         )
     );
 
