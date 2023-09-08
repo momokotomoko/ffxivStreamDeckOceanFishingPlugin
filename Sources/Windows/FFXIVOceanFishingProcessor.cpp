@@ -67,7 +67,7 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	mErrorMessage = jsonLoadUtils::loadAchievements(mAchievements, j);
 	if (mErrorMessage) return;
 
-	mErrorMessage = jsonLoadUtils::loadVoyages(mVoyages, mVoyageIdToNameMap, mFishes, mAchievements, j);
+	mErrorMessage = jsonLoadUtils::loadVoyages(mVoyages, mVoyageIdToNameMap, mFishes, mBlueFishNames, mAchievements, j);
 	if (mErrorMessage) return;
 
 	// construct search target mapping
