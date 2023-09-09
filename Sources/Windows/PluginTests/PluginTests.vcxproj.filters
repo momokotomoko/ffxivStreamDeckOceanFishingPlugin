@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\FFXIVOceanFishingHelper.cpp">
+      <Filter>FFXIVOceanFishing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp">
+      <Filter>FFXIVOceanFishing</Filter>
+    </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingHelperTests .cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingProcessorInitializationTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingProcessorTests.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\TimeUtils.hpp">
+      <Filter>FFXIVOceanFishing</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="FFXIVOceanFishing">
+      <UniqueIdentifier>{8928feef-716a-432d-81c4-945d69fe0882}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{a16cbac7-97f8-48dd-8b44-05025a5cde81}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

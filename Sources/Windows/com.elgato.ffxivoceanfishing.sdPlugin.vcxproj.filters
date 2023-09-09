@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\Common\ESDConnectionManager.cpp">
+      <Filter>StreamDeck</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ESDLocalizer.cpp">
+      <Filter>StreamDeck</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\ESDUtilitiesWindows.cpp">
+      <Filter>StreamDeck</Filter>
+    </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FFXIVOceanFishingTrackerPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\main.cpp">
+      <Filter>StreamDeck</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>StreamDeck</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CallBackTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\EPLJSONUtils.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ESDBasePlugin.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ESDConnectionManager.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ESDLocalizer.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ESDSDKDefines.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\ESDUtilities.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="FFXIVOceanFishingHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFXIVOceanFishingProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FFXIVOceanFishingTrackerPlugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>StreamDeck</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeUtils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\com.elgato.ffxivoceanfishing.sdPlugin\ffxivoceanfishing_pi.js">
+      <Filter>PI</Filter>
+    </None>
+    <None Include="..\com.elgato.ffxivoceanfishing.sdPlugin\ffxivoceanfishing_pi.html">
+      <Filter>PI</Filter>
+    </None>
+    <None Include="..\com.elgato.ffxivoceanfishing.sdPlugin\oceanFishingDatabase - Indigo Route.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\com.elgato.ffxivoceanfishing.sdPlugin\oceanFishingDatabase - Ruby Route.json">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c2fdecbc-cdae-48d5-9cb6-d94cc77d652c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StreamDeck">
+      <UniqueIdentifier>{27af181e-9849-4359-a14a-4f5aa6779a31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PI">
+      <UniqueIdentifier>{5692d3b9-7cc8-4ebb-b049-df7f1621bba6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{cff52a86-2b4e-460a-b68e-797dce19355f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{97106886-12ab-40b2-81d1-96b8853eec67}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
