@@ -198,6 +198,7 @@
     <ClInclude Include="CallBackTimer.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="FFXIVOceanFishingHelper.h" />
+    <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.hpp" />
     <ClInclude Include="FFXIVOceanFishingProcessor.h" />
     <ClInclude Include="ImageUtils.h" />
     <ClInclude Include="pch.h" />

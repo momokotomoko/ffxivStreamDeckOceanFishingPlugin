@@ -13,6 +13,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "../Vendor/json/src/json.hpp"
+#include "FFXIVOceanFishingJsonLoadUtils.hpp"
 using json = nlohmann::json;
 
 FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const std::string& dataFile)
@@ -47,305 +48,44 @@ FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const json& j)
 	loadDatabase(j);
 }
 
-bool FFXIVOceanFishingProcessor::loadSchedule(const json& j)
-{
-	if (isBadKey(j, "name", "Missing route name in database.")) return false;
-	if (isBadKey(j, "schedule", "Missing schedule in database.")) return false;
-	if (isBadKey(j["schedule"], "pattern", "Missing pattern in schedule.")) return false;
-	if (isBadKey(j["schedule"], "offset", "Missing offset in schedule.")) return false;
-
-	// get route name
-	if (j["name"].is_string())
-		mRouteName = j["name"].get<std::string>();
-	else
-	{
-		mErrorMessage = "Invalid route name:\n" + j["schedule"].dump(4);
-		return false;
-	}
-
-	// get the pattern and store it in mVoyagePattern
-	for (const auto& id : j["schedule"]["pattern"])
-		if (id.is_number_unsigned())
-			mVoyagePattern.push_back(id.get<uint32_t>());
-		else
-		{
-			mErrorMessage = "Invalid pattern in schedule: " + id.dump(4) + "\n" + j["schedule"].dump(4);
-			return false;
-		}
-
-	// get the offset and store it in mPatternOffset
-	if (j["schedule"]["offset"].is_number_unsigned())
-		mPatternOffset = j["schedule"]["offset"].get<uint32_t>();
-	else
-	{
-		mErrorMessage = "Invalid offset in schedule:\n" + j["schedule"].dump(4);
-		return false;
-	}
-	return true;
-}
-
 void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 {
-	// TODO handle parse errors
-	// TODO refactor this function
+	//TODO see if we can remove mStops and locations_t
 
-	// get schedule
-	if (!loadSchedule(j)) return;
+	mErrorMessage = jsonLoadUtils::loadRouteName(mRouteName, j);
+	if (mErrorMessage) return;
 
-	// get stops
-	for (const auto& stops : j["stops"].get<json::object_t>())
-	{
-		mStops.insert({ stops.first, stops.second["shortform"].get<std::string>() });
-	}
+	mErrorMessage = jsonLoadUtils::loadVoyageSchedule(mVoyagePattern, mPatternOffset, j);
+	if (mErrorMessage) return;
 
-	// get fish
-	if (j["targets"].contains("fish"))
-	{
-		for (const auto& fishType : j["targets"]["fish"].get<json::object_t>())
-		{
-			mFishes.insert({ fishType.first, {} });
-			for (const auto& fish : fishType.second.get<json::object_t>())
-			{
-				std::vector<locations_t> locations;
-				for (const auto& location : fish.second["locations"])
-				{
-					// construct a vector of times the fish is available
-					// an empty vector means any time is allowed
+	mErrorMessage = jsonLoadUtils::loadStops(mStops, j);
+	if (mErrorMessage) return;
 
-					std::vector<std::string> times;
-					if (location.contains("time"))
-					{
-						// location["time"] can be a single entry ("time": "day") or an array ("time": ["day", night"])
-						if (location["time"].is_array())
-							for (const auto& time : location["time"])
-								times.push_back(time.get<std::string>());
-						else
-							times.push_back(location["time"].get<std::string>());
-					}
+	mErrorMessage = jsonLoadUtils::loadFish(mFishes, mBlueFishNames, j);
+	if (mErrorMessage) return;
 
-					locations.push_back({ location["name"].get<std::string>(), times });
-				}
+	mErrorMessage = jsonLoadUtils::loadAchievements(mAchievements, j);
+	if (mErrorMessage) return;
 
-				std::string shortformName = fish.first; // by default the shortform name is just the fish name
-				if (fish.second.contains("shortform"))
-					shortformName = fish.second["shortform"].get<std::string>();
-
-				mFishes.at(fishType.first).insert({ fish.first,
-						{shortformName,
-						 locations}
-					});
-				if (fishType.first == "Blue Fish")
-					mBlueFishNames.insert({ fish.first, mFishes.at(fishType.first).at(fish.first) });
-			}
-		}
-	}
-
-	// get achievements
-	for (const auto& achievement : j["targets"]["achievements"].get<json::object_t>())
-	{
-		std::unordered_set <uint32_t> ids;
-		for (const auto voyageId : achievement.second["voyageIds"])
-		{
-			ids.insert(voyageId.get<uint32_t>());
-		}
-		mAchievements.insert({achievement.first, ids});
-	}
-
-	// get voyages
-	std::unordered_set<uint32_t> allVoyageIds;
-	for (const auto& voyage : j["voyages"].get<json::object_t>())
-	{
-		std::string voyageName = voyage.first;
-		if (mVoyages.contains(voyageName))
-			throw std::runtime_error("Error: duplicate voyage name in json: " + voyageName);
-		if (!voyage.second["id"].is_number_unsigned())
-			throw std::runtime_error("Error: invalid voyage ID in json: " + voyage.second["id"].dump(4));
-		const uint32_t id = voyage.second["id"].get<uint32_t>();
-		if (allVoyageIds.contains(id))
-			throw std::runtime_error("Error: duplidcate voyage id in json: " + id);
-		allVoyageIds.insert(id);
-
-		std::vector<stop_t> stops;
-		for (const auto& stop : voyage.second["stops"])
-		{
-			const std::string stopName = stop["name"].get<std::string>();
-			const std::string stopTime = stop["time"].get<std::string>();
-			std::unordered_set<std::string> fishList;
-			// double check that the stops exist, and create list of fishes
-			if (!mStops.contains(stopName))
-			{
-				throw std::runtime_error("Error: stop " + stopName + " in voyage " + voyageName + " does not exist in j[\"stops\"]");
-			}
-			for (const auto& fishType : mFishes)
-			{
-				for (const auto& fish : fishType.second)
-				{
-					for (const auto& location : fish.second.locations)
-					{
-						if (location.name != stopName)
-							continue;
-
-						bool isTimeMatch = false;
-						// empty time vector means any time is allowed
-						if (location.time.empty())
-							isTimeMatch = true;
-						else
-							// go through each time and check for any match
-							for (const auto& time : location.time)
-							{
-								if (time == stopTime)
-								{
-									isTimeMatch = true;
-									break;
-								}
-							}
-
-						if (!isTimeMatch)
-							continue;
-
-						fishList.insert(fish.first);
-						break;
-					}
-				}
-			}
-			stops.push_back({ {stopName, {stopTime} } , fishList });
-		}
-
-		// load achievements into voyage
-		std::set<std::string> achievements;
-		for (const auto& achievement : mAchievements)
-		{
-			if (achievement.second.contains(id))
-				achievements.insert(achievement.first);
-		}
-
-		mVoyages.insert({voyageName,
-			{
-				voyage.second["shortform"].get<std::string>(),
-				id,
-				stops,
-				achievements,
-				"" // bluefishpattern, generated later
-			}
-		});
-		mVoyageIdToNameMap.insert({ id, voyageName });
-	}
+	mErrorMessage = jsonLoadUtils::loadVoyages(mVoyages, mVoyageIdToNameMap, mFishes, mAchievements, j);
+	if (mErrorMessage) return;
 
 	// construct search target mapping
-	// targets by blue fish per voyage
-	mTargetToVoyageIdMap.insert({ "Blue Fish Pattern", {} });
-	for (const auto& voyage : mVoyages)
-	{
-		std::string blueFishPattern;
-		std::unordered_set<std::string> blueFish;
-
-		// create pattern string as fish1-fish2-fish3, and use X if there is no blue fish
-		for (const auto& stop : voyage.second.stops)
-		{
-			bool blueFishFound = false;
-			for (const auto& fish : stop.fish) // go through all the possible fishes at this stop
-			{
-				if (mBlueFishNames.contains(fish)) // we only care about the blue fish
-				{
-					blueFishFound = true;
-					blueFishPattern += mBlueFishNames.at(fish).shortName;
-					blueFish.insert(fish);
-					break;
-				}
-			}
-			if (!blueFishFound)
-				blueFishPattern += "X";
-			blueFishPattern += "-";
-		}
-		// remove the last dash
-		if (blueFishPattern.length() > 0)
-			blueFishPattern = blueFishPattern.substr(0, blueFishPattern.length() - 1);
-
-		// if only 1 blue fish, use that as the image name without the Xs
-		std::string imageName = blueFishPattern;
-		if (blueFish.size() == 1)
-			imageName = *blueFish.begin();
-
-		if (blueFishPattern != "X-X-X")
-		{
-			mTargetToVoyageIdMap.at("Blue Fish Pattern").insert({ blueFishPattern, 
-				{
-					blueFishPattern, // label name
-					imageName, // image name
-					{} // voyage ids
-				}
-			});
-			mTargetToVoyageIdMap.at("Blue Fish Pattern").at(blueFishPattern).ids.insert(voyage.second.id);
-			mVoyages.at(voyage.first).blueFishPattern = blueFishPattern;
-		}
-	}
+	jsonLoadUtils::setBlueFishTargets(mTargetToVoyageIdMap, mVoyages, mBlueFishNames);
 	
+
+	//TODO: move these into FFXIVOceanFishingProcessor
 	// achievements targets:
-	mTargetToVoyageIdMap.insert({ "Achievement", {} });
-	for (const auto& achievement : mAchievements)
-	{
-		std::unordered_set <uint32_t> ids;
-		for (const auto& voyageId : achievement.second)
-		{
-			ids.insert(voyageId);
-		}
-		mTargetToVoyageIdMap.at("Achievement").insert({ achievement.first, 
-			{
-				achievement.first, // achievement label and imagename are the same as just the acheivement name
-				achievement.first,
-				ids
-			}
-		});
-	}
+	jsonLoadUtils::setAchievementTargets(mTargetToVoyageIdMap, mAchievements);
 
 	// fish targets:
-	for (const auto& fishType : mFishes)
-	{
-		mTargetToVoyageIdMap.insert({ fishType.first, {} });
-		for (const auto& fish : fishType.second)
-		{
-			const std::string fishName = fish.first;
-			std::unordered_set <uint32_t> ids;
-			for (const auto& voyage : mVoyages)
-			{
-				for (const auto& stop : voyage.second.stops)
-				{
-					if (stop.fish.contains(fish.first))
-					{
-						ids.insert(voyage.second.id);
-					}
-				}
-			}
-			mTargetToVoyageIdMap.at(fishType.first).insert({ fishName,
-				{
-					fish.first, // fish label and imagename are the same as just the fish name
-					fish.first,
-					ids
-				}
-			});
-		}
-	}
+	jsonLoadUtils::setFishTargets(mTargetToVoyageIdMap, mVoyages, mFishes);
 
 	// targets by voyage name:
-	mTargetToVoyageIdMap.insert({ "Voyages", {} });
-	for (const auto& voyage : mVoyages)
-	{
-		std::string lastStop = voyage.second.stops.back().location.name;
-		if (mStops.contains(lastStop))
-		{
-			std::string lastStopShortName = mStops.at(lastStop);
-
-			if (!mTargetToVoyageIdMap.contains(lastStopShortName))
-				mTargetToVoyageIdMap.at("Voyages").insert({ lastStopShortName, {"", "", {}} });
-			mTargetToVoyageIdMap.at("Voyages").at(lastStopShortName).ids.insert(voyage.second.id);
-		}
-
-		mTargetToVoyageIdMap.at("Voyages").insert({ voyage.first, {"", "", {voyage.second.id}} });
-	}
+	jsonLoadUtils::setVoyageTargets(mTargetToVoyageIdMap, mVoyages, mStops);
 	
 	// special targets:
-	mTargetToVoyageIdMap.insert({ "Other", {}});
-	mTargetToVoyageIdMap.at("Other").insert({ "Next Voyage", {"", "", allVoyageIds} });
+	jsonLoadUtils::setSpecialTargets(mTargetToVoyageIdMap, mVoyages);
 
 	mIsInit = true;
 }

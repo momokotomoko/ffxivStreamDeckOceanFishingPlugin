@@ -8,11 +8,11 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <map>
 #include <unordered_set>
-#include <set>
 #include <vector>
 #include "Common.h"
 
@@ -27,7 +27,7 @@ public:
 	~FFXIVOceanFishingProcessor() {};
 
 	bool isInit() { return mIsInit; };
-	std::string getErrorMessage() { return mErrorMessage; };
+	std::string getErrorMessage() { return mErrorMessage.value_or(""); };
 	std::string getRouteName() { return mRouteName; };
 
 	void loadDatabase(const json& j);
@@ -59,61 +59,18 @@ public:
 private:
 	bool mIsInit = false;
 	std::string mRouteName;
-	std::string mErrorMessage;
-
-	bool isBadKey(const json& j, const std::string& key, const std::string& msg)
-	{
-		if (!j.contains(key))
-		{
-			mErrorMessage = msg + "\nJson Dump:\n" + j.dump(4);
-			return true;
-		}
-		return false;
-	}
-
-	struct locations_t
-	{
-		const std::string name;
-		const std::vector<std::string> time;
-	};
-
-	struct fish_t
-	{
-		const std::string shortName;
-		const std::vector<locations_t> locations;
-	};
-
+	std::optional<std::string> mErrorMessage;
 
 	std::unordered_map<std::string, std::string> mStops;
 	std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> mFishes;
 	std::unordered_map<std::string, std::unordered_set<uint32_t>> mAchievements;
 	std::map<std::string, fish_t> mBlueFishNames;
 
-	struct stop_t
-	{
-		const locations_t location;
-		const std::unordered_set<std::string> fish;
-	};
-
-	struct voyage_t
-	{
-		const std::string shortName;
-		const uint32_t id;
-		const std::vector<stop_t> stops;
-		const std::set<std::string> achievements;
-		std::string blueFishPattern;
-	};
 	std::unordered_map <std::string, voyage_t> mVoyages;
 
 	uint32_t mPatternOffset = 0;
 	std::vector<uint32_t> mVoyagePattern;
 
-	struct targets_t
-	{
-		const std::string labelName;
-		const std::string imageName;
-		std::unordered_set <uint32_t> ids;
-	};
 	// hiearchy is target type -> target name -> struct with vector of voyage ids
 	// ie: "Blue Fish" -> "Sothis" -> {shortName, {id1, id2...}}
 	std::unordered_map <std::string, std::map<std::string, targets_t>> mTargetToVoyageIdMap;
@@ -126,7 +83,4 @@ private:
 	std::string createAchievementName(const std::string& voyageName);
 	std::string createImageNameFromVoyageId(const uint32_t& voyageId, PRIORITY priority);
 	std::string createButtonLabelFromVoyageId(const uint32_t& voyageId, PRIORITY priority);
-
-	// database loading functions
-	bool loadSchedule(const json& j);
 };
