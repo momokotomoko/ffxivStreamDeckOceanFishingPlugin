@@ -23,18 +23,24 @@ struct locations_t
 {
 	const std::string name;
 	const std::unordered_set<std::string> time;
+
+	bool operator==(const locations_t& location) const { return name == location.name && time == location.time; }
 };
 
 struct fish_t
 {
 	const std::string shortName;
 	const std::unordered_map<std::string, locations_t> locations;
+
+	bool operator==(const fish_t& fish) const { return shortName == fish.shortName && locations == fish.locations; }
 };
 
 struct stop_t
 {
 	const locations_t location;
 	const std::unordered_set<std::string> fish;
+
+	bool operator==(const stop_t& stop) const { return location == stop.location && fish == stop.fish; }
 };
 
 struct voyage_t

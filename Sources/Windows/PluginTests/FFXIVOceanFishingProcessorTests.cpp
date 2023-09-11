@@ -1,13 +1,11 @@
 //copyright  (c) 2023, Momoko Tomoko
 
-#include "gtest/gtest.h"
+#include "pch.h"
 
 #include "../FFXIVOceanFishingProcessor.h"
 
 namespace FFXIVOceanFishingProcessorTests
 {
-    using json = nlohmann::json;
-
     class FFXIVOceanFishingProcessorBase
     {
     protected:

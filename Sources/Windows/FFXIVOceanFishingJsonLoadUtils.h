@@ -1,4 +1,13 @@
+//==============================================================================
+/**
+@file       FFXIVOceanFishingJsonLoadUtils.h
+@brief      Functions that helps with loading the json database.
+@copyright  (c) 2023, Momoko Tomoko
+**/
+//==============================================================================
+
 #pragma once
+
 #include <optional>
 #include <string>
 #include <map>
@@ -42,9 +51,9 @@ namespace jsonLoadUtils
 	std::vector<std::unordered_set<std::string>> getBlueFishAtStops(
 		const std::vector<stop_t>& stops,
 		const std::map<std::string, fish_t>& blueFishNames);
-	std::string implodeStringVector(const std::vector<std::string>& strings, const char* const delim = "-");
+	std::string implodeStringVector(const std::vector<std::string>& strings, const char delim = '-');
 	std::string createBlueFishPattern(
-		std::vector<std::unordered_set<std::string>>& blueFishPerStop,
+		const std::vector<std::unordered_set<std::string>>& blueFishPerStop,
 		const std::map<std::string, fish_t>& blueFishNames
 	);
 	std::optional<std::string> loadVoyages(

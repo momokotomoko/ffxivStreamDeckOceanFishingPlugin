@@ -93,7 +93,7 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>ffxivoceanfishing</TargetName>
     <IncludePath>../Vendor/asio/include;../Vendor/websocketpp;../Vendor/lodepng;$(IncludePath)</IncludePath>
-    <LibraryPath>../Vendor/curl/lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <IntDir>$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)\$(Configuration)\</OutDir>
   </PropertyGroup>

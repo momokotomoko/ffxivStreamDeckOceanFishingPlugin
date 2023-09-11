@@ -1,6 +1,6 @@
 //copyright  (c) 2023, Momoko Tomoko
 
-#include "gtest/gtest.h"
+#include "pch.h"
 
 #include <fstream>
 #include <tuple>
@@ -10,8 +10,6 @@
 
 namespace FFXIVOceanFishingHelperTests
 {
-	using json = nlohmann::json;
-
 	class FFXIVOceanFishingHelperBase
 	{
 	protected:

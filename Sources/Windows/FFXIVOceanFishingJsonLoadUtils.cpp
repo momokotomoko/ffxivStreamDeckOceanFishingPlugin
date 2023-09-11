@@ -1,3 +1,11 @@
+//==============================================================================
+/**
+@file       FFXIVOceanFishingJsonLoadUtils.cpp
+@brief      Functions that helps with loading the json database.
+@copyright  (c) 2023, Momoko Tomoko
+**/
+//==============================================================================
+
 #pragma once
 #include "pch.h"
 #include "FFXIVOceanFishingJsonLoadUtils.h"
@@ -27,7 +35,7 @@ namespace jsonLoadUtils
 	**/
 	bool isBadKey(const json& j, const std::string& key, const json::value_t& value)
 	{
-		return !(j.contains(key) && ((j[key].type() == value) || (j[key].type() == json::value_t::null)));
+		return !(j.contains(key) && ((j[key].type() == value)));
 	}
 
 	/**
@@ -329,14 +337,9 @@ namespace jsonLoadUtils
 
 		@return combined string
 	**/
-	std::string implodeStringVector(const std::vector<std::string>& strings, const char* const delim)
+	std::string implodeStringVector(const std::vector<std::string>& strings, const char delim)
 	{
-		std::ostringstream ss;
-		std::copy(strings.begin(), strings.end(),
-			std::ostream_iterator<std::string>(ss, delim));
-		std::string implodedString = ss.str();
-		implodedString.pop_back(); // remove the last dash
-		return implodedString;
+		return std::ranges::fold_left(strings | std::views::join_with(delim), std::string{}, std::plus<>{});
 	}
 
 	/**
@@ -348,7 +351,7 @@ namespace jsonLoadUtils
 		@return blue fish pattern string, with X-X-X if there are no blue fish
 	**/
 	std::string createBlueFishPattern(
-		std::vector<std::unordered_set<std::string>>& blueFishPerStop,
+		const std::vector<std::unordered_set<std::string>>& blueFishPerStop,
 		const std::map<std::string, fish_t>& blueFishNames
 	)
 	{
@@ -357,7 +360,9 @@ namespace jsonLoadUtils
 		std::vector<std::string> shortenedNames = blueFishPerStop
 			| std::views::transform(
 				[&](const auto& blueFishes) -> std::string {
-					return !blueFishes.empty() ? blueFishNames.at(*blueFishes.begin()).shortName : "X";
+					if (blueFishes.empty()) return "X";
+					if (!blueFishNames.contains(*blueFishes.begin())) return *blueFishes.begin();
+					return blueFishNames.at(*blueFishes.begin()).shortName;
 				}) // convert name to shortform name, and nullopt to X
 			| std::ranges::to<std::vector<std::string>>();
 				return implodeStringVector(shortenedNames);

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{b5462145-2172-4099-86c6-33dd0f83d78f}</ProjectGuid>
+    <ProjectGuid>{84c33f82-d238-4d68-853a-97a008028f66}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
     <ConfigurationType>Application</ConfigurationType>
@@ -36,30 +36,7 @@
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
-  <ItemGroup>
-    <ClInclude Include="..\TimeUtils.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\FFXIVOceanFishingHelper.cpp" />
-    <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp" />
-    <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp" />
-    <ClCompile Include="FFXIVOceanFishingHelperTests.cpp" />
-    <ClCompile Include="FFXIVOceanFishingProcessorInitializationTests.cpp" />
-    <ClCompile Include="FFXIVOceanFishingProcessorTests.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\com.elgato.ffxivoceanfishing.sdPlugin.vcxproj">
-      <Project>{f76362ac-339a-4f56-8c7b-d73a560670c4}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <ItemDefinitionGroup />
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />
-  </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -92,7 +69,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -109,7 +86,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -124,6 +101,46 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="JsonLoadCommon.h" />
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\FFXIVOceanFishingHelper.cpp" />
+    <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp" />
+    <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp" />
+    <ClCompile Include="FFXIVOceanFishingHelperTests.cpp" />
+    <ClCompile Include="FFXIVOceanFishingProcessorInitializationTests.cpp" />
+    <ClCompile Include="FFXIVOceanFishingProcessorTests.cpp" />
+    <ClCompile Include="JsonLoadCommon.cpp" />
+    <ClCompile Include="JsonLoadCommonTests.cpp" />
+    <ClCompile Include="UtilityFunctionsTests.cpp" />
+    <ClCompile Include="LoadAchievementsTests.cpp" />
+    <ClCompile Include="LoadFishLocationsTests.cpp" />
+    <ClCompile Include="LoadFishTests.cpp" />
+    <ClCompile Include="LoadRouteNameTests.cpp" />
+    <ClCompile Include="LoadStopsTests.cpp" />
+    <ClCompile Include="LoadVoyageScheduleTests.cpp" />
+    <ClCompile Include="LoadVoyageHelperTests.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\com.elgato.ffxivoceanfishing.sdPlugin.vcxproj">
+      <Project>{f76362ac-339a-4f56-8c7b-d73a560670c4}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1.7\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.targets')" />
+  </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

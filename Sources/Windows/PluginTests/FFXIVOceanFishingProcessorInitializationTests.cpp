@@ -1,6 +1,6 @@
 //copyright  (c) 2023, Momoko Tomoko
 
-#include "gtest/gtest.h"
+#include "pch.h"
 
 #include <fstream>
 #include <tuple>
@@ -9,8 +9,6 @@
 
 namespace FFXIVOceanFishingProcessorInitializationTests
 {
-	using json = nlohmann::json;
-
 	const std::string dataFile = "../../com.elgato.ffxivoceanfishing.sdPlugin/oceanFishingDatabase - Indigo Route.json";
 	TEST(FFXIVOceanFishingProcessorInitializationTests, ValidJson) {
 		std::ifstream ifs(dataFile);

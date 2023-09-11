@@ -1,7 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="UtilityFunctionsTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadRouteNameTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadStopsTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
     <ClCompile Include="..\FFXIVOceanFishingHelper.cpp">
+      <Filter>FFXIVOceanFishing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp">
       <Filter>FFXIVOceanFishing</Filter>
     </ClCompile>
     <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp">
@@ -16,14 +29,24 @@
     <ClCompile Include="FFXIVOceanFishingProcessorTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp">
-      <Filter>FFXIVOceanFishing</Filter>
+    <ClCompile Include="LoadVoyageScheduleTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadFishTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadFishLocationsTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadAchievementsTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadVoyageHelperTests.cpp">
+      <Filter>Tests\JsonLoadTests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\TimeUtils.hpp">
-      <Filter>FFXIVOceanFishing</Filter>
-    </ClInclude>
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -34,6 +57,9 @@
     </Filter>
     <Filter Include="Tests">
       <UniqueIdentifier>{a16cbac7-97f8-48dd-8b44-05025a5cde81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\JsonLoadTests">
+      <UniqueIdentifier>{acdb242e-de2c-464d-b85e-8b1344fe636e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
