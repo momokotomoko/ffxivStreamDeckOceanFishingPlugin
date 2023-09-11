@@ -64,7 +64,7 @@ namespace timeutils
 				return false;
 
 			// parse the 24h time string into 12h time without seconds
-			uint32_t firstColonLoc = date.time24H.find(":");
+			size_t firstColonLoc = date.time24H.find(":");
 			if (firstColonLoc != std::string::npos)
 			{
 				uint32_t hour = stoi(date.time24H.substr(0, firstColonLoc));

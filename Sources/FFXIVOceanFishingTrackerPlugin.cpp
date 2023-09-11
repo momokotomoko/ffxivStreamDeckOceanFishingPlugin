@@ -8,10 +8,8 @@
 
 #include "FFXIVOceanFishingTrackerPlugin.h"
 
-#include "Windows/FFXIVOceanFishingHelper.h"
 #include "Windows/TimeUtils.hpp"
 #include "Windows/ImageUtils.h"
-#include "Windows/CallBackTimer.h"
 #include "lodepng.h"
 #include "lodepng.cpp"
 

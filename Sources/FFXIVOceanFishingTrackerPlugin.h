@@ -11,12 +11,11 @@
 #include <unordered_map>
 #include <string>
 #include "Windows/Common.h"
+#include "Windows/CallBackTimer.h"
+#include "Windows/FFXIVOceanFishingHelper.h"
 
 #include "Vendor/json/src/json.hpp"
 using json = nlohmann::json;
-
-class FFXIVOceanFishingHelper;
-class CallBackTimer;
 
 
 class FFXIVOceanFishingTrackerPlugin : public ESDBasePlugin
