@@ -51,7 +51,7 @@ public:
 		@param[in] interval the milliseconds to wait
 		@param[in] func the function to trigger
 	**/
-	void start(uint32_t interval, std::function<void(void)> func)
+	void start(uint32_t intervalMilliseconds, std::function<void(void)> func)
 	{
 		// can't be already running
 		if (running == true)
@@ -62,13 +62,13 @@ public:
 		running = true;
 
 		// start the timer thread
-		thd = std::thread([this, interval, func]()
+		thd = std::thread([this, intervalMilliseconds, func]()
 			{
 				while (running)
 				{
 					func();
 					// wait
-					if (timerMutex.try_lock_for(std::chrono::milliseconds(interval)))
+					if (timerMutex.try_lock_for(std::chrono::milliseconds(intervalMilliseconds)))
 					{
 						unlock();
 					}

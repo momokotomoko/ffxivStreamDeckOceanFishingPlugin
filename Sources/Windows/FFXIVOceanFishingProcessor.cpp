@@ -50,8 +50,6 @@ FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const json& j)
 
 void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 {
-	//TODO see if we can remove mStops and locations_t
-
 	mErrorMessage = jsonLoadUtils::loadRouteName(mRouteName, j);
 	if (mErrorMessage) return;
 
@@ -73,8 +71,6 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	// construct search target mapping
 	jsonLoadUtils::setBlueFishTargets(mTargetToVoyageIdMap, mVoyages, mBlueFishNames);
 	
-
-	//TODO: move these into FFXIVOceanFishingProcessor
 	// achievements targets:
 	jsonLoadUtils::setAchievementTargets(mTargetToVoyageIdMap, mAchievements);
 
