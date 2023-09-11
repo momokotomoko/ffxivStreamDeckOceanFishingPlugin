@@ -7,7 +7,7 @@
     <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp">
       <Filter>FFXIVOceanFishing</Filter>
     </ClCompile>
-    <ClCompile Include="FFXIVOceanFishingHelperTests .cpp">
+    <ClCompile Include="FFXIVOceanFishingHelperTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
     <ClCompile Include="FFXIVOceanFishingProcessorInitializationTests.cpp">
