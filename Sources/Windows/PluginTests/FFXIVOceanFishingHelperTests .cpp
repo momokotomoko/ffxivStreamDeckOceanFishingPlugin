@@ -8,7 +8,8 @@
 #include "../FFXIVOceanFishingHelper.h"
 #include "../TimeUtils.hpp"
 
-namespace {
+namespace FFXIVOceanFishingHelperTests
+{
 	using json = nlohmann::json;
 
 	class FFXIVOceanFishingHelperBase

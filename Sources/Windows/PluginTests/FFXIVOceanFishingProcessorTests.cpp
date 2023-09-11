@@ -4,7 +4,7 @@
 
 #include "../FFXIVOceanFishingProcessor.h"
 
-namespace
+namespace FFXIVOceanFishingProcessorTests
 {
     using json = nlohmann::json;
 
@@ -70,7 +70,7 @@ namespace
                 "id": 3,
                 "stops": [
                     {
-                        "name": "StopC",
+                        "name": "StopA",
                         "time": "day"
                     },
                     {

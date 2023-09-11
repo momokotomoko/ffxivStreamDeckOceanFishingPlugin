@@ -7,7 +7,8 @@
 #include <iostream>
 #include "../FFXIVOceanFishingProcessor.h"
 
-namespace {
+namespace FFXIVOceanFishingProcessorInitializationTests
+{
 	using json = nlohmann::json;
 
 	const std::string dataFile = "../../com.elgato.ffxivoceanfishing.sdPlugin/oceanFishingDatabase - Indigo Route.json";
