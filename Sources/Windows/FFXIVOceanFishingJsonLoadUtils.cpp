@@ -114,11 +114,17 @@ namespace jsonLoadUtils
 
 		@return error message string, or std::nullopt if no errors
 	**/
-	std::optional<std::string> loadFishLocations(std::unordered_map<std::string, locations_t>& locations, const json& fish)
+	std::optional<std::string> loadFishLocations(std::unordered_map<std::string, locations_t>& locations, const json& fishJson)
 	{
-		if (isBadKey(fish, "locations", json::value_t::array)) return "Invalid/missing location for fish.\nJson Dump:\n" + fish.dump(4);;
+		if (!fishJson.contains("locations")) return std::nullopt; // having no locations is allowed, return no error
 
-		for (const auto& location : fish["locations"])
+		// if fishJson is an object, convert to array. Otherwise we only accept arrays.
+		json j = fishJson["locations"];
+		if (fishJson["locations"].type() == json::value_t::object)
+			j = json::array({ j });
+		else if (j.type() != json::value_t::array) return "Invalid location for fish.\nJson Dump:\n" + fishJson.dump(4);
+
+		for (const auto& location : j)
 		{
 			bool noTime = isBadKey(location, "time", json::value_t::string) && isBadKey(location, "time", json::value_t::array);
 			bool noName = isBadKey(location, "name", json::value_t::string);
@@ -159,14 +165,14 @@ namespace jsonLoadUtils
 			fishes.insert({ fishTypeName, {} });
 			for (const auto& fish : fishJson.get<json::object_t>())
 			{
-				const auto& [fishName, locationJson] = fish;
+				const auto& [fishName, fishJson] = fish;
 
 				std::string shortformName = fishName; // by default the shortform name is just the fish name
-				if (locationJson.contains("shortform"))
-					shortformName = locationJson["shortform"].get<std::string>();
+				if (fishJson.contains("shortform"))
+					shortformName = fishJson["shortform"].get<std::string>();
 
 				std::unordered_map<std::string, locations_t> locations;
-				err = loadFishLocations(locations, locationJson);
+				err = loadFishLocations(locations, fishJson);
 				if (err) return err;
 
 				fish_t newFish = { shortformName, locations };

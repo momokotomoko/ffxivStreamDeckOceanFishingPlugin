@@ -117,12 +117,11 @@ namespace FFXIVOceanFishingProcessorTests
                     },
                     "Fish from B night": {
                         "shortform": "f2",
-                        "locations": [
+                        "locations":
                             {
                                 "name": "StopB",
                                 "time": "night"
                             }
-                        ]
                     },
 					"Fish from any time B": {
                         "locations": [
@@ -130,6 +129,22 @@ namespace FFXIVOceanFishingProcessorTests
                                 "name": "StopB"
                             }
                         ]
+                    }
+                },
+                "Green Fish": {
+                    "Fish from multiple locations": {
+                        "locations": [
+                            {
+                                "name": "StopA",
+                                "time": ["night", "sunset"]
+                            },
+                            {
+                                "name": "StopD",
+                                "time": "night"
+                            }
+                        ]
+                    },
+                    "Fish with no location": {
                     }
                 }
         },
@@ -176,6 +191,7 @@ namespace FFXIVOceanFishingProcessorTests
             std::make_tuple("Blue Fish", "Fish from B night", std::unordered_set<uint32_t>({ 2 })),
             std::make_tuple("Blue Fish", "Fish from A night or sunset", std::unordered_set<uint32_t>({ 1, 2 })),
             std::make_tuple("Blue Fish", "Fish from any time B", std::unordered_set<uint32_t>({ 1, 2 })),
+            std::make_tuple("Green Fish", "Fish from multiple locations", std::unordered_set<uint32_t>({ 1, 2, 4 })),
             std::make_tuple("Other", "Next Voyage", std::unordered_set<uint32_t>({ 1, 2, 3, 4 })),
             std::make_tuple("Blue Fish", "Does not exist", std::unordered_set<uint32_t>({ })),
             std::make_tuple("Achievement", "Does not exist", std::unordered_set<uint32_t>({ })),
@@ -218,6 +234,8 @@ namespace FFXIVOceanFishingProcessorTests
             std::make_tuple("Fish from A night or sunset", "Fish from A night or sunset", "Blue Fish", "Fish from A night or sunset", 0, PRIORITY::BLUE_FISH, 0),
             std::make_tuple("Fish from B night", "Fish from B night", "Blue Fish", "Fish from B night", 0, PRIORITY::BLUE_FISH, 1),
             std::make_tuple("Fish from B night", "Fish from B night", "Blue Fish", "Fish from B night", 0, PRIORITY::ACHIEVEMENTS, 0),
+            std::make_tuple("Fish from multiple locations", "Fish from multiple locations", "Green Fish", "Fish from multiple locations", 0, PRIORITY::BLUE_FISH, 1),
+            std::make_tuple("Fish from multiple locations", "Fish from multiple locations", "Green Fish", "Fish from multiple locations", 0, PRIORITY::ACHIEVEMENTS, 0),
             std::make_tuple("AchieveAB", "AchieveAB", "Achievement", "AchieveAB", 0, PRIORITY::ACHIEVEMENTS, 0),
             std::make_tuple("f1-Fish from any time B-X", "f1-Fish from any time B-X", "Blue Fish Pattern", "f1-Fish from any time B-X", 0, PRIORITY::ACHIEVEMENTS, 0),
             std::make_tuple("", "", "Voyages", "A", 0, PRIORITY::ACHIEVEMENTS, 0), // location A has no last stop, so it is not a voyage
