@@ -25,9 +25,9 @@ namespace jsonLoadUtils
 
 		@return true if invalid key
 	**/
-	bool isBadKey(const json& j, const std::string& key)
+	bool isBadKey(const json& j, const std::string& key, const json::value_t& value)
 	{
-		return !j.contains(key);
+		return !(j.contains(key) && ((j[key].type() == value) || (j[key].type() == json::value_t::null)));
 	}
 
 	/**
@@ -40,10 +40,15 @@ namespace jsonLoadUtils
 	**/
 	std::optional<std::string> loadStops(std::unordered_map<std::string, std::string>& stops, const json& j)
 	{
-		if (isBadKey(j, "stops")) return "Missing stops in database.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j, "stops", json::value_t::object)) return "Invalid/missing stops in database.\nJson Dump:\n" + j.dump(4);
 
-		for (const auto& stop : j["stops"].get<json::object_t>())
-			stops.insert({ stop.first, stop.second["shortform"].get<std::string>() });
+		for (const auto& [stopname, jsonData] : j["stops"].get<json::object_t>())
+		{
+			std::string shortform = stopname;
+			if (!isBadKey(jsonData, "shortform", json::value_t::string))
+				shortform = jsonData["shortform"].get<std::string>();
+			stops.insert({ stopname, shortform });
+		}
 		return std::nullopt;
 	}
 
@@ -57,9 +62,7 @@ namespace jsonLoadUtils
 	**/
 	std::optional<std::string> loadRouteName(std::string& routeName, const json& j)
 	{
-		if (isBadKey(j, "name")) return "Missing route name in database.\nJson Dump:\n" + j.dump(4);
-		if (!j["name"].is_string()) return "Invalid route name:\n" + j["name"].dump(4);
-
+		if (isBadKey(j, "name", json::value_t::string)) return "Invalid/missing route name in database.\nJson Dump:\n" + j.dump(4);
 		routeName = j["name"].get<std::string>();
 		return std::nullopt;
 	}
@@ -75,9 +78,9 @@ namespace jsonLoadUtils
 	**/
 	std::optional<std::string> loadVoyageSchedule(std::vector<uint32_t>& voyagePattern, uint32_t& offset, const json& j)
 	{
-		if (isBadKey(j, "schedule")) return "Missing schedule in database.\nJson Dump:\n" + j.dump(4);
-		if (isBadKey(j["schedule"], "pattern")) return "Missing pattern in schedule.\nJson Dump:\n" + j["schedule"].dump(4);
-		if (isBadKey(j["schedule"], "offset")) return "Missing offset in schedule.\nJson Dump:\n" + j["schedule"].dump(4);
+		if (isBadKey(j, "schedule", json::value_t::object)) return "Invalid/missing schedule in database.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j["schedule"], "pattern", json::value_t::array)) return "Invalid/missing pattern in schedule.\nJson Dump:\n" + j["schedule"].dump(4);
+		if (isBadKey(j["schedule"], "offset", json::value_t::number_unsigned)) return "Invalid/missing offset in schedule.\nJson Dump:\n" + j["schedule"].dump(4);
 
 		for (const auto& id : j["schedule"]["pattern"])
 		{
@@ -86,9 +89,9 @@ namespace jsonLoadUtils
 			voyagePattern.push_back(id.get<uint32_t>());
 		}
 
-		if (!j["schedule"]["offset"].is_number_unsigned())
-			return "Invalid offset in schedule:\n" + j["schedule"].dump(4);
 		offset = j["schedule"]["offset"].get<uint32_t>();
+
+		if (voyagePattern.empty()) return "Voyage pattern was empty:\n" + j.dump(4);
 
 		return std::nullopt;
 	}
@@ -96,7 +99,7 @@ namespace jsonLoadUtils
 	/**
 		@brief get either a single or list of values from json
 	**/
-	std::unordered_set<std::string> parseSingleOrArray(const json& j)
+	std::unordered_set<std::string> loadJsonStringArray(const json& j)
 	{
 		return j
 			| std::views::transform([&](json element) { return element.get<std::string>(); })
@@ -113,19 +116,19 @@ namespace jsonLoadUtils
 	**/
 	std::optional<std::string> loadFishLocations(std::unordered_map<std::string, locations_t>& locations, const json& fish)
 	{
-		if (isBadKey(fish, "locations")) return "Missing location for fish.\nJson Dump:\n" + fish.dump(4);;
+		if (isBadKey(fish, "locations", json::value_t::array)) return "Invalid/missing location for fish.\nJson Dump:\n" + fish.dump(4);;
 
 		for (const auto& location : fish["locations"])
 		{
-			bool noTime = isBadKey(location, "time");
-			bool noName = isBadKey(location, "name");
+			bool noTime = isBadKey(location, "time", json::value_t::string) && isBadKey(location, "time", json::value_t::array);
+			bool noName = isBadKey(location, "name", json::value_t::string);
 			if (noName && noTime) continue; // null location is allowed, just skip
 			if (noName && !noTime) return "Location has time but missing name: \n" + location.dump(4);
 
 			// location["time"] can be a single entry ("time": "day") or an array ("time": ["day", night"])
 			// an empty time vector means any time is allowed
 			std::unordered_set<std::string> times;
-			if (!noTime) times = parseSingleOrArray(location["time"]);
+			if (!noTime) times = loadJsonStringArray(location["time"]);
 			std::string locationName = location["name"].get<std::string>();
 			locations.insert({ locationName, {locationName, times} });
 		}
@@ -146,8 +149,8 @@ namespace jsonLoadUtils
 		std::map<std::string, fish_t>& blueFisheNames,
 		const json& j)
 	{
-		if (isBadKey(j, "targets")) return "Missing targets in database.\nJson Dump:\n" + j.dump(4);
-		if (isBadKey(j["targets"], "fish")) return "Missing fish in targets.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j, "targets", json::value_t::object)) return "Invalid/missing targets in database.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j["targets"], "fish", json::value_t::object)) return "Invalid/missing fish in targets.\nJson Dump:\n" + j.dump(4);
 
 		std::optional<std::string> err;
 		for (const auto& fishType : j["targets"]["fish"].get<json::object_t>())
@@ -187,14 +190,14 @@ namespace jsonLoadUtils
 		std::unordered_map<std::string, std::unordered_set<uint32_t>>& achievements,
 		const json& j)
 	{
-		if (isBadKey(j, "targets")) return "Missing targets in database.\nJson Dump:\n" + j.dump(4);
-		if (isBadKey(j["targets"], "achievements")) return "Missing achievements in targets.\nJson Dump:\n" + j["targets"].dump(4);
+		if (isBadKey(j, "targets", json::value_t::object)) return "Invalid/missing targets in database.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j["targets"], "achievements", json::value_t::object)) return "Invalid/missing achievements in targets.\nJson Dump:\n" + j["targets"].dump(4);
 
 		std::optional<std::string> err;
 		for (const auto& achievement : j["targets"]["achievements"].get<json::object_t>())
 		{
 			const auto& [achievementName, achievementDataJson] = achievement;
-			if (isBadKey(achievementDataJson, "voyageIds")) return "Missing voyageId in achievements.\nJson Dump:\n" + achievementDataJson.dump(4);
+			if (isBadKey(achievementDataJson, "voyageIds", json::value_t::array)) return "Invalid/missing voyageId in achievements.\nJson Dump:\n" + achievementDataJson.dump(4);
 
 			std::unordered_set <uint32_t> ids = achievementDataJson["voyageIds"]
 				| std::views::transform([&](json j) { return j.get<uint32_t>(); })
@@ -256,12 +259,12 @@ namespace jsonLoadUtils
 		const json& j
 	)
 	{
-		if (isBadKey(j, "stops")) return "Missing stops in voyage.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j, "stops", json::value_t::array)) return "Invalid/missing stops in voyage.\nJson Dump:\n" + j.dump(4);
 
 		for (const auto& stop : j["stops"])
 		{
-			if (isBadKey(stop, "name")) return "Missing name in stops.\nJson Dump:\n" + j.dump(4);
-			if (isBadKey(stop, "time")) return "Missing time in stops.\nJson Dump:\n" + j.dump(4);
+			if (isBadKey(stop, "name", json::value_t::string)) return "Invalid/missing name in stops.\nJson Dump:\n" + j.dump(4);
+			if (isBadKey(stop, "time", json::value_t::string)) return "Invalid/missing time in stops.\nJson Dump:\n" + j.dump(4);
 
 			const std::string stopName = stop["name"].get<std::string>();
 			const std::string stopTime = stop["time"].get<std::string>();
@@ -375,17 +378,16 @@ namespace jsonLoadUtils
 		const json& j
 	)
 	{
-		if (isBadKey(j, "voyages")) return "Missing voyages in database.\nJson Dump:\n" + j.dump(4);
+		if (isBadKey(j, "voyages", json::value_t::object)) return "Invalid/missing voyages in database.\nJson Dump:\n" + j.dump(4);
 
 		for (const auto& voyage : j["voyages"].get<json::object_t>())
 		{
 			const auto& [voyageName, voyageData] = voyage;
-			if (voyages.contains(voyageName)) return "Error: duplicate voyage name in json: " + voyageName;
-			if (isBadKey(voyageData, "id")) return "Missing id for voyage.\nJson Dump:\n" + voyageData.dump(4);
-			if (!voyageData["id"].is_number_unsigned()) return "Error: invalid voyage ID in json: " + voyageData["id"].dump(4);
+			if (voyages.contains(voyageName)) return "Error: duplicate voyage name in json: " + voyageName; // TODO: json parse might remove duplicates already
+			if (isBadKey(voyageData, "id", json::value_t::number_unsigned)) return "Invalid/missing id for voyage.\nJson Dump:\n" + voyageData.dump(4);
 			const uint32_t id = voyageData["id"].get<uint32_t>();
 			if (voyageIdToNameMap.contains(id)) return "Error: duplicate voyage id in json: " + id;
-			if (isBadKey(voyageData, "shortform")) return "Missing shortform name for voyage.\nJson Dump:\n" + voyageData.dump(4);
+			if (isBadKey(voyageData, "shortform", json::value_t::string)) return "Invalid/missing shortform name for voyage.\nJson Dump:\n" + voyageData.dump(4);
 
 			std::vector<stop_t> voyageStops;
 			auto err = loadVoyageStops(voyageStops, fishes, voyageData);

@@ -11,12 +11,12 @@ namespace jsonLoadUtils
 {
 	using json = nlohmann::json;
 
-	bool isBadKey(const json& j, const std::string& key);
+	bool isBadKey(const json& j, const std::string& key, const json::value_t& type);
 
 	std::optional<std::string> loadStops(std::unordered_map<std::string, std::string>& stops, const json& j);
 	std::optional<std::string> loadRouteName(std::string& routeName, const json& j);
 	std::optional<std::string> loadVoyageSchedule(std::vector<uint32_t>& voyagePattern, uint32_t& offset, const json& j);
-	std::unordered_set<std::string> parseSingleOrArray(const json& j);
+	std::unordered_set<std::string> loadJsonStringArray(const json& j);
 	std::optional<std::string> loadFishLocations(std::unordered_map<std::string, locations_t>& locations, const json& fish);
 	std::optional<std::string> loadFish(
 		std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
