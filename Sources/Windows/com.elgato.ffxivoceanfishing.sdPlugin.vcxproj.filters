@@ -25,6 +25,9 @@
     <ClCompile Include="pch.cpp">
       <Filter>StreamDeck</Filter>
     </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingJsonLoadUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -69,7 +72,7 @@
     <ClInclude Include="TimeUtils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.hpp">
+    <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

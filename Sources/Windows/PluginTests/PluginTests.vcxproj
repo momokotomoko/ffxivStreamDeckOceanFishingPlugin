@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\FFXIVOceanFishingHelper.cpp" />
+    <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp" />
     <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp" />
     <ClCompile Include="FFXIVOceanFishingHelperTests .cpp" />
     <ClCompile Include="FFXIVOceanFishingProcessorInitializationTests.cpp" />

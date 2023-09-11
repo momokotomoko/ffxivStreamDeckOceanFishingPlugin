@@ -1,4 +1,6 @@
 #pragma once
+#include "pch.h"
+#include "FFXIVOceanFishingJsonLoadUtils.h"
 #include <optional>
 #include <string>
 #include <map>
@@ -6,13 +8,14 @@
 #include <ranges>
 #include <unordered_map>
 #include <unordered_set>
+#include <iostream>
 #include <ostream>
 #include "Common.h"
 #include "../Vendor/json/src/json.hpp"
 
 namespace jsonLoadUtils
 {
-    using json = nlohmann::json;
+	using json = nlohmann::json;
 
 	/**
 		@brief check if json contains key
@@ -35,7 +38,7 @@ namespace jsonLoadUtils
 
 		@return error message string, or std::nullopt if no errors
 	**/
-	std::optional<std::string> loadStops(std::unordered_map<std::string, std::string> &stops, const json& j)
+	std::optional<std::string> loadStops(std::unordered_map<std::string, std::string>& stops, const json& j)
 	{
 		if (isBadKey(j, "stops")) return "Missing stops in database.\nJson Dump:\n" + j.dump(4);
 
@@ -52,14 +55,14 @@ namespace jsonLoadUtils
 
 		@return error message string, or std::nullopt if no errors
 	**/
-    std::optional<std::string> loadRouteName(std::string &routeName, const json &j)
-    {
+	std::optional<std::string> loadRouteName(std::string& routeName, const json& j)
+	{
 		if (isBadKey(j, "name")) return "Missing route name in database.\nJson Dump:\n" + j.dump(4);
 		if (!j["name"].is_string()) return "Invalid route name:\n" + j["name"].dump(4);
 
 		routeName = j["name"].get<std::string>();
 		return std::nullopt;
-    }
+	}
 
 	/**
 		@brief loads voyage schedule, consisting of the pattern and offset
@@ -140,7 +143,7 @@ namespace jsonLoadUtils
 	**/
 	std::optional<std::string> loadFish(
 		std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
-		std::map<std::string, fish_t> &blueFisheNames,
+		std::map<std::string, fish_t>& blueFisheNames,
 		const json& j)
 	{
 		if (isBadKey(j, "targets")) return "Missing targets in database.\nJson Dump:\n" + j.dump(4);
@@ -235,7 +238,7 @@ namespace jsonLoadUtils
 						| std::views::transform([](auto const& fish) { return fish.first; }); // get name of the fish
 				}) // matching fishes per fish type
 			| std::views::join
-			| std::ranges::to<std::unordered_set<std::string>>();
+					| std::ranges::to<std::unordered_set<std::string>>();
 	}
 
 	/**
@@ -317,7 +320,7 @@ namespace jsonLoadUtils
 
 		@return combined string
 	**/
-	std::string implodeStringVector(const std::vector<std::string> &strings, const char* const delim = "-")
+	std::string implodeStringVector(const std::vector<std::string>& strings, const char* const delim)
 	{
 		std::ostringstream ss;
 		std::copy(strings.begin(), strings.end(),
@@ -348,7 +351,7 @@ namespace jsonLoadUtils
 					return !blueFishes.empty() ? blueFishNames.at(*blueFishes.begin()).shortName : "X";
 				}) // convert name to shortform name, and nullopt to X
 			| std::ranges::to<std::vector<std::string>>();
-		return implodeStringVector(shortenedNames);
+				return implodeStringVector(shortenedNames);
 	}
 
 	/**
@@ -401,7 +404,7 @@ namespace jsonLoadUtils
 					// by default with 0 blue fish use "" as the pattern
 					isNoBlueFish ? "" : createBlueFishPattern(blueFishPerStop, blueFishNames)
 				}
-			});
+				});
 			voyageIdToNameMap.insert({ id, voyageName });
 		}
 		return std::nullopt;
@@ -414,7 +417,7 @@ namespace jsonLoadUtils
 		@param[in] newTargets the new target to insert
 	**/
 	template <typename T>
-	void targetInserter(std::map<std::string, targets_t> & map , T &newTargets)
+	void targetInserter(std::map<std::string, targets_t>& map, T& newTargets)
 	{
 		std::ranges::for_each(newTargets,
 			[&](const auto& newItem)
@@ -451,10 +454,10 @@ namespace jsonLoadUtils
 		// function to return all the blue fish in a voyage
 		auto blueFishInVoyage = voyages
 			| std::views::transform([&](const auto& voyage) {
-					return voyage.second.stops
-						| std::views::transform(blueFishAtStop)
-						| std::views::join
-						| std::ranges::to<std::vector<std::string>>();
+			return voyage.second.stops
+				| std::views::transform(blueFishAtStop)
+				| std::views::join
+				| std::ranges::to<std::vector<std::string>>();
 				});
 
 		// function to make targets
@@ -472,7 +475,7 @@ namespace jsonLoadUtils
 				};
 				return std::make_pair(voyage.blueFishPattern, newTarget);
 			};
-		
+
 		// make all the blue fish targets and store them
 		auto newTargets = std::views::zip(blueFishInVoyage, voyages)
 			| std::views::filter(
@@ -482,9 +485,9 @@ namespace jsonLoadUtils
 					return !(blueFish.empty());
 				})
 			| std::views::transform(makeTargets);
-		
-		targetToVoyageIdMap.insert({ "Blue Fish Pattern", {} });
-		targetInserter(targetToVoyageIdMap.at("Blue Fish Pattern"), newTargets);
+
+				targetToVoyageIdMap.insert({ "Blue Fish Pattern", {} });
+				targetInserter(targetToVoyageIdMap.at("Blue Fish Pattern"), newTargets);
 	}
 
 	/**
@@ -528,7 +531,7 @@ namespace jsonLoadUtils
 	)
 	{
 		// function for checking if a voyage contains a fish with specific name at one of its stops
-		auto doesVoyageContainFish = [](const auto voyage, const std::string & fishName)
+		auto doesVoyageContainFish = [](const auto voyage, const std::string& fishName)
 			{
 				// TODO: would converting to set be faster?
 				auto fishesInVoyage = voyage.second.stops
@@ -558,7 +561,7 @@ namespace jsonLoadUtils
 					auto newTargets = fishData
 						| std::views::transform(makeFishTargets)
 						| std::ranges::to<std::map<std::string, targets_t>>();
-							return std::make_pair(fishTypeName, newTargets);
+					return std::make_pair(fishTypeName, newTargets);
 				});
 		targetToVoyageIdMap.insert(newTargetMap.begin(), newTargetMap.end());
 	}
@@ -577,7 +580,7 @@ namespace jsonLoadUtils
 	)
 	{
 		// TODO merge this with later code blocks when std::views:concat is in c++23
-		targetToVoyageIdMap.insert({ "Voyages", 
+		targetToVoyageIdMap.insert({ "Voyages",
 			voyages
 			| std::views::transform([&](const auto& voyage) -> std::pair<std::string, targets_t>
 				{
@@ -585,8 +588,8 @@ namespace jsonLoadUtils
 					return std::make_pair(voyageName, targets_t{ "", "", { voyageData.id } });
 				})
 			| std::ranges::to<std::map<std::string, targets_t>>()
-		});
-		
+			});
+
 		// range of shortform names of the last stop
 		auto voyageLastStopShortName = voyages
 			| std::views::transform([&](const auto& voyage) { return stops.at(voyage.second.stops.back().location.name); });
@@ -622,4 +625,3 @@ namespace jsonLoadUtils
 			targetToVoyageIdMap.at("Other").at("Next Voyage").ids.insert(voyage.second.id);
 	}
 }
-

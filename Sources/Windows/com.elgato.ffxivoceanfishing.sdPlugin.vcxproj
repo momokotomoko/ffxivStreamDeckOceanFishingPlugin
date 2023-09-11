@@ -200,7 +200,7 @@
     <ClInclude Include="CallBackTimer.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="FFXIVOceanFishingHelper.h" />
-    <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.hpp" />
+    <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.h" />
     <ClInclude Include="FFXIVOceanFishingProcessor.h" />
     <ClInclude Include="ImageUtils.h" />
     <ClInclude Include="pch.h" />
@@ -238,6 +238,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/FI"pch.h" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="FFXIVOceanFishingHelper.cpp" />
+    <ClCompile Include="FFXIVOceanFishingJsonLoadUtils.cpp" />
     <ClCompile Include="FFXIVOceanFishingProcessor.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

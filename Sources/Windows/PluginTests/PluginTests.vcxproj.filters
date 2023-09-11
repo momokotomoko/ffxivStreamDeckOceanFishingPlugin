@@ -16,6 +16,9 @@
     <ClCompile Include="FFXIVOceanFishingProcessorTests.cpp">
       <Filter>Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp">
+      <Filter>FFXIVOceanFishing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\TimeUtils.hpp">

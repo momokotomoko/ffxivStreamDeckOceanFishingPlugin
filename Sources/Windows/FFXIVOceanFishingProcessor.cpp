@@ -13,7 +13,7 @@
 #include <fstream>
 #include <stdexcept>
 #include "../Vendor/json/src/json.hpp"
-#include "FFXIVOceanFishingJsonLoadUtils.hpp"
+#include "FFXIVOceanFishingJsonLoadUtils.h"
 using json = nlohmann::json;
 
 FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const std::string& dataFile)
