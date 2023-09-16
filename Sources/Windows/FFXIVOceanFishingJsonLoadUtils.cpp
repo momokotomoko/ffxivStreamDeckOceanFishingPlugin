@@ -160,7 +160,7 @@ namespace jsonLoadUtils
 	**/
 	std::optional<std::string> loadFish(
 		std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
-		std::map<std::string, fish_t>& blueFisheNames,
+		std::set<std::string>& blueFishNames,
 		const json& j)
 	{
 		if (isBadKey(j, "targets", json::value_t::object)) return "Invalid/missing targets in database.\nJson Dump:\n" + j.dump(4);
@@ -175,18 +175,23 @@ namespace jsonLoadUtils
 			{
 				const auto& [fishName, fishJson] = fish;
 
-				std::string shortformName = fishName; // by default the shortform name is just the fish name
+				std::optional<std::string> fishShortName = std::nullopt;
 				if (fishJson.contains("shortform"))
-					shortformName = fishJson["shortform"].get<std::string>();
+					fishShortName = fishJson["shortform"].get<std::string>();
 
 				std::unordered_map<std::string, locations_t> locations;
 				err = loadFishLocations(locations, fishJson);
 				if (err) return err;
 
-				fish_t newFish = { shortformName, locations };
+				fish_t newFish = {
+					.name = fishName,
+					.type = fishTypeName,
+					.shortName = fishShortName,
+					.locations = locations
+				};
 				fishes.at(fishTypeName).insert({ fishName, newFish });
 				if (fishTypeName == "Blue Fish")
-					blueFisheNames.insert({ fishName, newFish });
+					blueFishNames.insert(fishName);
 			}
 		}
 		return std::nullopt;
@@ -311,13 +316,13 @@ namespace jsonLoadUtils
 		@brief gets all the blue fish at each stop
 
 		@param[in] voyageStops vector of stops for a voyage
-		@param[in] blueFishNames container of all the blue fish
+		@param[in] blueFishNames the names of blue fish
 
 		@return a vector of stops containing the unordered_set of blue fish at that stop
 	**/
 	std::vector<std::unordered_set<std::string>> getBlueFishAtStops(
 		const std::vector<stop_t>& stops,
-		const std::map<std::string, fish_t>& blueFishNames)
+		const std::set<std::string>& blueFishNames)
 	{
 		return stops
 			| std::views::transform([&](const stop_t& stop) -> std::unordered_set<std::string>
@@ -346,23 +351,25 @@ namespace jsonLoadUtils
 		@brief create pattern string as fish1-fish2-fish3, and use X if there is no blue fish
 
 		@param[in] blueFishPerStop set of blue fish per stop
-		@param[in] blueFishNames container of all the blue fish
+		@param[in] blueFishes the container of all the blue fishes
 
 		@return blue fish pattern string, with X-X-X if there are no blue fish
 	**/
 	std::string createBlueFishPattern(
 		const std::vector<std::unordered_set<std::string>>& blueFishPerStop,
-		const std::map<std::string, fish_t>& blueFishNames
+		const std::unordered_map<std::string, fish_t>& blueFishes
 	)
 	{
 		// TODO this currently only handles names for when there is only one blue fish per stop,
-		// if this changes in the future need to change *blueFishes.begin() to something else 
+		// if this changes in the future need to change *blueFishes.begin() to something else
+		const std::string noBlueFishDefaultName = "X";
 		std::vector<std::string> shortenedNames = blueFishPerStop
 			| std::views::transform(
-				[&](const auto& blueFishes) -> std::string {
-					if (blueFishes.empty()) return "X";
-					if (!blueFishNames.contains(*blueFishes.begin())) return *blueFishes.begin();
-					return blueFishNames.at(*blueFishes.begin()).shortName;
+				[&](const auto& fishes) -> const std::string {
+					if (fishes.empty()) return noBlueFishDefaultName;
+					const std::string& fishName = *fishes.begin();
+					if (!blueFishes.contains(fishName)) return fishName;
+					return blueFishes.at(fishName).shortName.value_or(fishName);
 				}) // convert name to shortform name, and nullopt to X
 			| std::ranges::to<std::vector<std::string>>();
 				return implodeStringVector(shortenedNames);
@@ -374,7 +381,7 @@ namespace jsonLoadUtils
 		@param[out] voyages map of voyage name -> voyage_t
 		@param[out] voyageIdToNameMap map of voyage id to voyage name
 		@param[in] fishes the container of all the fishes
-		@param[in] blueFishNames the container of all the blue fishes
+		@param[in] blueFishNames the names of blue fish
 		@param[in] achievements the container of all the achievements
 		@param[in] j json to load
 
@@ -384,7 +391,7 @@ namespace jsonLoadUtils
 		std::unordered_map <std::string, voyage_t>& voyages,
 		std::unordered_map <uint32_t, std::string>& voyageIdToNameMap,
 		const std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
-		const std::map<std::string, fish_t>& blueFishNames,
+		const std::set<std::string>& blueFishNames,
 		const std::unordered_map<std::string, std::unordered_set<uint32_t>>& achievements,
 		const json& j
 	)
@@ -415,7 +422,7 @@ namespace jsonLoadUtils
 					voyageStops,
 					getAchievementsForVoyage(id, achievements),
 					// by default with 0 blue fish use "" as the pattern
-					isNoBlueFish ? "" : createBlueFishPattern(blueFishPerStop, blueFishNames)
+					isNoBlueFish ? "" : createBlueFishPattern(blueFishPerStop, fishes.at("Blue Fish"))
 				}
 				});
 			voyageIdToNameMap.insert({ id, voyageName });
@@ -449,12 +456,12 @@ namespace jsonLoadUtils
 
 		@param[out] targetToVoyageIdMap map of target -> voyage id
 		@param[in] voyages the container of all the voyages
-		@param[in] blueFishNames the container of all the blue fish
+		@param[in] blueFishNames the names of blue fish
 	**/
 	void setBlueFishTargets(
 		std::unordered_map <std::string, std::map<std::string, targets_t>>& targetToVoyageIdMap,
 		std::unordered_map <std::string, voyage_t>& voyages,
-		const std::map<std::string, fish_t>& blueFishNames
+		const std::set<std::string>& blueFishNames
 	)
 	{
 		// function to return all the blue fish given a stop

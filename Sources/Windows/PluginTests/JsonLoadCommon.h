@@ -3,6 +3,11 @@
 #pragma once
 #include "pch.h"
 #include "../Common.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <string>
+#include <vector>
+#include <optional>
 
 namespace LoadJsonTests
 {
@@ -17,18 +22,16 @@ namespace LoadJsonTests
         std::optional<std::pair<std::string, locations_t>> expectedLocation;
     };
 
+    struct fishData_t
+    {
+        fish_t fish;
+        std::optional<std::vector<locationData_t>> locations;
+    };
+
     struct achievementData_t
     {
         json j;
         std::optional<std::pair<std::string, std::unordered_set<uint32_t>>> expectedAchievement;
-    };
-
-    struct fishData_t
-    {
-        std::string fishType;
-        std::string name;
-        std::optional<std::string> shortForm;
-        std::optional<std::vector<locationData_t>> locations;
     };
 
     void wrapKeys(json& jTail, const std::vector <std::string>& nestedKeys);
@@ -55,14 +58,22 @@ namespace LoadJsonTests
     const achievementData_t achieveNull = { json::parse(R"({ })"), std::nullopt };
     const achievementData_t achieveInvalid = { json::parse(R"({ "achC": { "badkey" : [] } })"), expectedAchievementC };
 
-    const fishData_t fishA = { "Blue Fish", "Afish", "A", std::vector<locationData_t>{locationA} };
-    const fishData_t fishB = { "Blue Fish", "Bfish", std::nullopt, std::vector<locationData_t>{locationA, locationB} };
-    const fishData_t fishC = { "Green Fish", "Cfish", "C", std::vector<locationData_t>{locationA, locationC} };
-    const fishData_t fishD = { "Green Fish", "Dfish", std::nullopt, std::vector<locationData_t>{locationD} };
-    const fishData_t fishNoLocation = { "Blue Fish", "NoLocFish", std::nullopt, { } };
-    const fishData_t fishInvalidLocation = { "Green Fish", "InvalidLocationFish", std::nullopt, std::vector<locationData_t>{locationInvalidName} };
-    const fishData_t fishLocationMissingName = { "Green Fish", "LocationMissingNameFish", std::nullopt, std::vector<locationData_t>{locationNoName} };
+    const fish_t expectedFishA = { "Afish", "Blue Fish", "A", {expectedLocationA} };
+    const fish_t expectedFishB = { "Bfish", "Blue Fish",  std::nullopt, {expectedLocationA, expectedLocationB} };
+    const fish_t expectedFishC = { "Cfish", "Green Fish", "C", {expectedLocationA, expectedLocationC} };
+    const fish_t expectedFishD = { "Dfish", "Green Fish", std::nullopt, {expectedLocationD} };
+    const fish_t expectedFishNoLocation = { "NoLocFish", "Blue Fish", std::nullopt, { } };
 
-    // TODO: make fish_t the same as fishData_t
-    std::pair<std::string, fish_t> createFish(const fishData_t& data);
+
+    const fishData_t fishDataA = { expectedFishA, std::vector<locationData_t>{locationA} };
+    const fishData_t fishDataB = { expectedFishB, std::vector<locationData_t>{locationA, locationB} };
+    const fishData_t fishDataC = { expectedFishC, std::vector<locationData_t>{locationA, locationC} };
+    const fishData_t fishDataD = { expectedFishD, std::vector<locationData_t>{locationD} };
+    const fishData_t fishDataNullLocation = { expectedFishNoLocation, std::nullopt };
+    const fishData_t fishDataEmptyLocation = { expectedFishNoLocation, std::vector<locationData_t>{} }; // todo add locationNull?
+    const fishData_t fishDataInvalidLocation = { expectedFishNoLocation, std::vector<locationData_t>{locationInvalidName} };
+    const fishData_t fishDataNoName = { expectedFishNoLocation, std::vector<locationData_t>{locationNoName} };
+
+    const fish_t fishInvalidLocation = { "InvalidLocationFish", "Green Fish", std::nullopt, {} };
+    const fish_t fishLocationMissingName = { "LocationMissingNameFish", "Green Fish", std::nullopt, {} };
 }

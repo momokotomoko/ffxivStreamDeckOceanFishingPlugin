@@ -64,7 +64,7 @@ private:
 	std::unordered_map<std::string, std::string> mStops;
 	std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> mFishes;
 	std::unordered_map<std::string, std::unordered_set<uint32_t>> mAchievements;
-	std::map<std::string, fish_t> mBlueFishNames;
+	std::set<std::string> mBlueFishNames;
 
 	std::unordered_map <std::string, voyage_t> mVoyages;
 

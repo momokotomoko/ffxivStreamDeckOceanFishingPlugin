@@ -15,12 +15,12 @@ namespace LoadJsonTests
             std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> fishes;
             LoadVoyageHelpersBase()
             {
-                const std::vector<fishData_t> fishData = { fishA, fishB, fishC, fishD, fishNoLocation };
+                const std::vector<fishData_t> fishData = { fishDataA, fishDataB, fishDataC, fishDataD, fishDataNullLocation };
 
-                for (const auto& fish : fishData)
+                for (const auto& [fish, _] : fishData)
                 {
-                    if (!fishes.contains(fish.fishType)) fishes.insert({ fish.fishType, {} });
-                    fishes.at(fish.fishType).insert(createFish(fish));
+                    if (!fishes.contains(fish.type)) fishes.insert({ fish.type, {} });
+                    fishes.at(fish.type).insert(std::make_pair(fish.name, fish));
                 }
             }
         };
@@ -63,7 +63,7 @@ namespace LoadJsonTests
             LoadVoyageStopsTestFixture,
             ::testing::Values(
                 std::make_tuple(jstruct_t(R"({"stops": [ {  "name": "locA", "time": "day" }, { "name": "locB", "time": "night" }, { "name": "locC", "time": "sunset" } ]})"),
-                    std::vector<stop_t>{ {{"locA", { "day" }}, { fishA.name, fishB.name, fishC.name }}, { {"locB", {"night"}}, {fishB.name} }, { { "locC", {"sunset"} }, { fishC.name } } }, NO_ERROR),
+                    std::vector<stop_t>{ {{"locA", { "day" }}, { expectedFishA.name, expectedFishB.name, expectedFishC.name }}, { {"locB", {"night"}}, {expectedFishB.name} }, { { "locC", {"sunset"} }, { expectedFishC.name } } }, NO_ERROR),
                 std::make_tuple(jstruct_t(R"({"stops": [ {  "badnamekey": "locA", "time": "day" }]})"),
                     std::nullopt, HAS_ERROR),
                 std::make_tuple(jstruct_t(R"({"stops": [ {  "name": "locA", "badtimekey": "day" }]})"),
@@ -102,24 +102,9 @@ namespace LoadJsonTests
             EXPECT_EQ(jsonLoadUtils::getAchievementsForVoyage(std::get<0>(GetParam()), achievements), std::get<1>(GetParam()));
         }
 
-
-        class BlueFishTestBase
-        {
-        public:
-            std::map<std::string, fish_t> blueFishNames;
-            BlueFishTestBase()
-            {
-                const std::vector<fishData_t> fishData = { fishA, fishB, fishNoLocation };
-
-                for (const auto& fish : fishData)
-                {
-                    blueFishNames.insert(createFish(fish));
-                }
-            }
-        };
-
+        
         class GetBlueFishAtStopsTestFixture :
-            public BlueFishTestBase,
+            public LoadVoyageHelpersBase,
             public ::testing::TestWithParam<
             ::testing::tuple<std::vector<stop_t>, std::vector<std::unordered_set<std::string>>>> {};
 
@@ -127,11 +112,11 @@ namespace LoadJsonTests
             GetBlueFishAtStopsTest,
             GetBlueFishAtStopsTestFixture,
             ::testing::Values(
-                std::make_tuple(std::vector<stop_t>{ {{"locA", { "day" }}, { fishA.name, fishB.name, fishC.name }}, { {"locC", {"sunset"}}, {fishC.name} }, { { "locB", {"sunset"} }, { } } },
+                std::make_tuple(std::vector<stop_t>{ {{"locA", { "day" }}, { expectedFishA.name, expectedFishB.name, expectedFishC.name }}, { {"locC", {"sunset"}}, {expectedFishC.name} }, { { "locB", {"sunset"} }, { } } },
                     std::vector<std::unordered_set<std::string>>{{ "Afish", "Bfish" }, {}, {}}),
-                std::make_tuple(std::vector<stop_t>{ {{"locA", { "day" }}, { }}, { {"locC", {"sunset"}}, {fishC.name} }, { { "locB", {"sunset"} }, { } } },
+                std::make_tuple(std::vector<stop_t>{ {{"locA", { "day" }}, { }}, { {"locC", {"sunset"}}, {expectedFishC.name} }, { { "locB", {"sunset"} }, { } } },
                     std::vector<std::unordered_set<std::string>>{{}, { }, {}}),
-                std::make_tuple(std::vector<stop_t>{ {{"locA", { "day" }}, { }}, { {"locC", {"sunset"}}, {fishC.name} } },
+                std::make_tuple(std::vector<stop_t>{ {{"locA", { "day" }}, { }}, { {"locC", {"sunset"}}, {expectedFishC.name} } },
                     std::vector<std::unordered_set<std::string>>{{}, {}}),
                 std::make_tuple(std::vector<stop_t>{},
                     std::vector<std::unordered_set<std::string>>{})
@@ -140,11 +125,16 @@ namespace LoadJsonTests
 
         TEST_P(GetBlueFishAtStopsTestFixture, TestGetBlueFish) {
             const auto& [stops, expectedResult] = GetParam();
+            std::set<std::string> blueFishNames;
+            for (const auto& [fishName, fish] : fishes.at("Blue Fish"))
+            {
+                blueFishNames.insert(fishName);
+            }
             EXPECT_EQ(jsonLoadUtils::getBlueFishAtStops(stops, blueFishNames), expectedResult);
         }
 
         class CreateBlueFishPatternTestFixture :
-            public BlueFishTestBase,
+            public LoadVoyageHelpersBase,
             public ::testing::TestWithParam<::testing::tuple<std::vector<std::unordered_set<std::string>>, std::string>> {};
 
         INSTANTIATE_TEST_CASE_P(
@@ -155,13 +145,14 @@ namespace LoadJsonTests
                 std::make_tuple(std::vector < std::unordered_set<std::string>>{{"Afish"}, { "Bfish" }}, "A-Bfish"),
                 std::make_tuple(std::vector < std::unordered_set<std::string>>{{"Afish"}}, "A"),
                 std::make_tuple(std::vector < std::unordered_set<std::string>>{{"Bfish"}}, "Bfish"),
-                std::make_tuple(std::vector < std::unordered_set<std::string>>{{"Afish"}, { "Bfish", "Cfish" }}, "A-Bfish")
+                std::make_tuple(std::vector < std::unordered_set<std::string>>{{"Afish"}, { "Bfish", "Cfish" }}, "A-Bfish"),
+                std::make_tuple(std::vector < std::unordered_set<std::string>>{{"FishNotInDatabase"}}, "FishNotInDatabase")
             )
         );
 
         TEST_P(CreateBlueFishPatternTestFixture, TestCreateblueFishPattern) {
             const auto& [blueFishPerStop, expectedResult] = GetParam();
-            EXPECT_EQ(jsonLoadUtils::createBlueFishPattern(blueFishPerStop, blueFishNames), expectedResult);
+            EXPECT_EQ(jsonLoadUtils::createBlueFishPattern(blueFishPerStop, fishes.at("Blue Fish")), expectedResult);
         }
     }
 }

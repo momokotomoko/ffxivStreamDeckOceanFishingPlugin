@@ -9,19 +9,21 @@ namespace LoadJsonTests
 {
     namespace LoadFish
     {
-        json createFishJson(const fishData_t& data)
+        json createFishJson(fishData_t fishData)
         {
+            const auto& [fish, locationData] = fishData;
             json jFish = nlohmann::json::value_t::object;
-            if (data.shortForm) jFish["shortform"] = data.shortForm.value();
-            if (data.locations)
+            if (fish.shortName) jFish["shortform"] = fish.shortName.value();
+
+            if (locationData)
             {
                 jFish["locations"] = json::value_t::array;
-                for (const auto& [locationJson, _] : data.locations.value())
+                for (const auto& [locationJson, _] : locationData.value())
                     jFish["locations"].push_back(locationJson);
             }
 
             json j;
-            j[data.fishType][data.name] = jFish;
+            j[fish.type][fish.name] = jFish;
             return j;
         }
 
@@ -34,8 +36,8 @@ namespace LoadJsonTests
             LoadFishTestFixture,
             ::testing::Combine(
                 ::testing::Values(std::vector<std::string>{ "targets", "fish" }),
-                ::testing::Values(fishA, fishB, fishC, fishD, fishNoLocation),
-                ::testing::Values(fishA, fishB, fishC, fishD, fishNoLocation),
+                ::testing::Values(fishDataA, fishDataB, fishDataC, fishDataD, fishDataNullLocation, fishDataEmptyLocation),
+                ::testing::Values(fishDataA, fishDataB, fishDataC, fishDataD, fishDataNullLocation, fishDataEmptyLocation),
                 ::testing::Values(NO_ERROR)
             )
         );
@@ -47,8 +49,8 @@ namespace LoadJsonTests
                 ::testing::Values(
                     std::vector<std::string>{ "badtargetskey", "fish" },
                     std::vector<std::string>{ "targets", "badfishkey" }),
-                ::testing::Values(fishA, fishC, fishNoLocation),
-                ::testing::Values(fishA, fishC, fishNoLocation),
+                ::testing::Values(fishDataA, fishDataC, fishDataNullLocation),
+                ::testing::Values(fishDataA, fishDataC, fishDataNullLocation),
                 ::testing::Values(HAS_ERROR)
             )
         );
@@ -58,8 +60,8 @@ namespace LoadJsonTests
             LoadFishTestFixture,
             ::testing::Combine(
                 ::testing::Values(std::vector<std::string>{ "targets", "fish" }),
-                ::testing::Values(fishLocationMissingName, fishInvalidLocation),
-                ::testing::Values(fishNoLocation),
+                ::testing::Values(fishDataNoName, fishDataInvalidLocation),
+                ::testing::Values(fishDataNullLocation),
                 ::testing::Values(HAS_ERROR)
             )
         );
@@ -73,18 +75,19 @@ namespace LoadJsonTests
             wrapKeys(j, keys);
 
             std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> expectedFish;
-            std::map<std::string, fish_t> expectedBlueFish;
-            auto fish0 = createFish(input0);
-            auto fish1 = createFish(input1);
-            expectedFish.insert({ input0.fishType, { } });
-            expectedFish.insert({ input1.fishType, { } });
-            expectedFish.at(input0.fishType).insert(fish0);
-            expectedFish.at(input1.fishType).insert(fish1);
-            if (input0.fishType == "Blue Fish") expectedBlueFish.insert(fish0);
-            if (input1.fishType == "Blue Fish") expectedBlueFish.insert(fish1);
+            std::set<std::string> expectedBlueFish;
+
+            expectedFish.insert({ input0.fish.type, { } });
+            expectedFish.insert({ input1.fish.type, { } });
+            const auto fish0 = std::make_pair(input0.fish.name, input0.fish);
+            const auto fish1 = std::make_pair(input1.fish.name, input1.fish);
+            expectedFish.at(input0.fish.type).insert(fish0);
+            expectedFish.at(input1.fish.type).insert(fish1);
+            if (input0.fish.type == "Blue Fish") expectedBlueFish.insert(input0.fish.name);
+            if (input1.fish.type == "Blue Fish") expectedBlueFish.insert(input1.fish.name);
 
             std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> fish;
-            std::map<std::string, fish_t> blueFish;
+            std::set<std::string> blueFish;
             EXPECT_EQ(isError(jsonLoadUtils::loadFish(fish, blueFish, j)), expectedError);
 
             if (!expectedError)

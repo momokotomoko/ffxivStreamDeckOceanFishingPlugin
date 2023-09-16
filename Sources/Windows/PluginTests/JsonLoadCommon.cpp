@@ -34,13 +34,4 @@ namespace LoadJsonTests
         std::cout << errMsg.value() << std::endl;
         return true;
     }
-
-    std::pair<std::string, fish_t> createFish(const fishData_t& data)
-    {
-        std::unordered_map<std::string, locations_t> locations;
-        if (data.locations)
-            for (const auto& [_, expectedLocation] : data.locations.value())
-                if (expectedLocation) locations.insert(expectedLocation.value());
-        return std::make_pair(data.name, fish_t{ data.shortForm.value_or(data.name), locations });
-    }
 }
