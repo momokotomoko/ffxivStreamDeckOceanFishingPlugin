@@ -12,17 +12,13 @@ namespace LoadJsonTests
         class LoadVoyageHelpersBase
         {
         public:
-            std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> fishes;
-            LoadVoyageHelpersBase()
-            {
-                const std::vector<fishData_t> fishData = { fishDataA, fishDataB, fishDataC, fishDataD, fishDataNullLocation };
-
-                for (const auto& [fish, _] : fishData)
-                {
-                    if (!fishes.contains(fish.type)) fishes.insert({ fish.type, {} });
-                    fishes.at(fish.type).insert(std::make_pair(fish.name, fish));
-                }
-            }
+            std::unordered_map<std::string, fish_t> fishes = {
+                {expectedFishA.name, expectedFishA},
+                {expectedFishB.name, expectedFishB},
+                {expectedFishC.name, expectedFishC},
+                {expectedFishD.name, expectedFishD},
+                {expectedFishNoLocation.name, expectedFishNoLocation}
+            };
         };
 
         class GetFishAtStopTestFixture :
@@ -126,10 +122,9 @@ namespace LoadJsonTests
         TEST_P(GetBlueFishAtStopsTestFixture, TestGetBlueFish) {
             const auto& [stops, expectedResult] = GetParam();
             std::set<std::string> blueFishNames;
-            for (const auto& [fishName, fish] : fishes.at("Blue Fish"))
-            {
-                blueFishNames.insert(fishName);
-            }
+            for (const auto& [fishName, fish] : fishes)
+                if (fish.type == "Blue Fish")
+                    blueFishNames.insert(fishName);
             EXPECT_EQ(jsonLoadUtils::getBlueFishAtStops(stops, blueFishNames), expectedResult);
         }
 
@@ -152,7 +147,7 @@ namespace LoadJsonTests
 
         TEST_P(CreateBlueFishPatternTestFixture, TestCreateblueFishPattern) {
             const auto& [blueFishPerStop, expectedResult] = GetParam();
-            EXPECT_EQ(jsonLoadUtils::createBlueFishPattern(blueFishPerStop, fishes.at("Blue Fish")), expectedResult);
+            EXPECT_EQ(jsonLoadUtils::createBlueFishPattern(blueFishPerStop, fishes), expectedResult);
         }
     }
 }

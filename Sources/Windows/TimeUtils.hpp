@@ -34,6 +34,7 @@ namespace timeutils
 	**/
 	bool convertTimeToDate(date_t& date, const time_t& t)
 	{
+		// TODO refactor this
 		// convert to asctime string
 		struct tm localTime;
 		localtime_s(&localTime, &t);

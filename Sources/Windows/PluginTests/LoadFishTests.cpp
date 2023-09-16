@@ -74,19 +74,17 @@ namespace LoadJsonTests
             j.merge_patch(createFishJson(input1));
             wrapKeys(j, keys);
 
-            std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> expectedFish;
+            std::unordered_map<std::string, fish_t> expectedFish;
             std::set<std::string> expectedBlueFish;
 
-            expectedFish.insert({ input0.fish.type, { } });
-            expectedFish.insert({ input1.fish.type, { } });
             const auto fish0 = std::make_pair(input0.fish.name, input0.fish);
             const auto fish1 = std::make_pair(input1.fish.name, input1.fish);
-            expectedFish.at(input0.fish.type).insert(fish0);
-            expectedFish.at(input1.fish.type).insert(fish1);
+            expectedFish.insert(fish0);
+            expectedFish.insert(fish1);
             if (input0.fish.type == "Blue Fish") expectedBlueFish.insert(input0.fish.name);
             if (input1.fish.type == "Blue Fish") expectedBlueFish.insert(input1.fish.name);
 
-            std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> fish;
+            std::unordered_map<std::string, fish_t> fish;
             std::set<std::string> blueFish;
             EXPECT_EQ(isError(jsonLoadUtils::loadFish(fish, blueFish, j)), expectedError);
 

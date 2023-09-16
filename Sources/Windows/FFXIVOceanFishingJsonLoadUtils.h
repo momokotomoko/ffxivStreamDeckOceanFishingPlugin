@@ -28,7 +28,7 @@ namespace jsonLoadUtils
 	std::unordered_set<std::string> loadJsonStringArray(const json& j);
 	std::optional<std::string> loadFishLocations(std::unordered_map<std::string, locations_t>& locations, const json& fish);
 	std::optional<std::string> loadFish(
-		std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
+		std::unordered_map<std::string, fish_t>& fishes,
 		std::set<std::string>& blueFishNames,
 		const json& j);
 	std::optional<std::string> loadAchievements(
@@ -37,11 +37,11 @@ namespace jsonLoadUtils
 	std::unordered_set<std::string> getFishAtStop(
 		const std::string stopName,
 		const std::string stopTime,
-		const std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes
+		const std::unordered_map<std::string, fish_t>& fishes
 	);
 	std::optional<std::string> loadVoyageStops(
 		std::vector<stop_t>& voyageStops,
-		const std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
+		const std::unordered_map<std::string, fish_t>& fishes,
 		const json& j
 	);
 	std::unordered_set<std::string> getAchievementsForVoyage(
@@ -54,12 +54,12 @@ namespace jsonLoadUtils
 	std::string implodeStringVector(const std::vector<std::string>& strings, const char delim = '-');
 	std::string createBlueFishPattern(
 		const std::vector<std::unordered_set<std::string>>& blueFishPerStop,
-		const std::unordered_map<std::string, fish_t>& blueFishes
+		const std::unordered_map<std::string, fish_t>& fishes
 	);
 	std::optional<std::string> loadVoyages(
 		std::unordered_map <std::string, voyage_t>& voyages,
 		std::unordered_map <uint32_t, std::string>& voyageIdToNameMap,
-		const std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes,
+		const std::unordered_map<std::string, fish_t>& fishes,
 		const std::set<std::string>& blueFishNames,
 		const std::unordered_map<std::string, std::unordered_set<uint32_t>>& achievements,
 		const json& j
@@ -78,7 +78,7 @@ namespace jsonLoadUtils
 	void setFishTargets(
 		std::unordered_map <std::string, std::map<std::string, targets_t>>& targetToVoyageIdMap,
 		const std::unordered_map <std::string, voyage_t>& voyages,
-		const std::unordered_map<std::string, std::unordered_map<std::string, fish_t>>& fishes
+		const std::unordered_map<std::string, fish_t>& fishes
 	);
 	void setVoyageTargets(
 		std::unordered_map <std::string, std::map<std::string, targets_t>>& targetToVoyageIdMap,

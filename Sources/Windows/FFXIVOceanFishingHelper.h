@@ -24,8 +24,8 @@ public:
 
 	bool isInit()
 	{
-		for (const auto& processor : processors)
-			if (!processor.second->isInit())
+		for (const auto& [_, processor] : processors)
+			if (!processor->isInit())
 				return false;
 		return true;
 	};
@@ -33,12 +33,12 @@ public:
 	std::string getErrorMessage()
 	{
 		std::string err;
-		for (const auto& processor : processors)
+		for (const auto& [routeName, processor] : processors)
 		{
-			std::string msg = processor.second->getErrorMessage();
+			std::string msg = processor->getErrorMessage();
 
 			if (!msg.empty())
-				err += processor.first
+				err += routeName
 					+ " error message:\n"
 					+ msg;
 		}

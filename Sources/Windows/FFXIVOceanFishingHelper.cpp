@@ -18,7 +18,7 @@ FFXIVOceanFishingHelper::FFXIVOceanFishingHelper(const std::vector<std::string>&
 			std::make_unique<FFXIVOceanFishingProcessor>(
 				FFXIVOceanFishingProcessor(dataFile)
 			);
-		processors.insert({ newProcessor->getRouteName(), std::move(newProcessor) });
+		processors.emplace( newProcessor->getRouteName(), std::move(newProcessor) );
 	}
 }
 
@@ -30,8 +30,8 @@ FFXIVOceanFishingHelper::FFXIVOceanFishingHelper(const std::vector<std::string>&
 json FFXIVOceanFishingHelper::getRouteNames()
 {
 	json j;
-	for (const auto& processor : processors)
-		j.push_back(processor.first);
+	for (const auto& [routeName, _] : processors)
+		j.push_back(routeName);
 	return j;
 }
 
@@ -64,7 +64,7 @@ bool FFXIVOceanFishingHelper::getSecondsUntilNextVoyage(
 	}
 
 	uint32_t returnedVoyageId;
-	return processors[routeName]->getSecondsUntilNextVoyage(
+	return processors.at(routeName)->getSecondsUntilNextVoyage(
 		secondsTillNextVoyage,
 		secondsLeftInWindow,
 		returnedVoyageId, // unused here
@@ -99,7 +99,7 @@ void FFXIVOceanFishingHelper::getImageNameAndLabel(
 	if (!processors.contains(routeName))
 		return;
 
-	processors[routeName]->getImageNameAndLabel(
+	processors.at(routeName)->getImageNameAndLabel(
 		imageName,
 		buttonLabel,
 		tracker,
@@ -119,11 +119,10 @@ void FFXIVOceanFishingHelper::getImageNameAndLabel(
 **/
 json FFXIVOceanFishingHelper::getTargetsJson(const std::string& routeName)
 {
-	json j;
 	if (!processors.contains(routeName))
-		return j;
+		return json::value_t::null;
 
-	return processors[routeName]->getTargetsJson();
+	return processors.at(routeName)->getTargetsJson();
 }
 
 /**
@@ -135,11 +134,10 @@ json FFXIVOceanFishingHelper::getTargetsJson(const std::string& routeName)
 **/
 json FFXIVOceanFishingHelper::getTrackerTypesJson(const std::string& routeName)
 {
-	json j;
 	if (!processors.contains(routeName))
-		return j;
+		return json::value_t::null;
 
-	return processors[routeName]->getTrackerTypesJson();
+	return processors.at(routeName)->getTrackerTypesJson();
 }
 
 /**
@@ -160,5 +158,5 @@ std::unordered_set<uint32_t> FFXIVOceanFishingHelper::getVoyageIdByTracker(
 	if (!processors.contains(routeName))
 		return {};
 
-	return processors[routeName]->getVoyageIdByTracker(tracker, name);
+	return processors.at(routeName)->getVoyageIdByTracker(tracker, name);
 }

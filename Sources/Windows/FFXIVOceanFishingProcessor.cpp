@@ -429,9 +429,9 @@ void FFXIVOceanFishingProcessor::getImageNameAndLabel(
 json FFXIVOceanFishingProcessor::getTargetsJson()
 {
 	json j;
-	for (const auto& type : mTargetToVoyageIdMap)
-		for (const auto& target : type.second)
-			j.emplace(target.first, type.first);
+	for (const auto& [type, target] : mTargetToVoyageIdMap)
+		for (const auto& [targetName, _] : target)
+			j.emplace(targetName, type);
 
 	return j;
 }
@@ -444,8 +444,8 @@ json FFXIVOceanFishingProcessor::getTargetsJson()
 json FFXIVOceanFishingProcessor::getTrackerTypesJson()
 {
 	json j;
-	for (const auto& type : mTargetToVoyageIdMap)
-		j.push_back(type.first);
+	for (const auto& [type, _] : mTargetToVoyageIdMap)
+		j.push_back(type);
 	std::sort(j.begin(), j.end());
 	return j;
 }

@@ -62,7 +62,7 @@ private:
 	std::optional<std::string> mErrorMessage;
 
 	std::unordered_map<std::string, std::string> mStops;
-	std::unordered_map<std::string, std::unordered_map<std::string, fish_t>> mFishes;
+	std::unordered_map<std::string, fish_t> mFishes;
 	std::unordered_map<std::string, std::unordered_set<uint32_t>> mAchievements;
 	std::set<std::string> mBlueFishNames;
 
