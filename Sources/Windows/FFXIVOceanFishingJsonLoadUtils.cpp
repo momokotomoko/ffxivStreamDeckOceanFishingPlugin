@@ -16,8 +16,6 @@
 #include <ranges>
 #include <unordered_map>
 #include <unordered_set>
-#include <iostream>
-#include <ostream>
 #include "Common.h"
 #include "../Vendor/json/src/json.hpp"
 
@@ -172,14 +170,14 @@ namespace jsonLoadUtils
 			const auto& [fishTypeName, fishJson] = fishType;
 			for (const auto& fish : fishJson.get<json::object_t>())
 			{
-				const auto& [fishName, fishJson] = fish;
+				const auto& [fishName, singleFishJson] = fish;
 
 				std::optional<std::string> fishShortName = std::nullopt;
-				if (fishJson.contains("shortform"))
-					fishShortName = fishJson["shortform"].get<std::string>();
+				if (singleFishJson.contains("shortform"))
+					fishShortName = singleFishJson["shortform"].get<std::string>();
 
 				std::unordered_map<std::string, locations_t> locations;
-				err = loadFishLocations(locations, fishJson);
+				err = loadFishLocations(locations, singleFishJson);
 				if (err) return err;
 
 				fishes.emplace(fishName, fish_t
@@ -404,7 +402,6 @@ namespace jsonLoadUtils
 			auto err = loadVoyageStops(voyageStops, fishes, voyageData);
 			if (err) return err;
 
-			std::string blueFishPattern = "";
 			auto blueFishPerStop = getBlueFishAtStops(voyageStops, blueFishNames);
 			bool isNoBlueFish = std::ranges::find_if(blueFishPerStop, [](const auto& blueFishes) { return !blueFishes.empty(); }) == blueFishPerStop.end();
 
@@ -465,15 +462,16 @@ namespace jsonLoadUtils
 
 		// function to return all the blue fish in a voyage
 		auto blueFishInVoyage = voyages
-			| std::views::transform([&](const auto& voyage) {
-			return voyage.second.stops
-				| std::views::transform(blueFishAtStop)
-				| std::views::join
-				| std::ranges::to<std::vector<std::string>>();
+			| std::views::transform([&](const auto& voyage) -> std::vector<std::string>
+				{ 
+					return voyage.second.stops
+						| std::views::transform(blueFishAtStop)
+						| std::views::join
+						| std::ranges::to<std::vector<std::string>>();
 				});
 
 		// function to make targets
-		auto makeTargets = [](const auto& zipped)
+		auto makeTargets = [](const auto& zipped) -> std::pair<std::string, targets_t>
 			{
 				const auto& [blueFish, voyageMap] = zipped;
 				const auto& [_, voyage] = voyageMap;
@@ -491,7 +489,7 @@ namespace jsonLoadUtils
 		// make all the blue fish targets and store them
 		auto newTargets = std::views::zip(blueFishInVoyage, voyages)
 			| std::views::filter(
-				[](const auto& zipped)
+				[](const auto& zipped) -> bool
 				{
 					const auto& [blueFish, _] = zipped;
 					return !(blueFish.empty());
@@ -541,17 +539,16 @@ namespace jsonLoadUtils
 	)
 	{
 		// function for checking if a voyage contains a fish with specific name at one of its stops
-		auto doesVoyageContainFish = [](const auto voyage, const std::string& fishName)
+		auto doesVoyageContainFish = [](const auto voyage, const std::string& fishName) -> bool
 			{
 				// TODO: would converting to set be faster?
 				auto fishesInVoyage = voyage.second.stops
 					| std::views::transform([&](const auto& stop) { return stop.fish; })
 					| std::views::join; // get all the fishes from all the stops
-				auto fishFound = std::ranges::find(fishesInVoyage, fishName);
-				return fishFound != fishesInVoyage.end();
+				return std::ranges::contains(fishesInVoyage, fishName);
 			};
 
-		auto makeFishTargets = [&](const auto& kv_pair)
+		auto makeFishTargets = [&](const auto& kv_pair) -> std::pair<std::string, std::pair<std::string, targets_t>>
 			{
 				const auto& [fishName, fishData] = kv_pair;
 				std::unordered_set <uint32_t> ids = voyages

@@ -141,15 +141,13 @@ bool FFXIVOceanFishingProcessor::getSecondsUntilNextVoyage(
 
 	// Cycle through the voyage pattern until we get a match to a voyage we are looking for.
 	uint32_t skipcounts = 0;
-	uint32_t maxCycles = 1000; // limit cycles just in case
-	for (uint32_t i = 0; i < maxCycles; i++)
+	for (uint32_t i = 0; i < mVoyagePattern.size(); i++)
 	{
 		// Current place in the pattern we are looking at.
-		uint32_t wrappedIdx = getVoyagePatternIndex(currBlockIdx, i);
+		uint32_t cycleIndex = convertIndexToVoyagePattern(currBlockIdx, i);
 
 		// Check to see if we match any of our desired voyages
-		// TODO: exit cycle loop if we went through entire pattern with no match, remove maxCycles
-		if (voyageIds.contains(mVoyagePattern[wrappedIdx]))
+		if (voyageIds.contains(cycleIndex))
 		{
 			// Find the difference in time from the pattern position to the current time
 			time_t voyageTime = convertBlockIndexToTime(currBlockIdx + i);
@@ -175,7 +173,7 @@ bool FFXIVOceanFishingProcessor::getSecondsUntilNextVoyage(
 
 			if (!nextVoyageUpdated) // remember the next voyage. Use the current window as the voyage if we are in window
 			{
-				nextVoyageId = mVoyagePattern[wrappedIdx];
+				nextVoyageId = cycleIndex;
 				nextVoyageUpdated = true;
 			}
 			if (timeDifference <= 0) // needs to have the = also otherwise trigging this on the turn of the hour will not record that we're in a window
@@ -226,7 +224,7 @@ std::string FFXIVOceanFishingProcessor::getNextVoyageName(const time_t& t, const
 		}
 
 		// get voyage index
-		uint32_t voyageIdx = mVoyagePattern[getVoyagePatternIndex(currBlockIdx + i)];
+		uint32_t voyageIdx = convertIndexToVoyagePattern(currBlockIdx + i);
 
 		// convert from id
 		if (mVoyageIdToNameMap.contains(voyageIdx))
@@ -282,9 +280,9 @@ uint32_t FFXIVOceanFishingProcessor::convertTimeToBlockIndex(const time_t& t)
 
 	@return the voyage id at the blockIdx + jump
 **/
-uint32_t FFXIVOceanFishingProcessor::getVoyagePatternIndex(const uint32_t blockIdx, const uint32_t jump)
+uint32_t FFXIVOceanFishingProcessor::convertIndexToVoyagePattern(const uint32_t blockIdx, const uint32_t jump)
 {
-	return (blockIdx + jump) % mVoyagePattern.size();
+	return mVoyagePattern[(blockIdx + jump) % mVoyagePattern.size()];
 }
 
 /**

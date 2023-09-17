@@ -69,9 +69,9 @@ private:
 
 	// contains cache of base64 images that have been loaded
 	std::unordered_map<std::string, std::string> mImageNameToBase64Map;
-	std::optional<std::string> loadBase64Image(const std::mutex& mutex, const std::string& imageName);
+	std::optional<std::string> loadBase64Image(const std::unique_lock<std::mutex>& lock, const std::string& imageName);
 
-	void updateImage(const std::mutex& mutex, std::string& pngfile, const std::string& inContext);
+	void updateImage(const std::unique_lock<std::mutex>& lock, std::string& pngfile, const std::string& inContext);
 	
 	std::unique_ptr<FFXIVOceanFishingHelper> mFFXIVOceanFishingHelper;
 	std::unique_ptr <CallBackTimer> mTimer;

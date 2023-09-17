@@ -78,7 +78,7 @@ private:
 
 	time_t convertBlockIndexToTime(const uint32_t blockIdx);
 	uint32_t convertTimeToBlockIndex(const time_t& t);
-	uint32_t getVoyagePatternIndex(const uint32_t blockIdx, const uint32_t jump = 0);
+	uint32_t convertIndexToVoyagePattern(const uint32_t blockIdx, const uint32_t jump = 0);
 
 	std::string createAchievementName(const std::string& voyageName);
 	std::string createImageNameFromVoyageId(const uint32_t& voyageId, PRIORITY priority);

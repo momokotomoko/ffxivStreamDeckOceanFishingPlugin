@@ -54,7 +54,7 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 			// Then compute the seconds until the next window
 			bool status = true;
 			{
-				std::unique_lock lock(this->mVisibleContextsMutex);
+				std::unique_lock<std::mutex> lock(this->mVisibleContextsMutex);
 				for (auto& [context, metadata] : mContextServerMap)
 				{
 					// First find what voyages we are actually looking for.
@@ -102,7 +102,7 @@ void FFXIVOceanFishingTrackerPlugin::startTimers()
 					{
 						metadata.imageName = imageName;
 						metadata.buttonLabel = buttonLabel;
-						updateImage(this->mVisibleContextsMutex, metadata.imageName, context);
+						updateImage(lock, metadata.imageName, context);
 						metadata.needUpdate = false;
 					}
 				}
@@ -185,58 +185,12 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 {
 	if (mConnectionManager == nullptr) return;
 
-	bool isSuccessful = true;
-	std::unique_lock lock(mVisibleContextsMutex);
+	std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
 	// go through all our visible contexts and set the title to show what we are tracking and the window times
 	time_t now = time(0);
 	for (const auto& [context, metadata] : mContextServerMap)
 	{
-		// TODO remove legacy code, use createTitleString fcn
-		std::string titleString2 = createTitleString(metadata, now );
-
-		// LEGACY CODE================
-		std::string titleString = "";
-		if (metadata.targetName.length() > 0)
-		{
-			titleString = metadata.buttonLabel + "\n";
-			// if we have skips, add a number to the top right
-			if (metadata.skips != 0)
-			{
-				titleString += "               " + std::to_string(metadata.skips) + "\n";
-			}
-			else
-				titleString += "\n";
-
-			// check to see if we are in a window, and display a timer for that
-			int windowTimeLeft = static_cast<int>(difftime(metadata.windowTime, now));
-			if (windowTimeLeft <= 15 * 60 && windowTimeLeft > 0)
-			{
-				titleString += "Window ends:\n";
-				titleString += timeutils::convertSecondsToHMSString(windowTimeLeft) + "\n";
-			}
-			else
-				titleString += "\n\n";
-
-			// display either the date or time
-			if (metadata.dateOrTime)
-			{
-				timeutils::date_t date{};
-				if (timeutils::convertTimeToDate(date, metadata.voyageTime))
-					titleString += date.weekday + " " + date.month + " " + std::to_string(date.day) + "\n" + date.time12H;
-				else
-					titleString += "Error";
-			}
-			else
-			{
-				titleString += "\n" + timeutils::convertSecondsToHMSString(static_cast<int>(difftime(metadata.voyageTime, now)));
-			}
-		}
-		if (titleString != titleString2)
-			titleString = "ERROR UNEQUAL";
-		// END LEGACY CODE================
-
-		// send the title to StreamDeck
-		mConnectionManager->SetTitle(titleString, context, kESDSDKTarget_HardwareAndSoftware);
+		mConnectionManager->SetTitle(createTitleString(metadata, now), context, kESDSDKTarget_HardwareAndSoftware);
 	}
 }
 
@@ -245,7 +199,7 @@ void FFXIVOceanFishingTrackerPlugin::KeyDownForAction(const std::string& inActio
 {
 	std::string url;
 	{
-		std::unique_lock lock(mVisibleContextsMutex);
+		std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
 		url = mContextServerMap.at(inContext).url;
 	}
 
@@ -315,9 +269,9 @@ FFXIVOceanFishingTrackerPlugin::contextMetaData_t FFXIVOceanFishingTrackerPlugin
 	return data;
 }
 
-std::optional<std::string> FFXIVOceanFishingTrackerPlugin::loadBase64Image(const std::mutex& mutex, const std::string& imageName)
+std::optional<std::string> FFXIVOceanFishingTrackerPlugin::loadBase64Image(const std::unique_lock<std::mutex>& lock, const std::string& imageName)
 {
-	assert(mutex.owns_lock());
+	if (!lock.owns_lock()) return std::nullopt;
 
 	// if image was cached, just retrieve from cache
 	if (mImageNameToBase64Map.contains(imageName)) return mImageNameToBase64Map.at(imageName);
@@ -329,7 +283,7 @@ std::optional<std::string> FFXIVOceanFishingTrackerPlugin::loadBase64Image(const
 
 	std::string base64Image;
 	imageutils::pngToBase64(base64Image, buffer);
-	mImageNameToBase64Map.insert({ imageName, base64Image }); // store to cache for next time
+	mImageNameToBase64Map.emplace( imageName, base64Image ); // store to cache for next time
 	return base64Image;
 }
 
@@ -339,13 +293,13 @@ std::optional<std::string> FFXIVOceanFishingTrackerPlugin::loadBase64Image(const
 
 	@param[in] name the tracker name. The function will look for the image file in Icons/<name>.png
 **/
-void FFXIVOceanFishingTrackerPlugin::updateImage(const std::mutex& mutex, std::string& name, const std::string& inContext)
+void FFXIVOceanFishingTrackerPlugin::updateImage(const std::unique_lock<std::mutex>& lock, std::string& name, const std::string& inContext)
 {
 	const std::string defaultImageName = "default";
 	if (name.empty())
 		name = defaultImageName;
 
-	const std::optional<std::string> imgData = loadBase64Image(mutex, name);
+	const std::optional<std::string> imgData = loadBase64Image(lock, name);
 
 	if (!imgData)
 		mConnectionManager->LogMessage("Error: unable to load image icon for target: " + name);
@@ -366,24 +320,26 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 
 	// setup the voyages menu
 	// TODO what if mConnectionManager is null?
-	mInitMutex.lock();
-	if (mConnectionManager != nullptr && mIsInit == false)
 	{
-		json j;
-		j["routes"] = mFFXIVOceanFishingHelper->getRouteNames();
-		mConnectionManager->SetGlobalSettings(j);
-		mIsInit = true;
+		std::unique_lock<std::mutex> lock(mInitMutex);
+		if (mConnectionManager != nullptr && mIsInit == false)
+		{
+			json j;
+			j["routes"] = mFFXIVOceanFishingHelper->getRouteNames();
+			mConnectionManager->SetGlobalSettings(j);
+			mIsInit = true;
+		}
 	}
-	mInitMutex.unlock();
 
-	// if this is the first plugin to be displayed, boot up the timers
-	if (mContextServerMap.empty())
-		startTimers();
-
-	// Remember the context and the saved server name for this app
 	{
-		std::unique_lock lock(mVisibleContextsMutex);
-		mContextServerMap.insert({ inContext, data });
+		std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
+
+		// if this is the first plugin to be displayed, boot up the timers
+		if (mContextServerMap.empty())
+			startTimers();
+
+		// Remember the context and the saved server name for this app
+		mContextServerMap.emplace( inContext, data );
 	}
 
 	// update tracked timers
@@ -396,7 +352,7 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 void FFXIVOceanFishingTrackerPlugin::WillDisappearForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
 	// Remove this particular context so we don't have to process it when updating UI
-	std::unique_lock lock(mVisibleContextsMutex);
+	std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
 	mContextServerMap.erase(inContext);
 
 	// if we have no active plugin displayed, kill the timers to save cpu cycles
@@ -411,7 +367,7 @@ void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, c
 {
 	// PI dropdown menu has saved new settings for this context, load those
 	{
-		std::unique_lock lock(mVisibleContextsMutex);
+		std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
 		if (!mContextServerMap.contains(inContext))
 		{
 			mConnectionManager->LogMessage("Error: SendToPlugin: could not find stored context: " + inContext + "\nPayload:\n" + inPayload.dump(4));
