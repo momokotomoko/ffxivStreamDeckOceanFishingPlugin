@@ -166,7 +166,10 @@ std::string FFXIVOceanFishingTrackerPlugin::createTitleString(
 	{
 		timeutils::date_t date{};
 		if (timeutils::convertTimeToDate(date, metadata.voyageTime))
-			titleString += date.weekday + " " + date.month + " " + std::to_string(date.day) + "\n" + date.time12H;
+			if (mTimekeepingMode == TIMEKEEPING_MODE::MODE_24H)
+				titleString += date.weekday + " " + date.month + " " + std::to_string(date.day) + "\n" + date.time24H;
+			else
+				titleString += date.weekday + " " + date.month + " " + std::to_string(date.day) + "\n" + date.time12H;
 		else
 			titleString += "Error";
 	}
@@ -189,13 +192,11 @@ void FFXIVOceanFishingTrackerPlugin::UpdateUI()
 	// go through all our visible contexts and set the title to show what we are tracking and the window times
 	time_t now = time(0);
 	for (const auto& [context, metadata] : mContextServerMap)
-	{
 		mConnectionManager->SetTitle(createTitleString(metadata, now), context, kESDSDKTarget_HardwareAndSoftware);
-	}
 }
 
 
-void FFXIVOceanFishingTrackerPlugin::KeyDownForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::KeyDownForAction(const std::string& /*inAction*/, const std::string& inContext, const json &/*inPayload*/, const std::string& /*inDeviceID*/)
 {
 	std::string url;
 	{
@@ -208,7 +209,7 @@ void FFXIVOceanFishingTrackerPlugin::KeyDownForAction(const std::string& inActio
 	mConnectionManager->OpenUrl(url);
 }
 
-void FFXIVOceanFishingTrackerPlugin::KeyUpForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::KeyUpForAction(const std::string& /*inAction*/, const std::string& /*inContext*/, const json &/*inPayload*/, const std::string& /*inDeviceID*/)
 {
 	// Nothing to do
 }
@@ -310,7 +311,7 @@ void FFXIVOceanFishingTrackerPlugin::updateImage(const std::unique_lock<std::mut
 /**
 	@brief Runs when app shows up on streamdeck profile
 **/
-void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAction, const std::string& inContext, const json& inPayload, const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& /*inAction*/, const std::string& inContext, const json& inPayload, const std::string& /*inDeviceID*/)
 {
 	// read payload for any saved settings, update image if needed
 	contextMetaData_t data{};
@@ -318,29 +319,14 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 		data = readJsonIntoMetaData(inPayload["settings"]);
 	data.needUpdate = true;
 
-	// setup the voyages menu
-	// TODO what if mConnectionManager is null?
-	{
-		std::unique_lock<std::mutex> lock(mInitMutex);
-		if (mConnectionManager != nullptr && mIsInit == false)
-		{
-			json j;
-			j["routes"] = mFFXIVOceanFishingHelper->getRouteNames();
-			mConnectionManager->SetGlobalSettings(j);
-			mIsInit = true;
-		}
-	}
+	std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
 
-	{
-		std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
+	// if this is the first plugin to be displayed, boot up the timers
+	if (mContextServerMap.empty())
+		startTimers();
 
-		// if this is the first plugin to be displayed, boot up the timers
-		if (mContextServerMap.empty())
-			startTimers();
-
-		// Remember the context and the saved server name for this app
-		mContextServerMap.emplace( inContext, data );
-	}
+	// Remember the context and the saved server name for this app
+	mContextServerMap.emplace(inContext, data);
 
 	// update tracked timers
 	this->mTimer->wake();
@@ -349,7 +335,7 @@ void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& inAc
 /**
 	@brief Runs when app is hidden streamdeck profile
 **/
-void FFXIVOceanFishingTrackerPlugin::WillDisappearForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::WillDisappearForAction(const std::string& /*inAction*/, const std::string& inContext, const json &/*inPayload*/, const std::string& /*inDeviceID*/)
 {
 	// Remove this particular context so we don't have to process it when updating UI
 	std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
@@ -363,48 +349,79 @@ void FFXIVOceanFishingTrackerPlugin::WillDisappearForAction(const std::string& i
 /**
 	@brief Runs when app recieves payload from PI
 **/
-void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& inAction, const std::string& inContext, const json& inPayload, const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::SendToPlugin(const std::string& /*inAction*/, const std::string& inContext, const json& inPayload, const std::string& /*inDeviceID*/)
 {
-	// PI dropdown menu has saved new settings for this context, load those
+	// setup the routes menu
 	{
-		std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
-		if (!mContextServerMap.contains(inContext))
+		std::unique_lock<std::mutex> lock(mInitMutex);
+		if (mIsInit == false)
 		{
-			mConnectionManager->LogMessage("Error: SendToPlugin: could not find stored context: " + inContext + "\nPayload:\n" + inPayload.dump(4));
-			mConnectionManager->LogMessage(inContext);
+			json j;
+			j["Routes"] = mFFXIVOceanFishingHelper->getRouteNames();
+			
+			mConnectionManager->SendToPropertyInspector("InitRoutes", inContext, j);
+			mIsInit = true;
 		}
-
-		contextMetaData_t data = readJsonIntoMetaData(inPayload);
-		if (data.routeName != mContextServerMap.at(inContext).routeName ||
-			data.targetName != mContextServerMap.at(inContext).targetName ||
-			data.tracker != mContextServerMap.at(inContext).tracker)
-		{
-			// update image since name changed
-			data.needUpdate = true;
-		}
-
-		if (data.routeName != mContextServerMap.at(inContext).routeName)
-		{
-			json j = inPayload;
-			j["menuheaders"] = mFFXIVOceanFishingHelper->getTrackerTypesJson(data.routeName);
-			j["targets"] = mFFXIVOceanFishingHelper->getTargetsJson(data.routeName);
-			mConnectionManager->SetSettings(j, inContext);
-		}
-
-		// updated stored settings
-		mContextServerMap.at(inContext) = data;
 	}
+
+	// PI dropdown menu has saved new settings for this context, load those
+	std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
+	if (!mContextServerMap.contains(inContext))
+	{
+		mConnectionManager->LogMessage("Error: SendToPlugin: could not find stored context: " + inContext + "\nPayload:\n" + inPayload.dump(4));
+		mConnectionManager->LogMessage(inContext);
+		return;
+	}
+
+	contextMetaData_t data = readJsonIntoMetaData(inPayload);
+	if (data.routeName != mContextServerMap.at(inContext).routeName ||
+		data.targetName != mContextServerMap.at(inContext).targetName ||
+		data.tracker != mContextServerMap.at(inContext).tracker)
+	{
+		// update image since name changed
+		data.needUpdate = true;
+	}
+
+	if (data.routeName != mContextServerMap.at(inContext).routeName)
+	{
+		json j = inPayload;
+		j["menuheaders"] = mFFXIVOceanFishingHelper->getTrackerTypesJson(data.routeName);
+		j["targets"] = mFFXIVOceanFishingHelper->getTargetsJson(data.routeName);
+		mConnectionManager->SetSettings(j, inContext);
+	}
+
+	// updated stored settings
+	mContextServerMap.at(inContext) = data;
 
 	// update tracked timers
 	this->mTimer->wake();
 }
 
-void FFXIVOceanFishingTrackerPlugin::DeviceDidConnect(const std::string& inDeviceID, const json& inDeviceInfo)
+/**
+	@brief Runs when app receives global settings payload from PI
+**/
+void FFXIVOceanFishingTrackerPlugin::DidReceiveGlobalSettings(const json& inPayload)
+{
+	json j = inPayload["settings"];
+
+	TIMEKEEPING_MODE timeMode = mTimekeepingMode;
+	if (j.contains("Timekeeping24HMode"))
+		timeMode = j["Timekeeping24HMode"].get<bool>() ? TIMEKEEPING_MODE::MODE_24H : TIMEKEEPING_MODE::MODE_12H;
+
+	std::unique_lock<std::mutex> lock(mVisibleContextsMutex);
+	if (timeMode == mTimekeepingMode) return;
+
+	mTimekeepingMode = timeMode;
+	// re-wake to update the button title text with new time mode
+	this->mTimer->wake();
+}
+
+void FFXIVOceanFishingTrackerPlugin::DeviceDidConnect(const std::string& /*inDeviceID*/, const json& /*inDeviceInfo*/)
 {
 	// Nothing to do
 }
 
-void FFXIVOceanFishingTrackerPlugin::DeviceDidDisconnect(const std::string& inDeviceID)
+void FFXIVOceanFishingTrackerPlugin::DeviceDidDisconnect(const std::string& /*inDeviceID*/)
 {
 	// Nothing to do
 }

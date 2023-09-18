@@ -36,6 +36,7 @@ public:
 	void DeviceDidDisconnect(const std::string& inDeviceID) override;
 	
 	void SendToPlugin(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID) override;
+	void DidReceiveGlobalSettings(const json& inPayload) override;
 private:
 	// this struct contains a context's saved settings
 	struct contextMetaData_t
@@ -54,12 +55,20 @@ private:
 		std::string url; // webpage to open on click, each button can have a different webpage
 	};
 
+	// global settings for 12h or 24h time to be displayed when displaying a Date on the buttton
+	enum class TIMEKEEPING_MODE
+	{
+		MODE_12H,
+		MODE_24H,
+	};
+	TIMEKEEPING_MODE mTimekeepingMode = TIMEKEEPING_MODE::MODE_12H;
+
 	std::string createTitleString( const contextMetaData_t& metadata, const std::time_t& currentTime);
 	void UpdateUI();
 	
 	std::mutex mVisibleContextsMutex;
 
-	// on first time the app appears we need these to trigger sending global settings
+	// on first time the app appears we need these to trigger sending Route settings
 	std::mutex mInitMutex;
 	bool mIsInit = false;
 	

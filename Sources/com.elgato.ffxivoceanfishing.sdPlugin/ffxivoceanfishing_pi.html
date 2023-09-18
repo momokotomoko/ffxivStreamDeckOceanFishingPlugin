@@ -8,13 +8,15 @@
 <body>
     <div class="sdpi-item" id="select_route">
         <div class="sdpi-item-label">Route</div>
-        <select class="sdpi-item-value select" id="Routes" onchange="removeAllChildOptions(document.getElementById('Tracker'), '>>Select Tracker<<'); sendSettingsToPlugin();">
+        <select class="sdpi-item-value select" id="Routes" onchange="removeAllChildOptions(document.getElementById('Tracker'), '>>Select Tracker<<'); sendSettingsToPlugin();"
+                title="Select an Ocean Fishing route.">
             <option disabled="disabled" selected="selected" hidden="hidden" value=""></option>
         </select>
     </div>
     <div class="sdpi-item" id="select_tracker">
         <div class="sdpi-item-label">Track by</div>
-        <select class="sdpi-item-value select" id="Tracker" onchange="sendSettingsToPlugin()">
+        <select class="sdpi-item-value select" id="Tracker" onchange="sendSettingsToPlugin()"
+                title="Select a tracker to use for this button.">
         </select>
     </div>
     <div type="radio" class="sdpi-item" id="time_date_select">
@@ -32,7 +34,8 @@
     </div>
     <div class="sdpi-item" id="select_single">
         <div class="sdpi-item-label">Skips</div>
-        <select class="sdpi-item-value select" id="set_skips" onchange="sendSettingsToPlugin()">
+        <select class="sdpi-item-value select" id="set_skips" onchange="sendSettingsToPlugin()"
+                title="Select number of times to skip over. A skip of 1 means the button will display the next-next time the target appears.">
             <option value="0" selected>0</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -63,11 +66,29 @@
         <div class="sdpi-item-label">Button URL</div>
         <input class="sdpi-item-value" id="set_url"
                value="https://docs.google.com/spreadsheets/d/1R0Nt8Ye7EAQtU8CXF1XRRj67iaFpUk1BXeDgt6abxsQ/edit#gid=93698338"
-               placeholder="Enter a URL" oninput="sendSettingsToPlugin()">
+               placeholder="Enter a URL" oninput="sendSettingsToPlugin()"
+               title="Set a URL that would be opened by your default browser on button click.">
     </div>
     <details class="sdpi-item">
+        <summary>Global Settings</summary>
+        <div style="text-align:center">These settings apply to all Plugin buttons.</div>
+        <div type="radio" class="sdpi-item" id="clock_mode">
+            <div class="sdpi-item-label">Time Display for Dates</div>
+            <div class="sdpi-item-value" onchange="updateGlobalSettings();">
+                <span class="sdpi-item-child">
+                    <input id="select_12h" type="radio" name="rdio3">
+                    <label for="select_12h" class="sdpi-item-label"><span></span>12H</label>
+                </span>
+                <span class="sdpi-item-child">
+                    <input id="select_24h" type="radio" name="rdio3">
+                    <label for="select_24h" class="sdpi-item-label"><span></span>24H</label>
+                </span>
+            </div>
+        </div>
+    </details>
+    <details class="sdpi-item">
         <summary>About</summary>
-        <p>Made by Momoko Tomoko from Sargatanas.</p>
+        <div style="text-align:center">Made by Momoko Tomoko from Sargatanas.</div>
         <style>
             * {
                 box-sizing: border-box;

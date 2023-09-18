@@ -107,6 +107,10 @@ void ESDConnectionManager::OnMessage(websocketpp::connection_hdl, WebsocketClien
 			{
 				mPlugin->SendToPlugin(action, context, payload, deviceID);
 			}
+			else if (event == kESDSDKEventDidReceiveGlobalSettings)
+			{
+				mPlugin->DidReceiveGlobalSettings(payload);
+			}
 		}
 		catch (...)
 		{
