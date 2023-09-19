@@ -202,6 +202,7 @@
     <ClInclude Include="..\FFXIVOceanFishingTrackerPlugin.h" />
     <ClInclude Include="CallBackTimer.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="FFXIVOceanFishingCreateTargetUtils.h" />
     <ClInclude Include="FFXIVOceanFishingHelper.h" />
     <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.h" />
     <ClInclude Include="FFXIVOceanFishingProcessor.h" />
@@ -240,6 +241,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/FI"pch.h" %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/FI"pch.h" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingCreateTargetUtils.cpp" />
     <ClCompile Include="FFXIVOceanFishingHelper.cpp" />
     <ClCompile Include="FFXIVOceanFishingJsonLoadUtils.cpp" />
     <ClCompile Include="FFXIVOceanFishingProcessor.cpp" />

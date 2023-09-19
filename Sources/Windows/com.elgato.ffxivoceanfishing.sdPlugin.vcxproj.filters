@@ -28,6 +28,9 @@
     <ClCompile Include="FFXIVOceanFishingJsonLoadUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FFXIVOceanFishingCreateTargetUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -73,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FFXIVOceanFishingJsonLoadUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFXIVOceanFishingCreateTargetUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

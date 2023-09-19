@@ -44,9 +44,15 @@
     <ClCompile Include="LoadVoyageHelperTests.cpp">
       <Filter>Tests\JsonLoadTests</Filter>
     </ClCompile>
+    <ClCompile Include="JsonLoadCommon.cpp" />
+    <ClCompile Include="JsonLoadCommonTests.cpp" />
+    <ClCompile Include="..\FFXIVOceanFishingCreateTargetUtils.cpp">
+      <Filter>FFXIVOceanFishing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="JsonLoadCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

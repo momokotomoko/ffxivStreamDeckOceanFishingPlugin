@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include "../Vendor/json/src/json.hpp"
 #include "FFXIVOceanFishingJsonLoadUtils.h"
+#include "FFXIVOceanFishingCreateTargetUtils.h"
 using json = nlohmann::json;
 
 FFXIVOceanFishingProcessor::FFXIVOceanFishingProcessor(const std::string& dataFile)
@@ -69,19 +70,19 @@ void FFXIVOceanFishingProcessor::loadDatabase(const json& j)
 	if (mErrorMessage) return;
 
 	// construct search target mapping
-	jsonLoadUtils::setBlueFishTargets(mTargetToVoyageIdMap, mVoyages, mBlueFishNames);
+	createTargetUtils::setBlueFishTargets(mTargetToVoyageIdMap, mVoyages, mBlueFishNames);
 	
 	// achievements targets:
-	jsonLoadUtils::setAchievementTargets(mTargetToVoyageIdMap, mAchievements);
+	createTargetUtils::setAchievementTargets(mTargetToVoyageIdMap, mAchievements);
 
 	// fish targets:
-	jsonLoadUtils::setFishTargets(mTargetToVoyageIdMap, mVoyages, mFishes);
+	createTargetUtils::setFishTargets(mTargetToVoyageIdMap, mVoyages, mFishes);
 
 	// targets by voyage name:
-	jsonLoadUtils::setVoyageTargets(mTargetToVoyageIdMap, mVoyages, mStops);
+	createTargetUtils::setVoyageTargets(mTargetToVoyageIdMap, mVoyages, mStops);
 	
 	// special targets:
-	jsonLoadUtils::setSpecialTargets(mTargetToVoyageIdMap, mVoyages);
+	createTargetUtils::setSpecialTargets(mTargetToVoyageIdMap, mVoyages);
 
 	mIsInit = true;
 }

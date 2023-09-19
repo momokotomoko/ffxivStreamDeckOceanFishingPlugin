@@ -106,6 +106,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\FFXIVOceanFishingCreateTargetUtils.cpp" />
     <ClCompile Include="..\FFXIVOceanFishingHelper.cpp" />
     <ClCompile Include="..\FFXIVOceanFishingJsonLoadUtils.cpp" />
     <ClCompile Include="..\FFXIVOceanFishingProcessor.cpp" />
