@@ -313,6 +313,12 @@ void FFXIVOceanFishingTrackerPlugin::updateImage(const std::unique_lock<std::mut
 **/
 void FFXIVOceanFishingTrackerPlugin::WillAppearForAction(const std::string& /*inAction*/, const std::string& inContext, const json& inPayload, const std::string& /*inDeviceID*/)
 {
+	if (!mIsGlobalSettingsReceived)
+	{
+		mConnectionManager->GetGlobalSettings();
+		mIsGlobalSettingsReceived = true;
+	}
+
 	// read payload for any saved settings, update image if needed
 	contextMetaData_t data{};
 	if (inPayload.contains("settings"))
