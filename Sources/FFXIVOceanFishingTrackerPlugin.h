@@ -71,6 +71,7 @@ private:
 	// on first time the app appears we need these to trigger sending Route settings
 	std::mutex mInitMutex;
 	bool mIsInit = false;
+	bool mIsGlobalSettingsReceived = false;
 	
 	std::unordered_map<std::string, contextMetaData_t> mContextServerMap;
 

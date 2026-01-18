@@ -237,6 +237,17 @@ void ESDConnectionManager::ShowOKForContext(const std::string& inContext)
 	mWebsocket.send(mConnectionHandle, jsonObject.dump(), websocketpp::frame::opcode::text, ec);
 }
 
+void ESDConnectionManager::GetGlobalSettings()
+{
+	json jsonObject;
+
+	jsonObject[kESDSDKCommonEvent] = kESDSDKEventGetGlobalSettings;
+	jsonObject[kESDSDKCommonContext] = mPluginUUID;
+
+	websocketpp::lib::error_code ec;
+	mWebsocket.send(mConnectionHandle, jsonObject.dump(), websocketpp::frame::opcode::text, ec);
+}
+
 void ESDConnectionManager::SetGlobalSettings(const json &inSettings)
 {
 	json jsonObject;
