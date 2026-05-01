@@ -185,15 +185,15 @@ namespace FFXIVOceanFishingHelperTests
 	INSTANTIATE_TEST_CASE_P(
 		GetFirstVoyageSeconds,
 		FFXIVOceanFishingHelperNextVoyageFixture,
-		::testing::Combine(
-			::testing::Values(7200), // seconds till next voyage
-			::testing::Values(0), // window time
-			::testing::Values(0, 1, 7199), // start time
-			::testing::Values( // voyages
-				indigo1,
-				ruby1
-			),
-			::testing::Values(0) // skips
+		::testing::Values(
+			// Indigo Route, voyage id 9
+			::testing::make_tuple(7200, 0, 0, indigo1, 0),
+			::testing::make_tuple(7199, 0, 1, indigo1, 0),
+			::testing::make_tuple(1, 0, 7199, indigo1, 0),
+			// Ruby Route, voyage id 3
+			::testing::make_tuple(28800, 0, 0, ruby1, 0),
+			::testing::make_tuple(28799, 0, 1, ruby1, 0),
+			::testing::make_tuple(21601, 0, 7199, ruby1, 0)
 		)
 	);
 
@@ -213,7 +213,7 @@ namespace FFXIVOceanFishingHelperTests
 		std::cout << "Next Voyage Time: " << timeutils::convertSecondsToHMSString(relativeSecondsTillNextVoyage) << std::endl;
 		std::cout << "Window Time: " << timeutils::convertSecondsToHMSString(relativeWindowTime) << std::endl;
 
-		EXPECT_EQ(std::get<0>(GetParam())-std::get<2>(GetParam()), relativeSecondsTillNextVoyage);
+		EXPECT_EQ(std::get<0>(GetParam()), relativeSecondsTillNextVoyage);
 		EXPECT_EQ(std::get<1>(GetParam()), relativeWindowTime);
 	}
 
