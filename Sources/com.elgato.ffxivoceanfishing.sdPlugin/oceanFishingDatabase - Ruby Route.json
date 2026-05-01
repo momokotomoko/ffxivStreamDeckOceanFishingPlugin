@@ -12,12 +12,36 @@
         },
         "Lower One River": {
             "shortform": "One River"
+        },
+        "Unamed Margin": {
+            "shortform": "Unamed Margin"
+        },
+        "Thavnair Margin": {
+            "shortform": "Thavnair"
         }
     },
     "voyages": {
+        "Thavnair by Day": {
+            "shortform": "Thavnair-D",
+            "id": 1,
+            "stops": [
+                {
+                    "name": "Unamed Margin",
+                    "time": "sunset"
+                },
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "night"
+                },
+                {
+                    "name": "Thavnair Margin",
+                    "time": "day"
+                }
+            ]
+        },
         "One River by Day": {
             "shortform": "One River-D",
-            "id": 1,
+            "id": 2,
             "stops": [
                 {
                     "name": "Open Sirensong Sea",
@@ -35,7 +59,7 @@
         },
         "Ruby Sea by Day": {
             "shortform": "Ruby Sea-D",
-            "id": 2,
+            "id": 3,
             "stops": [
                 {
                     "name": "Open Sirensong Sea",
@@ -51,9 +75,27 @@
                 }
             ]
         },
+        "Thavnair by Sunset": {
+            "shortform": "Thavnair-S",
+            "id": 4,
+            "stops": [
+                {
+                    "name": "Unamed Margin",
+                    "time": "night"
+                },
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "day"
+                },
+                {
+                    "name": "Thavnair Margin",
+                    "time": "sunset"
+                }
+            ]
+        },
         "One River by Sunset": {
             "shortform": "One River-S",
-            "id": 3,
+            "id": 5,
             "stops": [
                 {
                     "name": "Open Sirensong Sea",
@@ -71,7 +113,7 @@
         },
         "Ruby Sea by Sunset": {
             "shortform": "Ruby Sea-S",
-            "id": 4,
+            "id": 6,
             "stops": [
                 {
                     "name": "Open Sirensong Sea",
@@ -87,9 +129,27 @@
                 }
             ]
         },
+        "Thavnair by Night": {
+            "shortform": "Thavnair-N",
+            "id": 7,
+            "stops": [
+                {
+                    "name": "Unamed Margin",
+                    "time": "day"
+                },
+                {
+                    "name": "Open Sirensong Sea",
+                    "time": "sunset"
+                },
+                {
+                    "name": "Thavnair Margin",
+                    "time": "night"
+                }
+            ]
+        },
         "One River by Night": {
             "shortform": "One River-N",
-            "id": 5,
+            "id": 8,
             "stops": [
                 {
                     "name": "Open Sirensong Sea",
@@ -107,7 +167,7 @@
         },
         "Ruby Sea by Night": {
             "shortform": "Ruby Sea-N",
-            "id": 6,
+            "id": 9,
             "stops": [
                 {
                     "name": "Open Sirensong Sea",
@@ -162,6 +222,24 @@
                             "time": "day"
                         }
                     ]
+                },
+                "Akupara": {
+                    "shortform": "Aku",
+                    "locations": [
+                        {
+                            "name": "Unamed Margin",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Manasvin": {
+                    "shortform": "Mana",
+                    "locations": [
+                        {
+                            "name": "Thavnair Margin",
+                            "time": "night"
+                        }
+                    ]
                 }
             },
             "Green Fish": {
@@ -185,6 +263,14 @@
                         {
                             "name": "Open Sirensong Sea",
                             "time": "night"
+                        }
+                    ]
+                },
+                "Nymeia's Wheel": {
+                    "locations": [
+                        {
+                            "name": "Open Sirensong Sea",
+                            "time": "sunset"
                         }
                     ]
                 },
@@ -296,18 +382,80 @@
                             "time": "sunset"
                         }
                     ]
+                },
+                "Captain's Finger": {
+                    "locations": [
+                        {
+                            "name": "Unamed Margin",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Pirate's Purse": {
+                    "locations": [
+                        {
+                            "name": "Unamed Margin",
+                            "time": "night"
+                        }
+                    ]
+                },
+                "Renegade Rhotanosaurus": {
+                    "locations": [
+                        {
+                            "name": "Unamed Margin",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Red Boarfish": {
+                    "locations": [
+                        {
+                            "name": "Unamed Margin",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Darpana": {
+                    "locations": [
+                        {
+                            "name": "Thavnair Margin",
+                            "time": "day"
+                        }
+                    ]
+                },
+                "Silverdart": {
+                    "locations": [
+                        {
+                            "name": "Thavnair Margin",
+                            "time": "sunset"
+                        }
+                    ]
+                },
+                "Pilosaurus": {
+                    "locations": [
+                        {
+                            "name": "Thavnair Margin",
+                            "time": "day"
+                        }
+                    ]
                 }
             }
         },
         "achievements": {
             "Shellfish": {
-                "voyageIds": [ 3, 5 ]
+                "voyageIds": [ 5, 8 ]
             },
             "Shrimp": {
-                "voyageIds": [ 3, 4 ]
+                "voyageIds": [ 5, 6 ]
             },
             "Squid": {
-                "voyageIds": [ 2, 6 ]
+                "voyageIds": [ 3, 9 ]
+            },
+            "Mantis": {
+                "voyageIds": [ 4, 7 ]
+            },
+            "Prehistoric": {
+                "voyageIds": [ 1 ]
             }
         }
     },
@@ -315,79 +463,151 @@
         "pattern": [
             1,
             2,
+            1,
             3,
             4,
             5,
+            4,
             6,
+            7,
+            8,
+            7,
+            9,
+            2,
+            1,
+            3,
+            4,
+            5,
+            4,
+            6,
+            7,
+            8,
+            7,
+            9,
+            1,
+            1,
+            3,
+            4,
+            5,
+            4,
+            6,
+            7,
+            8,
+            7,
+            9,
             1,
             2,
             3,
             4,
             5,
+            4,
             6,
+            7,
+            8,
+            7,
+            9,
+            1,
             2,
+            1,
+            4,
+            5,
+            4,
+            6,
+            7,
+            8,
+            7,
+            9,
+            1,
+            2,
+            1,
+            3,
+            5,
+            4,
+            6,
+            7,
+            8,
+            7,
+            9,
+            1,
+            2,
+            1,
+            3,
+            4,
+            4,
+            6,
+            7,
+            8,
+            7,
+            9,
+            1,
+            2,
+            1,
             3,
             4,
             5,
             6,
+            7,
+            8,
+            7,
+            9,
             1,
             2,
+            1,
             3,
             4,
             5,
-            6,
+            4,
+            7,
+            8,
+            7,
+            9,
+            1,
+            2,
             1,
             3,
             4,
             5,
+            4,
             6,
+            8,
+            7,
+            9,
             1,
             2,
+            1,
             3,
             4,
             5,
-            6,
-            1,
-            2,
             4,
-            5,
             6,
+            7,
+            7,
+            9,
             1,
             2,
+            1,
             3,
             4,
             5,
+            4,
             6,
+            7,
+            8,
+            9,
             1,
             2,
-            3,
-            5,
-            6,
             1,
-            2,
             3,
             4,
             5,
-            6,
-            1,
-            2,
-            3,
             4,
             6,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            1,
-            2,
-            3,
-            4,
-            5
+            7,
+            8,
+            7
         ],
-        "offset": 41,
-        "comment": "Pattern obtained from https://millhio.re/oceancalculator2.html"
+        "offset": 89,
+        "comment": "Pattern obtained from oceanfishing.boats"
     },
     "version": "1.1"
 }

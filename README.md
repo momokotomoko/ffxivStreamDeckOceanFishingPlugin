@@ -2,7 +2,7 @@
 
 -----------------------
 
-## NOW UPDATED FOR PATCH 6.4 RUBY ROUTE
+## NOW UPDATED FOR PATCH 7.5 RUBY ROUTE
 [Please refer to Installation section](#installation), **the previous installation must be removed or it won't install properly.**
 
 Note: it is rare but some users may not see a dropdown menu for Routes on first install and initial use. This bug is still being investigated, but may be fixed in v2.02+. A restart typically solves this issue.
